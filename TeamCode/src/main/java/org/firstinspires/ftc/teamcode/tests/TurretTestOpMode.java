@@ -68,7 +68,9 @@ public class TurretTestOpMode extends OpMode {
                 if (tag.id == TAGID) {
                     telemetry.addData("TAG OUT", tag.center.x);
                     turretMotor.setPower(-(tag.center.x - ((double) frameWidth / 2)) / ((double) frameWidth / 2) * 1.25);
+                    telemetry.addData("Distance", ((tag.ftcPose.range / 39.37) * 1.709) - 0.19);
                 }
+                //((tag.ftcPose.range / 39.37) * 1.76) - 0.23)
             }
         } else {
             telemetry.addData("TAG OUT", "NONE");
