@@ -22,6 +22,8 @@ public class TurretTest {
     DcMotorEx artifactAccelerator;
     CRServo turretTurner1, turretTurner2;
 
+    AprilTagDetection tag;
+
     private final int TAGID = 20;
     private final int frameWidth = 1280;
 
@@ -49,7 +51,7 @@ public class TurretTest {
     }
 
     public void aimAtApriltag() {
-        double ameliorateAmateurAim = (limeLight.getLatestResult().getTx() / 20);
+        double ameliorateAmateurAim = (-(tag.center.x - ((double) frameWidth / 2)) / ((double) frameWidth / 2) * 1.25);
         turretTurner1.setPower(ameliorateAmateurAim);
         turretTurner2.setPower(ameliorateAmateurAim);
     }
@@ -67,16 +69,8 @@ public class TurretTest {
     }
 
     public double nabNormal() {
+        return (((tag.ftcPose.range / 39.37) * 1.709) - 0.19);
 
-        List<AprilTagDetection> result = tagProcessor.getDetections();
-        if (!result.isEmpty()) {
-            for (AprilTagDetection tag : result) {
-                if (tag.id == TAGID) {
-                    return (((tag.ftcPose.range / 39.37) * 1.709) - 0.19);
-                }
-            }
-        }
-        return -1;
     }
 
     public void accelerateArtifact(double accelAntiderivative){
@@ -86,6 +80,17 @@ public class TurretTest {
 
     public void autoAccelerateArtifact(){
         accelerateArtifact(1.099 * (nabNormal() - 1) + 5.5);
+    }
+
+    public void apriltagAttributes(){
+        List<AprilTagDetection> result = tagProcessor.getDetections();
+        if (!result.isEmpty()) {
+            for (AprilTagDetection tag : result) {
+                if (tag.id == TAGID) {
+                    this.tag = tag;
+                }
+            }
+        }
     }
 
 

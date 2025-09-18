@@ -17,13 +17,10 @@ import java.util.List;
 @TeleOp(name = "TURRET TEST")
 public class TurretTestOpMode extends OpMode {
 
-    private DcMotor turretMotor;
     private DcMotorEx fR, fL, bR, bL;
+    TurretTest turret;
 
-    private final int TAGID = 20;
-    private final int frameWidth = 1280;
 
-    private AprilTagProcessor tagProcessor;
 
     public void drive(double power, double strafe, double turn) {
 
@@ -41,41 +38,23 @@ public class TurretTestOpMode extends OpMode {
         bL = hardwareMap.get(DcMotorEx.class, "bL");
         bR = hardwareMap.get(DcMotorEx.class, "bR");
 
-        turretMotor = hardwareMap.get(DcMotor.class, "turretMotor");
+        turret = new TurretTest(hardwareMap);
 
-        tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
-        VisionPortal.Builder vBuilder = new VisionPortal.Builder();
-
-        vBuilder.setCamera(hardwareMap.get(WebcamName.class, "webcam"));
-        vBuilder.addProcessor(tagProcessor);
-        vBuilder.setCameraResolution(new Size(frameWidth, 720));
-        vBuilder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
-
-        VisionPortal vision = vBuilder.build();
-
-        vision.resumeStreaming();
 
     }
 
     @Override
     public void loop() {
 
-        List<AprilTagDetection> result = tagProcessor.getDetections();
+        turret.apriltagAttributes();
+
+        turret.aimAtApriltag();
+
+//        turretMotor.setPower(-(tag.center.x - ((double) frameWidth / 2)) / ((double) frameWidth / 2) * 1.25);
 
         drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
-        if (!result.isEmpty()) {
-            for (AprilTagDetection tag : result) {
-                if (tag.id == TAGID) {
-                    telemetry.addData("TAG OUT", tag.center.x);
-                    turretMotor.setPower(-(tag.center.x - ((double) frameWidth / 2)) / ((double) frameWidth / 2) * 1.25);
-                    telemetry.addData("Distance", ((tag.ftcPose.range / 39.37) * 1.709) - 0.19);
-                }
-                //((tag.ftcPose.range / 39.37) * 1.76) - 0.23)
-            }
-        } else {
-            telemetry.addData("TAG OUT", "NONE");
-            turretMotor.setPower(0);
-        }
+        telemetry.addData("Distance", (turret.nabNormal()));
+
 
     }
 }
