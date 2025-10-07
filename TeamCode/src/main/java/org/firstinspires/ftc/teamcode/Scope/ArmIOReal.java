@@ -3,11 +3,11 @@ package org.firstinspires.ftc.teamcode.Scope;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class ArmIOFTC implements ArmIO{
+public class ArmIOReal implements ArmIO{
     DcMotorEx leftArm, rightArm;
     HardwareMap hwMap;
 
-    public ArmIOFTC(){
+    public ArmIOReal(){
         leftArm = hwMap.get(DcMotorEx.class,"lA");
         rightArm = hwMap.get(DcMotorEx.class, "rA");
     }

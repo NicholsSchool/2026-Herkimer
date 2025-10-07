@@ -1,4 +1,7 @@
 package org.firstinspires.ftc.teamcode.Scope;
 
-public interface SubsystemBase {
+public abstract class SubsystemBase {
+
+    public abstract void periodic();
+
 }
