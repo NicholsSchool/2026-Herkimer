@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Scope;
+package org.firstinspires.ftc.teamcode.subsystems;
 
 public abstract class SubsystemBase {
 

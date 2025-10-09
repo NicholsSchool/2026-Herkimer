@@ -1,6 +1,8 @@
-package org.firstinspires.ftc.teamcode.Scope;
+package org.firstinspires.ftc.teamcode.tests.Scope;
 
-public class Arm extends SubsystemBase{
+import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
+
+public class Arm extends SubsystemBase {
     private ArmIO io;
     private final ArmIO.ArmIOInputs inputs = new ArmIO.ArmIOInputs();
 

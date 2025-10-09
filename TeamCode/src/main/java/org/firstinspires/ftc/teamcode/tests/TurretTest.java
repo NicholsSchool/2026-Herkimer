@@ -21,8 +21,8 @@ public class TurretTest {
     Servo rapidRedirector;
     DcMotorEx artifactAccelerator;
     CRServo turretTurner1, turretTurner2;
-
     AprilTagDetection tag;
+
 
     private final int TAGID = 20;
     private final int frameWidth = 1280;

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Scope;
+package org.firstinspires.ftc.teamcode.tests.Scope;
 
 public interface ArmIO{
     public static class ArmIOInputs{
