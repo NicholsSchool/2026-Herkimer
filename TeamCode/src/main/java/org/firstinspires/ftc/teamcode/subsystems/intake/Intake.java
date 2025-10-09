@@ -9,8 +9,14 @@ public class Intake extends SubsystemBase implements IntakeConstants {
     private IntakeIO io;
     private final IntakeIO.IntakeIOInputs inputs = new IntakeIO.IntakeIOInputs();
 
+
     @Override
     public void periodic() {
         io.updateInputs(inputs);
     }
+
+    public void intakeGO (){}
+
+    public void kickerGO (){}
+
 }

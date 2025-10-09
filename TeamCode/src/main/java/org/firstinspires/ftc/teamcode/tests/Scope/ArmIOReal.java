@@ -15,7 +15,7 @@ public class ArmIOReal implements ArmIO{
     public void updateInputs(ArmIO.ArmIOInputs inputs){
         inputs.angleRad = leftArm.getCurrentPosition() / 360.0;
     }
-
+    @Override
     public void setPower(double power){
         leftArm.setPower(power);
         rightArm.setPower(power);

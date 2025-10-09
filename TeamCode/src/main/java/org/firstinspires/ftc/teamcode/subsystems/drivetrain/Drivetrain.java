@@ -14,6 +14,10 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
         io.updateInputs(inputs);
     }
 
+    public void drive(){}
+
+
+
 }
 
 

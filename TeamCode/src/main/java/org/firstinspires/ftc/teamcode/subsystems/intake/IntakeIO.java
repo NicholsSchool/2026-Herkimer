@@ -11,4 +11,6 @@ public interface IntakeIO {
 
     public default void updateInputs(IntakeIO.IntakeIOInputs inputs) {};
 
+    public default void setIntakePower (double power) {};
+
 }
