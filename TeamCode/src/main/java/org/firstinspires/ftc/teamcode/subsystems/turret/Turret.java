@@ -31,7 +31,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public void reticleRapidRedirectorRegression() {
         rapidRedirect(0.275 * Math.pow((nabNormal() + 0.734), -0.98) + 7.46 - (2 * Math.PI));
-    }
+}
 
     public double nabNormal() {
         if(inputs.tag.equals(null)){
@@ -47,7 +47,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public void autoAccelerateArtifact(){
-        accelerateArtifact(1.099 * (nabNormal() - 1) + 5.5);
+        accelerateArtifact(4.08 * Math.pow(Math.sin(0.3 * (nabNormal() - 0.333)), 1.026) + 4.578);
     }
 
 

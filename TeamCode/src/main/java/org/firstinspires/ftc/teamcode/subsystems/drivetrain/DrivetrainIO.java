@@ -1,13 +1,12 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
-import org.firstinspires.ftc.teamcode.tests.Scope.ArmIO;
-
 public interface DrivetrainIO {
 
     public static class DrivetrainIOInputs{
-
+        public double imuReading = 0.0;
     }
 
     public default void updateInputs(DrivetrainIO.DrivetrainIOInputs inputs) {};
+    public default void setDriveMotorPower(double y, double x, double turn) {};
 
 }

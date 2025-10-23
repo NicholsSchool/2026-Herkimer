@@ -30,4 +30,14 @@ public class IntakeIOReal implements IntakeIO, IntakeConstants {
 
     }
 
+    @Override
+    public void setIntakePower(double power){
+        intakeMotor.setPower(power);
+    }
+
+    @Override
+    public void setKickerPower(double power){
+        kickerMotor.setPower(power);
+    }
+
 }

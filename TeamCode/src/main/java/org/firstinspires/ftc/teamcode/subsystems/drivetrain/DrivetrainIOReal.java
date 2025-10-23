@@ -5,6 +5,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeIO;
 
 public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
@@ -33,6 +34,26 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
     @Override
     public void updateInputs (DrivetrainIO.DrivetrainIOInputs inputs){
 
+        inputs.imuReading = imu.getHeading(AngleUnit.DEGREES);
+
     }
+
+    @Override
+    public void setDriveMotorPower (double y, double x, double turn){
+
+        backRight.setPower(y + x - turn);
+        backLeft.setPower(y - x + turn);
+        frontRight.setPower(y - x - turn);
+        frontLeft.setPower(y + x + turn);
+
+    }
+
+    public void setFieldDriveMotorPower (double y, double x, double turn){
+//        double fieldX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
+//        double fieldY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
+
+    };
+
+
 
 }

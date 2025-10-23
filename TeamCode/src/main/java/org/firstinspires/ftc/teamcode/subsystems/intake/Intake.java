@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.intake;
 
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIO;
-import org.firstinspires.ftc.teamcode.subsystems.turret.TurretConstants;
 
 public class Intake extends SubsystemBase implements IntakeConstants {
 
@@ -15,8 +13,12 @@ public class Intake extends SubsystemBase implements IntakeConstants {
         io.updateInputs(inputs);
     }
 
-    public void intakeGO (){}
+    public void intakeGO (double power){
+        io.setIntakePower(power);
+    }
 
-    public void kickerGO (){}
+    public void kickerGO (double power){
+        io.setKickerPower(power);
+    }
 
 }

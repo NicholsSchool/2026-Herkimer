@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.intake;
 
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIO;
+
 
 public interface IntakeIO {
 
@@ -12,5 +12,6 @@ public interface IntakeIO {
     public default void updateInputs(IntakeIO.IntakeIOInputs inputs) {};
 
     public default void setIntakePower (double power) {};
+    public default void setKickerPower (double power) {};
 
 }
