@@ -28,6 +28,10 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
 
     }
+    
+    public void lightColor (double color){
+        io.setBackLightColor(color);
+    }
 
 
 

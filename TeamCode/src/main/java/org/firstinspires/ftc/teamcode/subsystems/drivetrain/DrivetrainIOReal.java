@@ -4,6 +4,7 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeIO;
@@ -13,6 +14,7 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
     DcMotorEx backRight, backLeft, frontRight, frontLeft;
     Limelight3A LL;
     GoBildaPinpointDriver imu;
+    Servo tLight, mLight, bLight;
 
 
     public DrivetrainIOReal(HardwareMap hwMap){
@@ -25,6 +27,10 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         LL = hwMap.get(Limelight3A.class, "LL");
 
         imu = hwMap.get(GoBildaPinpointDriver.class, "imu");
+
+        tLight = hwMap.get(Servo.class, "tLight");
+        mLight = hwMap.get(Servo.class, "mLight");
+        bLight = hwMap.get(Servo.class, "bLight");
 
     }
 
