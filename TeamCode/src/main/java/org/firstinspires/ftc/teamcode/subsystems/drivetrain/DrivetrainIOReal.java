@@ -4,6 +4,7 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeIO;
 public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
 
     DcMotorEx backRight, backLeft, frontRight, frontLeft;
-    Limelight3A LL;
+//    Limelight3A LL;
     GoBildaPinpointDriver imu;
     Servo tLight, mLight, bLight;
 
@@ -25,23 +26,24 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         backLeft = hwMap.get(DcMotorEx.class, "bL");
         backRight = hwMap.get(DcMotorEx.class, "bR");
 
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        frontLeft.setVelocityPIDFCoefficients(fL_P, fL_I, fL_D, 0.0);
-        frontRight.setVelocityPIDFCoefficients(fR_P, fR_I, fR_D, 0.0);
-        backLeft.setVelocityPIDFCoefficients(bL_P, bL_I, bL_D, 0.0);
-        backRight.setVelocityPIDFCoefficients(bR_P, bR_I, bR_D, 0.0);
-
-        LL = hwMap.get(Limelight3A.class, "LL");
+//        LL = hwMap.get(Limelight3A.class, "LL");
 
         imu = hwMap.get(GoBildaPinpointDriver.class, "imu");
 
         tLight = hwMap.get(Servo.class, "tLight");
         mLight = hwMap.get(Servo.class, "mLight");
         bLight = hwMap.get(Servo.class, "bLight");
+
+        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
     }
 
@@ -55,10 +57,10 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
     @Override
     public void setDriveMotorPower (double y, double x, double turn){
 
-        backRight.setVelocity(y + x - turn);
-        backLeft.setVelocity(y - x + turn);
-        frontRight.setVelocity(y - x - turn);
-        frontLeft.setVelocity(y + x + turn);
+        backRight.setPower(y - x + turn);
+        backLeft.setPower(y + x - turn);
+        frontRight.setPower(y + x + turn);
+        frontLeft.setPower(y - x - turn);
 
     }
 

@@ -16,26 +16,31 @@ import java.util.List;
 
 public class TurretIOReal implements TurretIO, TurretConstants {
 
-    Servo rapidRedirector;
-    DcMotorEx artifactAccelerator;
+    //the servos that control the angle of our shot
+    Servo rapidRedirector, rapidRedirector2;
+    //the actual shooter wheels
+    DcMotorEx artifactAccelerator, artifactAccelerator2;
+    //the servos that turn our turret
     CRServo turretTurner1, turretTurner2;
-    HardwareMap hwMap;
+
 
 
 
     private AprilTagProcessor tagProcessor;
 
-    public TurretIOReal(){
+    public TurretIOReal(HardwareMap hwMap){
 
         artifactAccelerator = hwMap.get(DcMotorEx.class, "AA");
-        rapidRedirector = hwMap.get(Servo.class, "RR");
+        artifactAccelerator2 = hwMap.get(DcMotorEx.class, "AA2");
+        rapidRedirector = hwMap.get(Servo.class, "RR1");
+        rapidRedirector2 = hwMap.get(Servo.class, "RR2");
         turretTurner1 = hwMap.get(CRServo.class, "TT1");
         turretTurner2 = hwMap.get(CRServo.class, "TT2");
 
         tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
         VisionPortal.Builder vBuilder = new VisionPortal.Builder();
 
-        vBuilder.setCamera(hwMap.get(WebcamName.class, "webcam"));
+        vBuilder.setCamera(hwMap.get(WebcamName.class, "Webcam 1"));
         vBuilder.addProcessor(tagProcessor);
         vBuilder.setCameraResolution(new Size(frameWidth, 720));
         vBuilder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
@@ -61,4 +66,29 @@ public class TurretIOReal implements TurretIO, TurretConstants {
 
 
     }
+
+    @Override
+    public void setPowerTurretTurner(double power){
+        turretTurner1.setPower(power);
+        turretTurner2.setPower(power);
+    }
+
+    @Override
+    public void setPosRapidRedirector(double pos){
+        rapidRedirector.setPosition(pos);
+        rapidRedirector2.setPosition(pos);
+    }
+
+
+    @Override
+    public void setPowerArtifactAccelerator(double power){
+        artifactAccelerator.setPower(-power);
+        artifactAccelerator2.setPower(power);
+    }
+
+
+
+
+
+
 }

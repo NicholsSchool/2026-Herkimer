@@ -19,8 +19,8 @@ public class IntakeIOReal implements IntakeIO, IntakeConstants {
         intakeMotor = hwMap.get(DcMotorEx.class, "intake");
         kickerMotor = hwMap.get(DcMotorEx.class, "kicker");
 
-        beam1 = hwMap.get(Rev2mDistanceSensor.class, "beam1");
-        beam2 = hwMap.get(Rev2mDistanceSensor.class, "beam2");
+//        beam1 = hwMap.get(Rev2mDistanceSensor.class, "beam1");
+//        beam2 = hwMap.get(Rev2mDistanceSensor.class, "beam2");
 
     }
 

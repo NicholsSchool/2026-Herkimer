@@ -31,7 +31,7 @@ public class TurretTest {
 
 
     public TurretTest(HardwareMap hwMap) {
-        limeLight = hwMap.get(Limelight3A.class, "LL");
+//        limeLight = hwMap.get(Limelight3A.class, "LL");
         artifactAccelerator = hwMap.get(DcMotorEx.class, "AA");
         rapidRedirector = hwMap.get(Servo.class, "RR");
         turretTurner1 = hwMap.get(CRServo.class, "TT1");

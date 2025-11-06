@@ -15,4 +15,6 @@ public interface TurretIO {
     public default void setPosRapidRedirector(double pos) {};
     public default void setPowerArtifactAccelerator(double power) {};
 
+
+
 }

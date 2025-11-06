@@ -7,6 +7,10 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
     private DrivetrainIO io;
     private final DrivetrainIO.DrivetrainIOInputs inputs = new DrivetrainIO.DrivetrainIOInputs();
 
+    public Drivetrain(DrivetrainIO io){
+        this.io = io;
+    }
+
     @Override
     public void periodic() {
         io.updateInputs(inputs);

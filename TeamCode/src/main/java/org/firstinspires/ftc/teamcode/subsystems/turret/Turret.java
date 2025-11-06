@@ -7,6 +7,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
 
+    public Turret(TurretIO io){
+        this.io = io;
+    }
+
 
     @Override
     public void periodic() {
@@ -21,12 +25,9 @@ public class Turret extends SubsystemBase implements TurretConstants {
         io.setPowerTurretTurner(ameliorateAmateurAim);
     }
 
-    public void turnTurretTheta(double turretTheta) {
-
-    }
-
+    // setting up the angle properly :)
     public void rapidRedirect(double radians) {
-       io.setPosRapidRedirector(radians);
+       io.setPosRapidRedirector(Math.PI / 2 - (Math.toDegrees(radians) * -0.0194342 + 1.16342));
     }
 
     public void reticleRapidRedirectorRegression() {
@@ -34,10 +35,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
 }
 
     public double nabNormal() {
-        if(inputs.tag.equals(null)){
+        try {
+            return (((inputs.tag.ftcPose.range / 39.37) * 1.709) - 0.19);
+        }catch(NullPointerException e){
             return 0.0;
         }
-        return (((inputs.tag.ftcPose.range / 39.37) * 1.709) - 0.19);
 
     }
 
@@ -46,8 +48,17 @@ public class Turret extends SubsystemBase implements TurretConstants {
         io.setPowerArtifactAccelerator(actualAccelAntiDerivative);
     }
 
+
     public void autoAccelerateArtifact(){
         accelerateArtifact(4.08 * Math.pow(Math.sin(0.3 * (nabNormal() - 0.333)), 1.026) + 4.578);
+    }
+
+    public void turretTurn(double power){
+        io.setPowerTurretTurner(power);
+    }
+
+    public void redirect(double pos){
+        io.setPosRapidRedirector(pos);
     }
 
 
