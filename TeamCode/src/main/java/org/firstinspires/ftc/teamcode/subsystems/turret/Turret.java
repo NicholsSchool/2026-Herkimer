@@ -18,16 +18,13 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public void aimAtApriltag() {
-        double ameliorateAmateurAim = 0.0;
-        if(!inputs.tag.equals(null)){
-             ameliorateAmateurAim = (-(inputs.tag.center.x - ((double) frameWidth / 2)) / ((double) frameWidth / 2) * 1.25);
-        }
-        io.setPowerTurretTurner(ameliorateAmateurAim);
+            double ameliorateAmateurAim = ((inputs.offset - ((double) frameWidth / 2)) / ((double) frameWidth / 2) * 1.25);
+        io.setPowerTurretTurner(0.6 * ameliorateAmateurAim);
     }
 
     // setting up the angle properly :)
     public void rapidRedirect(double radians) {
-       io.setPosRapidRedirector(Math.PI / 2 - (Math.toDegrees(radians) * -0.0194342 + 1.16342));
+       io.setPosRapidRedirector((Math.toDegrees(Math.PI / 2 - radians) * -0.0194342 + 1.16342));
     }
 
     public void reticleRapidRedirectorRegression() {
@@ -36,7 +33,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public double nabNormal() {
         try {
-            return (((inputs.tag.ftcPose.range / 39.37) * 1.709) - 0.19);
+            return (((inputs.tagDistance / 39.37) * 1.709) - 0.19);
         }catch(NullPointerException e){
             return 0.0;
         }

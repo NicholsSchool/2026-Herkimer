@@ -7,7 +7,8 @@ public interface TurretIO {
     public static class TurretIOInputs{
 
         public double[] getArtifactAcceleratorVelocity = {0.0, 0.0};
-        public AprilTagDetection tag;
+        public double tagDistance = 0.0;
+        public double offset = 0.0;
     }
 
     public default void updateInputs(TurretIO.TurretIOInputs inputs) {};

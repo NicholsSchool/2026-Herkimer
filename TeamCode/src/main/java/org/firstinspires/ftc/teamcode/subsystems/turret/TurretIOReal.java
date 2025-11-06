@@ -40,7 +40,7 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         tagProcessor = AprilTagProcessor.easyCreateWithDefaults();
         VisionPortal.Builder vBuilder = new VisionPortal.Builder();
 
-        vBuilder.setCamera(hwMap.get(WebcamName.class, "Webcam 1"));
+        vBuilder.setCamera(hwMap.get(WebcamName.class, "W"));
         vBuilder.addProcessor(tagProcessor);
         vBuilder.setCameraResolution(new Size(frameWidth, 720));
         vBuilder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
@@ -57,9 +57,12 @@ public class TurretIOReal implements TurretIO, TurretConstants {
             if (!result.isEmpty()) {
                 for (AprilTagDetection tag : result) {
                     if (tag.id == TAGID) {
-                        inputs.tag = tag;
+                        inputs.tagDistance = tag.ftcPose.range;
+                        inputs.offset = tag.center.x;
                     }
                 }
+            }else{
+                inputs.offset = (double)frameWidth / 2;
             }
 
             inputs.getArtifactAcceleratorVelocity = new double[] {artifactAccelerator.getVelocity(), 0.0};
