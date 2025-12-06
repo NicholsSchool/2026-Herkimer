@@ -23,12 +23,23 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     // setting up the angle properly :)
-    public void rapidRedirect(double radians) {
-       io.setPosRapidRedirector((Math.toDegrees(Math.PI / 2 - radians) * -0.0194342 + 1.16342));
+    public void rapidRedirect(double degrees) {
+//       io.setPosRapidRedirector(-0.033 * (Math.tan(-6.96 * (Math.toDegrees(radians) - 117.83))) + 0.439);
+       io.setPosRapidRedirector((degrees - 41.1699) / -46.45631);
     }
+//    ((degrees - 41.1699) / -46.45631)
+//    ((0.02176 * degrees)- 1.064)
+
+
+
+    //Math.PI / 2 - radians) * -0.0194342 + 1.16342)
 
     public void reticleRapidRedirectorRegression() {
-        rapidRedirect(0.275 * Math.pow((nabNormal() + 0.734), -0.98) + 7.46 - (2 * Math.PI));
+        if(inputs.redirectorPos > 0) {
+            rapidRedirect(0.275 * Math.pow((nabNormal() + 0.734), -0.98) + 7.46 - (2 * Math.PI));
+        }else{
+            rapidRedirect(41);
+        }
 }
 
     public double nabNormal() {
@@ -40,14 +51,32 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     }
 
+    public boolean magnetState(){
+        return inputs.magnetState;
+    }
+
+    public double procurePlatePosition(){
+        return inputs.turretPos;
+    }
+
+    public double attainAccelerationAntiderivative() {
+        return inputs.artifactAcceleratorVelocity;
+    }
+
     public void accelerateArtifact(double accelAntiderivative){
-        double actualAccelAntiDerivative = accelAntiderivative;
-        io.setPowerArtifactAccelerator(actualAccelAntiDerivative);
+        io.setVelocityArtifactAccelerator(accelAntiderivative);
     }
 
 
+
+
     public void autoAccelerateArtifact(){
-        accelerateArtifact(4.08 * Math.pow(Math.sin(0.3 * (nabNormal() - 0.333)), 1.026) + 4.578);
+        accelerateArtifact(1000);
+    }
+    //1900 far
+
+    public double shooterVelocity(){
+       return inputs.artifactAcceleratorVelocity;
     }
 
     public void turretTurn(double power){

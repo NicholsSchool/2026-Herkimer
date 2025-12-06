@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems.intake;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -38,6 +39,17 @@ public class IntakeIOReal implements IntakeIO, IntakeConstants {
     @Override
     public void setKickerPower(double power){
         kickerMotor.setPower(power);
+    }
+
+    @Override
+    public int getTurretEncoder(){
+        return intakeMotor.getCurrentPosition();
+    }
+
+
+    public void setTurretEncoder(){
+        intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
 }

@@ -14,28 +14,26 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
+        io.updateIMU();
     }
 
     public void drive(double y, double x, double turn){
         io.setDriveMotorPower(y, x, turn);
     }
 
-    public void fieldOrientetedDrive(double y, double x, double turn){
-
-        double fieldX = x * Math.cos(-inputs.imuReading) - y * Math.sin(-inputs.imuReading);
-        double fieldY = x * Math.sin(-inputs.imuReading) + y * Math.cos(-inputs.imuReading);
-//
-//        backRight.setPower(y + x - turn);
-//        backLeft.setPower(y - x + turn);
-//        frontRight.setPower(y - x - turn);
-//        frontLeft.setPower(y + x + turn);
-
-
-    }
+    public void driveField(double y, double x, double turn, double headingOffset){io.setFieldDriveMotorPower(y, x ,turn, headingOffset);}
     
     public void lightColor (double color){
         io.setBackLightColor(color);
     }
+
+    public void eggPos(double pos1, double pos2) { io.setEggPos(pos1, pos2); }
+
+    public double imuReading(){
+        return inputs.imuReading;
+    }
+
+    public void resetIMU(){io.resetIMU();}
 
 
 

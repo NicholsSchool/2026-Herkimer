@@ -13,5 +13,7 @@ public interface IntakeIO {
 
     public default void setIntakePower (double power) {};
     public default void setKickerPower (double power) {};
+    public default int getTurretEncoder() {return 0;};
+    public default void setTurretEncoder(){};
 
 }
