@@ -14,7 +14,6 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        io.updateIMU();
     }
 
     public void drive(double y, double x, double turn){

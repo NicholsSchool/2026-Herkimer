@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.tests.Scope;
+package org.firstinspires.ftc.teamcode.testTeleops.Scope;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;

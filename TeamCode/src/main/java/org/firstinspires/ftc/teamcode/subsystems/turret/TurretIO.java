@@ -6,10 +6,11 @@ public interface TurretIO {
 
         public double artifactAcceleratorVelocity = 0.0;
         public double tagDistance = 0.0;
-        public double offset = 0.0;
+        public double tagX = 0.0;
         public int turretPos = 0;
         public double redirectorPos = 41;
         public boolean magnetState = true;
+        public double aimError = 0.0;
     }
 
     public default void updateInputs(TurretIO.TurretIOInputs inputs) {};

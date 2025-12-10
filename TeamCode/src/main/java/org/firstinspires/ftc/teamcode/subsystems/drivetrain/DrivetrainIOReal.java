@@ -94,11 +94,6 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         imu.resetPosAndIMU();
     }
 
-    @Override
-    public void updateIMU (){
-        imu.update();
-    }
-
 
 
 

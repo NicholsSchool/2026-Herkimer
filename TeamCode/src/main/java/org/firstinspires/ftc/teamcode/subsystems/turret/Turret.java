@@ -1,14 +1,23 @@
 package org.firstinspires.ftc.teamcode.subsystems.turret;
 
 
+import com.acmerobotics.dashboard.config.Config;
+
+import org.firstinspires.ftc.teamcode.math_utils.PIDController;
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 
 public class Turret extends SubsystemBase implements TurretConstants {
-    private TurretIO io;
+    public TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
+    private double kP = 0.4;
+    private double kI = 0.0;
+    private double kD = 0.1;
+
+    private PIDController  turretController;
 
     public Turret(TurretIO io){
         this.io = io;
+        turretController = new PIDController(kP,kI,kD);
     }
 
 
@@ -17,31 +26,30 @@ public class Turret extends SubsystemBase implements TurretConstants {
         io.updateInputs(inputs);
     }
 
+    //aims the turret to face the apriltag
     public void aimAtApriltag() {
-            double ameliorateAmateurAim = ((inputs.offset - ((double) frameWidth / 2)) / ((double) frameWidth / 2) * 1.25);
-        io.setPowerTurretTurner(0.6 * ameliorateAmateurAim);
+        //using PID to correct the aim
+            double ameliorateAmateurAim = aimError();
+            turretController.setPID(kP, kI, kD);
+        io.setPowerTurretTurner(-turretController.calculate(ameliorateAmateurAim));
     }
 
-    // setting up the angle properly :)
-    public void rapidRedirect(double degrees) {
-//       io.setPosRapidRedirector(-0.033 * (Math.tan(-6.96 * (Math.toDegrees(radians) - 117.83))) + 0.439);
-       io.setPosRapidRedirector((degrees - 41.1699) / -46.45631);
-    }
-//    ((degrees - 41.1699) / -46.45631)
-//    ((0.02176 * degrees)- 1.064)
+////    //an old method for setting the shoot angle
+////    public void rapidRedirect(double degrees) {
+////       io.setPosRapidRedirector(-0.033 * (Math.tan(-6.96 * (Math.toDegrees(radians) - 117.83))) + 0.439);}
+///  //Math.PI / 2 - radians) * -0.0194342 + 1.16342)
 
 
-
-    //Math.PI / 2 - radians) * -0.0194342 + 1.16342)
-
+    //auto aims the "rapid redirector" (the shoot angle) based on the distance from tag
     public void reticleRapidRedirectorRegression() {
-        if(inputs.redirectorPos > 0) {
-            rapidRedirect(0.275 * Math.pow((nabNormal() + 0.734), -0.98) + 7.46 - (2 * Math.PI));
+        if(nabNormal() < 1.5) {
+            io.setPosRapidRedirector(-0.2533 * nabNormal() + 0.9348);
         }else{
-            rapidRedirect(41);
+            io.setPosRapidRedirector(-0.2427 * nabNormal() + 0.9347);
         }
 }
 
+    //returns the distance away from the apriltag
     public double nabNormal() {
         try {
             return (((inputs.tagDistance / 39.37) * 1.709) - 0.19);
@@ -51,18 +59,22 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     }
 
+    //the state of the turret magnet encoder
     public boolean magnetState(){
         return inputs.magnetState;
     }
 
+    //returns the turret's position
     public double procurePlatePosition(){
         return inputs.turretPos;
     }
 
+    //returns the actual shooting velocity
     public double attainAccelerationAntiderivative() {
         return inputs.artifactAcceleratorVelocity;
     }
 
+    //shoots
     public void accelerateArtifact(double accelAntiderivative){
         io.setVelocityArtifactAccelerator(accelAntiderivative);
     }
@@ -70,21 +82,28 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
 
 
+    //automatically adjusts velocity to one of two set values based on distance from the tag
     public void autoAccelerateArtifact(){
-        accelerateArtifact(1000);
-    }
-    //1900 far
-
-    public double shooterVelocity(){
-       return inputs.artifactAcceleratorVelocity;
+        accelerateArtifact(nabNormal() < 1.5 ? closeVel : farVel);
     }
 
+    //1900 threshold () farVel
+
+    //1000 threshold (980-1030) closeVel
+
+
+    //moves the turret
     public void turretTurn(double power){
         io.setPowerTurretTurner(power);
     }
 
+    //moves the shoot angle (redirector)
     public void redirect(double pos){
         io.setPosRapidRedirector(pos);
+    }
+
+    public double aimError(){
+        return inputs.aimError;
     }
 
 

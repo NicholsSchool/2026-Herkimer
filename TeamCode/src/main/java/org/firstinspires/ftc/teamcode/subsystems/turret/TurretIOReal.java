@@ -21,15 +21,13 @@ public class TurretIOReal implements TurretIO, TurretConstants {
 
     //the servos that control the angle of our shot
     Servo rapidRedirector, rapidRedirector2;
-    //the actual shooter wheels
+    //the actual shooter wheel (one motor on both sides attached to the same shaft)
     DcMotorEx artifactAccelerator, artifactAccelerator2;
     //the servos that turn our turret
     CRServo turretTurner1, turretTurner2;
 
-    IntSupplier turretEncoderSupplier;
-
     Intake intake;
-
+    //the magnet sensor that acts as a limit switch for our turret
     DigitalChannel magnet;
 
 
@@ -72,15 +70,18 @@ public class TurretIOReal implements TurretIO, TurretConstants {
                 for (AprilTagDetection tag : result) {
                     if (tag.id == TAGID) {
                         inputs.tagDistance = tag.ftcPose.range;
-                        inputs.offset = tag.center.x;
+                        inputs.tagX = tag.center.x;
 
                     }
                 }
             }else{
-                inputs.offset = (double)frameWidth / 2;
+                inputs.tagX = (double)frameWidth / 2;
             }
 
+            //average velocity of the two motors attached to the shooting wheel
             inputs.artifactAcceleratorVelocity = ( artifactAccelerator2.getVelocity() - artifactAccelerator.getVelocity() ) / 2;
+
+            inputs.aimError = ((inputs.tagX - ((double) frameWidth / 2)) / ((double) frameWidth / 2));
 
             if (!magnet.getState()){
                 intake.resetTurretEncoder();
@@ -89,24 +90,28 @@ public class TurretIOReal implements TurretIO, TurretConstants {
 
             inputs.redirectorPos = rapidRedirector.getPosition();
 
+            //this returns FALSE when the turret is AT 0
             inputs.magnetState = magnet.getState();
+
 
 
     }
 
+    //sets power to the turret servos
     @Override
     public void setPowerTurretTurner(double power){
         turretTurner1.setPower(power);
         turretTurner2.setPower(power);
     }
 
+    //sets power to the shooting angle servos
     @Override
     public void setPosRapidRedirector(double pos){
         rapidRedirector.setPosition(pos);
         rapidRedirector2.setPosition(pos);
     }
 
-
+    //sets the velocity of the shooting wheel
     @Override
     public void setVelocityArtifactAccelerator(double velocity){
         artifactAccelerator.setVelocity(-velocity);
