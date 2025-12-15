@@ -6,12 +6,14 @@ import com.acmerobotics.dashboard.config.Config;
 import org.firstinspires.ftc.teamcode.math_utils.PIDController;
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 
+@Config
 public class Turret extends SubsystemBase implements TurretConstants {
     public TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
     private double kP = 0.4;
     private double kI = 0.0;
     private double kD = 0.1;
+    public static double tunableRPM = 1000.0;
 
     private PIDController  turretController;
 
@@ -52,10 +54,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
     //returns the distance away from the apriltag
     public double nabNormal() {
         try {
-            return (((inputs.tagDistance / 39.37) * 1.709) - 0.19);
+            return (((inputs.tagDistance) -  1.02857) / 25.34286);
         }catch(NullPointerException e){
             return 0.0;
         }
+        //return (((inputs.tagDistance / 39.37) * 1.709) - 0.19);
 
     }
 
@@ -79,12 +82,20 @@ public class Turret extends SubsystemBase implements TurretConstants {
         io.setVelocityArtifactAccelerator(accelAntiderivative);
     }
 
-
-
+    //based on where the robot is, it is setting the velocity to use based on a regression
+    public void adeptAccelerateArtifact() {
+        if(nabNormal() <= 2 && nabNormal() > 1){
+            io.setVelocityArtifactAccelerator((-200 * nabNormal()) - 1000);
+        }else if(nabNormal() > 2){
+            io.setVelocityArtifactAccelerator((-50 * (Math.pow(nabNormal(), 2))) + (5 * nabNormal()) - 1207.5);
+        }else{
+            io.setVelocityArtifactAccelerator(0);
+        }
+    }
 
     //automatically adjusts velocity to one of two set values based on distance from the tag
     public void autoAccelerateArtifact(){
-        accelerateArtifact(nabNormal() < 1.5 ? closeVel : farVel);
+        accelerateArtifact(tunableRPM);
     }
 
     //1900 threshold () farVel
@@ -104,6 +115,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public double aimError(){
         return inputs.aimError;
+    }
+
+    public double rawTagDistance(){
+        return inputs.tagDistance;
     }
 
 

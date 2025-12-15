@@ -28,12 +28,19 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
     public void eggPos(double pos1, double pos2) { io.setEggPos(pos1, pos2); }
 
-    public double imuReading(){
-        return inputs.imuReading;
-    }
-
     public void resetIMU(){io.resetIMU();}
 
+    public double getIMU(){
+        return inputs.imuHeading;
+    }
+
+    public double getPosX(){
+        return inputs.posX;
+    }
+
+    public double getPosY(){
+        return inputs.posY;
+    }
 
 
 }

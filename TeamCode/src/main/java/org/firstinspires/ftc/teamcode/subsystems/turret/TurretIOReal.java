@@ -78,7 +78,7 @@ public class TurretIOReal implements TurretIO, TurretConstants {
                 inputs.tagX = (double)frameWidth / 2;
             }
 
-            //average velocity of the two motors attached to the shooting wheel
+            // average velocity of the two motors attached to the shooting wheel
             inputs.artifactAcceleratorVelocity = ( artifactAccelerator2.getVelocity() - artifactAccelerator.getVelocity() ) / 2;
 
             inputs.aimError = ((inputs.tagX - ((double) frameWidth / 2)) / ((double) frameWidth / 2));

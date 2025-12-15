@@ -16,13 +16,13 @@ import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeIO;
 public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
 
     DcMotorEx backRight, backLeft, frontRight, frontLeft;
-//    Limelight3A LL;
-    GoBildaPinpointDriver imu;
-//    Servo tLight, mLight, bLight;
+    //    Limelight3A LL;
+    GoBildaPinpointDriver pinpoint;
+    //    Servo tLight, mLight, bLight;
     Servo regg, legg;
 
 
-    public DrivetrainIOReal(HardwareMap hwMap){
+    public DrivetrainIOReal(HardwareMap hwMap) {
 
         frontLeft = hwMap.get(DcMotorEx.class, "fL");
         frontRight = hwMap.get(DcMotorEx.class, "fR");
@@ -34,7 +34,10 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
 
 //        LL = hwMap.get(Limelight3A.class, "LL");
 
-        imu = hwMap.get(GoBildaPinpointDriver.class, "imu");
+        pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        pinpoint.initialize();
+        pinpoint.recalibrateIMU();
+        pinpoint.resetPosAndIMU();
 //
 //        tLight = hwMap.get(Servo.class, "tLight");
 //        mLight = hwMap.get(Servo.class, "mLight");
@@ -51,20 +54,24 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        imu.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
-        imu.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        pinpoint.setPosition(new Pose2D(DistanceUnit.CM, -4, -17, AngleUnit.DEGREES, 0));
+        pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
 
     }
 
     @Override
-    public void updateInputs (DrivetrainIO.DrivetrainIOInputs inputs){
+    public void updateInputs(DrivetrainIO.DrivetrainIOInputs inputs) {
 
-        inputs.imuReading = imu.getHeading(AngleUnit.DEGREES);
+        pinpoint.update();
+        inputs.imuHeading = pinpoint.getHeading(AngleUnit.DEGREES);
+
+        inputs.posX = pinpoint.getPosX(DistanceUnit.CM);
+        inputs.posY = pinpoint.getPosY(DistanceUnit.CM);
 
     }
 
     @Override
-    public void setDriveMotorPower (double y, double x, double turn){
+    public void setDriveMotorPower(double y, double x, double turn) {
 
         backRight.setPower(y - x + turn);
         backLeft.setPower(y + x - turn);
@@ -74,28 +81,27 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
     }
 
     @Override
-    public void setFieldDriveMotorPower (double y, double x, double turn, double headingOffset){
-        double offset = imu.getHeading(AngleUnit.RADIANS) + headingOffset;
+    public void setFieldDriveMotorPower(double y, double x, double turn, double headingOffset) {
+        double offset = pinpoint.getHeading(AngleUnit.RADIANS) + headingOffset;
         double fieldX = x * Math.cos(offset) - y * Math.sin(offset);
         double fieldY = x * Math.sin(offset) + y * Math.cos(offset);
 
         setDriveMotorPower(fieldY, fieldX, turn);
 
-    };
+    }
+
+    ;
 
     @Override
-    public void setEggPos (double pos1, double pos2){
+    public void setEggPos(double pos1, double pos2) {
         regg.setPosition(pos1);
         legg.setPosition(pos2);
     }
 
     @Override
-    public void resetIMU (){
-        imu.resetPosAndIMU();
+    public void resetIMU() {
+        pinpoint.resetPosAndIMU();
     }
-
-
-
 
 
 }

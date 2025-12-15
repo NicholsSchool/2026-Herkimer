@@ -3,7 +3,10 @@ package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 public interface DrivetrainIO {
 
     public static class DrivetrainIOInputs{
-        public double imuReading = 0.0;
+
+        public double imuHeading = 0.0;
+        public double posX = 0.0;
+        public double posY = 0.0;
     }
 
     public default void updateInputs(DrivetrainIO.DrivetrainIOInputs inputs) {};
