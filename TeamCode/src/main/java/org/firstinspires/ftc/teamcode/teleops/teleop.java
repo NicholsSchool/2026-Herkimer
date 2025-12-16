@@ -60,15 +60,15 @@ public class teleop extends OpMode {
 
         if (gamepad1.right_trigger > 0.5) {
             turret.aimAtApriltag();
-            turret.adeptAccelerateArtifact();
+            //turret.adeptAccelerateArtifact();
         }else{
             turret.turretTurn(0);
             turret.accelerateArtifact(0.0);
         }
 
-        if (turret.nabNormal() <= 2){
+        if (turret.nabNormal() <= 2.5){
             turret.redirect(0.2);
-        }else if(turret.nabNormal() > 2){
+        }else if(turret.nabNormal() > 2.5){
             turret.redirect(0.05);
         }
 
@@ -100,11 +100,13 @@ public class teleop extends OpMode {
         telemetryDB.addData("Distance", turret.nabNormal());
         telemetryDB.addData("Turret position", turret.procurePlatePosition());
         telemetryDB.addData("Turret Shooter Velocity", turret.attainAccelerationAntiderivative());
+        telemetryDB.addData("Turret Setpoint", turret.attainAchingAccelerationAntiderivative());
 //        telemetryDB.addData("Magnet State (false means turret is at magnet)", turret.magnetState());
         telemetryDB.addData("IMU heading", drivetrain.getIMU());
         telemetryDB.addData("RobotPosX", drivetrain.getPosX());
         telemetryDB.addData("RobotPosY", drivetrain.getPosY());
         telemetryDB.addData("collar pos", increment);
+        telemetryDB.addData("aim error", turret.aimError());
 
         telemetry.addData("raw tag distance", turret.rawTagDistance());
 

@@ -5,6 +5,7 @@ public interface TurretIO {
     public static class TurretIOInputs{
 
         public double artifactAcceleratorVelocity = 0.0;
+        public double artifactAcceleratorSetpoint = 0.0;
         public double tagDistance = 0.0;
         public double tagX = 0.0;
         public int turretPos = 0;

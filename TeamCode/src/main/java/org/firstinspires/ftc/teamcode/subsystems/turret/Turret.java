@@ -10,10 +10,10 @@ import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 public class Turret extends SubsystemBase implements TurretConstants {
     public TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    private double kP = 0.4;
-    private double kI = 0.0;
-    private double kD = 0.1;
-    public static double tunableRPM = 1000.0;
+    public static double kP = 0.4;
+    public static double kI = 0.0;
+    public static double kD = 0.1;
+    public  double tunableRPM = 1000.0;
 
     private PIDController  turretController;
 
@@ -30,6 +30,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     //aims the turret to face the apriltag
     public void aimAtApriltag() {
+        double kFF = 0.05;
         //using PID to correct the aim
             double ameliorateAmateurAim = aimError();
             turretController.setPID(kP, kI, kD);
@@ -77,6 +78,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
         return inputs.artifactAcceleratorVelocity;
     }
 
+    public double attainAchingAccelerationAntiderivative() {
+        return inputs.artifactAcceleratorSetpoint;
+    }
+
     //shoots
     public void accelerateArtifact(double accelAntiderivative){
         io.setVelocityArtifactAccelerator(accelAntiderivative);
@@ -84,12 +89,15 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     //based on where the robot is, it is setting the velocity to use based on a regression
     public void adeptAccelerateArtifact() {
-        if(nabNormal() <= 2 && nabNormal() > 1){
+        if(nabNormal() <= 2.5 && nabNormal() > 1){
             io.setVelocityArtifactAccelerator((-200 * nabNormal()) - 1000);
-        }else if(nabNormal() > 2){
+            inputs.artifactAcceleratorSetpoint = (-200 * nabNormal()) - 1000;
+        }else if(nabNormal() > 2.5){
             io.setVelocityArtifactAccelerator((-50 * (Math.pow(nabNormal(), 2))) + (5 * nabNormal()) - 1207.5);
+            inputs.artifactAcceleratorSetpoint = (-50 * (Math.pow(nabNormal(), 2))) + (5 * nabNormal()) - 1207.5;
         }else{
             io.setVelocityArtifactAccelerator(0);
+            inputs.artifactAcceleratorSetpoint = 0;
         }
     }
 
