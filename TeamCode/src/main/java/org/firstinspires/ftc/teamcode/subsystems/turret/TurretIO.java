@@ -3,21 +3,19 @@ package org.firstinspires.ftc.teamcode.subsystems.turret;
 public interface TurretIO {
 
     public static class TurretIOInputs{
-
-        public double artifactAcceleratorVelocity = 0.0;
-        public double artifactAcceleratorSetpoint = 0.0;
-        public double tagDistance = 0.0;
-        public double tagX = 0.0;
-        public int turretPos = 0;
-        public double redirectorPos = 41;
+        public double turretAngle = Math.PI / 2;
+        public double redirectorAngle  = 0.0;
+        public double shooterVelocity = 0.0;
         public boolean magnetState = true;
-        public double aimError = 0.0;
+        public double rawTurretAngle = 0.0;
+
     }
 
-    public default void updateInputs(TurretIO.TurretIOInputs inputs) {};
-    public default void setPowerTurretTurner(double power) {};
-    public default void setPosRapidRedirector(double pos) {};
-    public default void setVelocityArtifactAccelerator(double velocity) {};
+    public void updateInputs(TurretIOInputs inputs);
+    public void shooterSetVelocity(double velocity);
+    public void redirectorSetPosition(double angle);
+    public void turretSetPower(double power);
+
 
 
 

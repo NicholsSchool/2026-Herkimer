@@ -11,6 +11,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.math_utils.Angles;
+import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
+import org.firstinspires.ftc.teamcode.math_utils.MotionProfile;
+import org.firstinspires.ftc.teamcode.math_utils.PIDController;
+import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
+import org.firstinspires.ftc.teamcode.math_utils.Vector;
 import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeIO;
 
 public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
@@ -21,6 +27,8 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
     //    Servo tLight, mLight, bLight;
     Servo regg, legg;
 
+    public Pose2D setpoint;
+    public PoseEstimator poseEstimator;
 
     public DrivetrainIOReal(HardwareMap hwMap) {
 
@@ -38,6 +46,7 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         pinpoint.initialize();
         pinpoint.recalibrateIMU();
         pinpoint.resetPosAndIMU();
+        setpoint = new Pose2D(DistanceUnit.METER, 0.0, 0.0, AngleUnit.RADIANS, 0.0);
 //
 //        tLight = hwMap.get(Servo.class, "tLight");
 //        mLight = hwMap.get(Servo.class, "mLight");
@@ -54,8 +63,9 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        pinpoint.setPosition(new Pose2D(DistanceUnit.CM, -4, -17, AngleUnit.DEGREES, 0));
+        pinpoint.setOffsets(-4, -17,DistanceUnit.CM);
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        pinpoint.initialize();
 
     }
 
@@ -65,9 +75,18 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         pinpoint.update();
         inputs.imuHeading = pinpoint.getHeading(AngleUnit.DEGREES);
 
-        inputs.posX = pinpoint.getPosX(DistanceUnit.CM);
-        inputs.posY = pinpoint.getPosY(DistanceUnit.CM);
+        inputs.posX = pinpoint.getPosX(DistanceUnit.METER);
+        inputs.posY = pinpoint.getPosY(DistanceUnit.METER);
 
+    }
+
+    public void setPinpointPos(Pose2D pose){
+        pinpoint.setPosition(pose);
+    }
+
+
+    public GoBildaPinpointDriver.DeviceStatus imuIsReady(){
+        return pinpoint.getDeviceStatus();
     }
 
     @Override
@@ -87,7 +106,6 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         double fieldY = x * Math.sin(offset) + y * Math.cos(offset);
 
         setDriveMotorPower(fieldY, fieldX, turn);
-
     }
 
     ;
@@ -102,6 +120,5 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
     public void resetIMU() {
         pinpoint.resetPosAndIMU();
     }
-
 
 }

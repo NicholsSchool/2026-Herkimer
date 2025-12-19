@@ -1,25 +1,18 @@
 package org.firstinspires.ftc.teamcode.subsystems.turret;
 
 
-import com.acmerobotics.dashboard.config.Config;
-
 import org.firstinspires.ftc.teamcode.math_utils.PIDController;
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 
-@Config
 public class Turret extends SubsystemBase implements TurretConstants {
-    public TurretIO io;
+
+    private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public static double kP = 0.4;
-    public static double kI = 0.0;
-    public static double kD = 0.1;
-    public  double tunableRPM = 1000.0;
+    public PIDController turretPIDController;
 
-    private PIDController  turretController;
-
-    public Turret(TurretIO io){
+    public Turret(TurretIO io) {
         this.io = io;
-        turretController = new PIDController(kP,kI,kD);
+        turretPIDController = new PIDController(turretP, turretI, turretD);
     }
 
 
@@ -28,105 +21,47 @@ public class Turret extends SubsystemBase implements TurretConstants {
         io.updateInputs(inputs);
     }
 
-    //aims the turret to face the apriltag
-    public void aimAtApriltag() {
-        double kFF = 0.05;
-        //using PID to correct the aim
-            double ameliorateAmateurAim = aimError();
-            turretController.setPID(kP, kI, kD);
-        io.setPowerTurretTurner(-turretController.calculate(ameliorateAmateurAim));
+    public void turretSetAngle(double angle){
+        turretSetPower((angle - inputs.turretAngle) * turretP);
+    }
+//     io.turretSetPower(turretPIDController.calculate(inputs.turretAngle, angle));
+
+    public void turretSetPower(double power){
+        io.turretSetPower(power);
     }
 
-////    //an old method for setting the shoot angle
-////    public void rapidRedirect(double degrees) {
-////       io.setPosRapidRedirector(-0.033 * (Math.tan(-6.96 * (Math.toDegrees(radians) - 117.83))) + 0.439);}
-///  //Math.PI / 2 - radians) * -0.0194342 + 1.16342)
-
-
-    //auto aims the "rapid redirector" (the shoot angle) based on the distance from tag
-    public void reticleRapidRedirectorRegression() {
-        if(nabNormal() < 1.5) {
-            io.setPosRapidRedirector(-0.2533 * nabNormal() + 0.9348);
-        }else{
-            io.setPosRapidRedirector(-0.2427 * nabNormal() + 0.9347);
-        }
-}
-
-    //returns the distance away from the apriltag
-    public double nabNormal() {
-        try {
-            return (((inputs.tagDistance) -  1.02857) / 25.34286);
-        }catch(NullPointerException e){
-            return 0.0;
-        }
-        //return (((inputs.tagDistance / 39.37) * 1.709) - 0.19);
-
+    public double getTurretPosition(){
+        return inputs.turretAngle;
     }
 
-    //the state of the turret magnet encoder
-    public boolean magnetState(){
-        return inputs.magnetState;
+
+
+    public void shooterSetVelocity(double velocity){
+        io.shooterSetVelocity(velocity);
     }
 
-    //returns the turret's position
-    public double procurePlatePosition(){
-        return inputs.turretPos;
+    //shooter angle so 90 + the protractor line
+    //ITS IN RADIANS
+    public void redirectorSetAngle(double angle){
+        io.redirectorSetPosition(-1.27324 * (angle + 0.12217304764) + 0.9);
     }
 
-    //returns the actual shooting velocity
-    public double attainAccelerationAntiderivative() {
-        return inputs.artifactAcceleratorVelocity;
+
+    public void redirectorSetPos(double pos){
+        io.redirectorSetPosition(pos);
     }
 
-    public double attainAchingAccelerationAntiderivative() {
-        return inputs.artifactAcceleratorSetpoint;
+    public double getRawTurretPos(){
+        return inputs.rawTurretAngle;
     }
 
-    //shoots
-    public void accelerateArtifact(double accelAntiderivative){
-        io.setVelocityArtifactAccelerator(accelAntiderivative);
+    public double getShooterVelocity(){
+        return inputs.shooterVelocity;
     }
 
-    //based on where the robot is, it is setting the velocity to use based on a regression
-    public void adeptAccelerateArtifact() {
-        if(nabNormal() <= 2.5 && nabNormal() > 1){
-            io.setVelocityArtifactAccelerator((-200 * nabNormal()) - 1000);
-            inputs.artifactAcceleratorSetpoint = (-200 * nabNormal()) - 1000;
-        }else if(nabNormal() > 2.5){
-            io.setVelocityArtifactAccelerator((-50 * (Math.pow(nabNormal(), 2))) + (5 * nabNormal()) - 1207.5);
-            inputs.artifactAcceleratorSetpoint = (-50 * (Math.pow(nabNormal(), 2))) + (5 * nabNormal()) - 1207.5;
-        }else{
-            io.setVelocityArtifactAccelerator(0);
-            inputs.artifactAcceleratorSetpoint = 0;
-        }
-    }
-
-    //automatically adjusts velocity to one of two set values based on distance from the tag
-    public void autoAccelerateArtifact(){
-        accelerateArtifact(tunableRPM);
-    }
-
-    //1900 threshold () farVel
-
-    //1000 threshold (980-1030) closeVel
-
-
-    //moves the turret
-    public void turretTurn(double power){
-        io.setPowerTurretTurner(power);
-    }
-
-    //moves the shoot angle (redirector)
-    public void redirect(double pos){
-        io.setPosRapidRedirector(pos);
-    }
-
-    public double aimError(){
-        return inputs.aimError;
-    }
-
-    public double rawTagDistance(){
-        return inputs.tagDistance;
+    //IN M/S
+    public void setActualVelocity(double velocity){
+        io.shooterSetVelocity(234.25 * velocity);
     }
 
 
