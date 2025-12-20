@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
+import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
@@ -34,9 +35,11 @@ public class TestDriveAuto extends LinearOpMode {
     @Override
     public void runOpMode() {
 
+        PoseEstimator.init(hardwareMap,  new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false);
+
         turret = new Turret(new TurretIOReal(hardwareMap));
 
-        drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), hardwareMap);
+        drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
 
         intake = new Intake(new IntakeIOReal(hardwareMap));
 
@@ -48,8 +51,8 @@ public class TestDriveAuto extends LinearOpMode {
         telemetry.setMsTransmissionInterval(50);
 
         telemetry.update();
-        telemetry.addData("drive magnitude", 0.0);
-        telemetry.addData("initial pose", drivetrain.getInitialPose());
+        telemetry.addData("DRIVE ERROR", 0.0);
+        telemetry.addData("TURN ERROR", 0.0);
         telemetry.update();
 
         waitForStart();
@@ -65,21 +68,35 @@ public class TestDriveAuto extends LinearOpMode {
 
         periodicSet.add(() -> telemetry.addLine(AutoUtil.getLoopStatesReadout()));
         periodicSet.add(() -> drivetrain.sendDashboardPacket(dashboard));
-        periodicSet.add(() -> telemetry.addData("Drive magnitude", drivetrain.getDriveMagnitude()));
-        periodicSet.add(() -> telemetry.addData("initial pos", drivetrain.getInitialPose()));
+        periodicSet.add(() -> telemetry.addData("DRIVE ERROR", drivetrain.getDrivePIDError()));
+        periodicSet.add(() -> telemetry.addData("TURN ERROR", drivetrain.getTurnPIDError()));
+        periodicSet.add(() -> telemetry.addData("POSE", drivetrain.getPose().toString()));
         periodicSet.add(() -> telemetry.update());
 
-        actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 24, 0, AngleUnit.DEGREES, 45)));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3.5);
-        actionSet.clear();
-        actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 24, 24, AngleUnit.DEGREES, 90)));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3.5);
-        actionSet.clear();
-        actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 24, AngleUnit.DEGREES, 180)));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3.5);
-        actionSet.clear();
+//        actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 24, 0, AngleUnit.DEGREES, 0)));
+//        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+//        actionSet.clear();
+//        actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 24, 24, AngleUnit.DEGREES, 0)));
+//        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+//        actionSet.clear();
+//        actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 24, AngleUnit.DEGREES, 0)));
+//        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+//        actionSet.clear();
+//        actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0)));
+//        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+//        actionSet.clear();
+
         actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0)));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3.5);
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+        actionSet.clear();
+        actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 90)));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+        actionSet.clear();
+        actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 180)));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+        actionSet.clear();
+        actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 360)));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
         actionSet.clear();
 
     }

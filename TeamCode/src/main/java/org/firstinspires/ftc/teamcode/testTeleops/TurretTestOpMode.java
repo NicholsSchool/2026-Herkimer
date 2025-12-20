@@ -1,20 +1,18 @@
 package org.firstinspires.ftc.teamcode.testTeleops;
 
 
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIO;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
-import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIO;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.vision.Vision;
 import org.firstinspires.ftc.teamcode.subsystems.vision.VisionIOReal;
@@ -30,10 +28,11 @@ public class TurretTestOpMode extends OpMode {
 
     @Override
     public void init(){
+        PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 1, 1, AngleUnit.DEGREES, 90), false);
         turret = new Turret(new TurretIOReal(hardwareMap));
         intake = new Intake(new IntakeIOReal(hardwareMap));
         vision = new Vision(new VisionIOReal(hardwareMap));
-        drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), new Pose2D(DistanceUnit.METER, 1, 1, AngleUnit.DEGREES, 90), hardwareMap);
+        drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
     }
 
     @Override
@@ -41,23 +40,13 @@ public class TurretTestOpMode extends OpMode {
 
         turret.periodic();
         vision.periodic();
-        if (gamepad1.a){
-            turret.setActualVelocity(0.69 * (vision.getDistanceFromGoal() - 1) + 5.17699);
-        }else{
-            turret.setActualVelocity(0.0);
+        if (gamepad1.a) {
+            turret.runShooterForDistance();
+        } else {
+            turret.setShooterVelocity(0);
         }
 
-
-
-        if (vision.getDistanceFromGoal() > 1.5){
-            turret.redirectorSetAngle(0.5708);
-        }else if(vision.getDistanceFromGoal() < 1.5){
-            turret.redirectorSetAngle(0.3491);
-        }
-
-        if (gamepad1.share){
-            drivetrain.setPosition();
-        }
+        turret.redirectorAimAtDistance();
 
         //1.55 x 1.55 y
 
@@ -86,9 +75,7 @@ public class TurretTestOpMode extends OpMode {
         telemetry.addData("X", vision.getBotX() );
         telemetry.addData("Y", vision.getBotY() );
 
-        telemetry.addData("Pos X", drivetrain.getPosX());
-        telemetry.addData("Pos Y", drivetrain.getPosY());
-        telemetry.addData("intial pose", drivetrain.getInitialPose());
+        telemetry.addData("Pose", drivetrain.getPose().toString());
         telemetry.addData("heading", drivetrain.getIMU());
 
 

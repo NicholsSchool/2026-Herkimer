@@ -23,12 +23,10 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
 
     DcMotorEx backRight, backLeft, frontRight, frontLeft;
     //    Limelight3A LL;
-    GoBildaPinpointDriver pinpoint;
     //    Servo tLight, mLight, bLight;
     Servo regg, legg;
 
     public Pose2D setpoint;
-    public PoseEstimator poseEstimator;
 
     public DrivetrainIOReal(HardwareMap hwMap) {
 
@@ -39,13 +37,6 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         legg = hwMap.get(Servo.class, "legg");
         regg = hwMap.get(Servo.class, "regg");
 
-
-//        LL = hwMap.get(Limelight3A.class, "LL");
-
-        pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
-        pinpoint.initialize();
-        pinpoint.recalibrateIMU();
-        pinpoint.resetPosAndIMU();
         setpoint = new Pose2D(DistanceUnit.METER, 0.0, 0.0, AngleUnit.RADIANS, 0.0);
 //
 //        tLight = hwMap.get(Servo.class, "tLight");
@@ -63,30 +54,13 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        pinpoint.setOffsets(-4, -17,DistanceUnit.CM);
-        pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        pinpoint.initialize();
-
     }
 
     @Override
     public void updateInputs(DrivetrainIO.DrivetrainIOInputs inputs) {
 
-        pinpoint.update();
-        inputs.imuHeading = pinpoint.getHeading(AngleUnit.DEGREES);
+        inputs.imuHeading = PoseEstimator.getPose().getHeading(AngleUnit.DEGREES);
 
-        inputs.posX = pinpoint.getPosX(DistanceUnit.METER);
-        inputs.posY = pinpoint.getPosY(DistanceUnit.METER);
-
-    }
-
-    public void setPinpointPos(Pose2D pose){
-        pinpoint.setPosition(pose);
-    }
-
-
-    public GoBildaPinpointDriver.DeviceStatus imuIsReady(){
-        return pinpoint.getDeviceStatus();
     }
 
     @Override
@@ -101,7 +75,7 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
 
     @Override
     public void setFieldDriveMotorPower(double y, double x, double turn, double headingOffset) {
-        double offset = pinpoint.getHeading(AngleUnit.RADIANS) + headingOffset;
+        double offset = PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + headingOffset;
         double fieldX = x * Math.cos(offset) - y * Math.sin(offset);
         double fieldY = x * Math.sin(offset) + y * Math.cos(offset);
 
@@ -114,11 +88,6 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
     public void setEggPos(double pos1, double pos2) {
         regg.setPosition(pos1);
         legg.setPosition(pos2);
-    }
-
-    @Override
-    public void resetIMU() {
-        pinpoint.resetPosAndIMU();
     }
 
 }

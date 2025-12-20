@@ -8,7 +8,8 @@ public interface TurretIO {
         public double shooterVelocity = 0.0;
         public boolean magnetState = true;
         public double rawTurretAngle = 0.0;
-
+        public double tagDistance = 0.0;
+        public double tagX = 0.0;
     }
 
     public void updateInputs(TurretIOInputs inputs);

@@ -60,6 +60,7 @@ public class TurretIOReal implements TurretIO, TurretConstants {
 
         magnet.setMode(DigitalChannel.Mode.INPUT);
 
+
     }
 
     @Override
@@ -73,6 +74,19 @@ public class TurretIOReal implements TurretIO, TurretConstants {
             turretEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turretEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
+
+//        List<AprilTagDetection> result = aprilTag.getDetections();
+//        if(!result.isEmpty()){
+//            for(AprilTagDetection tag: result){
+//                if(tag.id == TAGID){
+//                    inputs.tagDistance = tag.ftcPose.range;
+//                    inputs.tagX = tag.center.x;
+//                }
+//            }
+//        }else{
+//            inputs.tagX = (double)frameWidth / 2;
+//        }
+
     }
 
     @Override

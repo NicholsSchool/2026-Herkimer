@@ -1,50 +1,66 @@
 package org.firstinspires.ftc.teamcode.math_utils;
 
+import android.util.Size;
+
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainConstants;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 /**
  * The Robot Pose (x, y, theta)
  */
 public class PoseEstimator implements DrivetrainConstants {
-    public Pose2D initialPose;
-    public Pose2D robotPose;
+    public static boolean initialized = false;
 
-    public GoBildaPinpointDriver pinpoint;
-    public DcMotor odomX, odomY;
+    public static Pose2D initialPose;
+    public static Pose2D robotPose;
 
-    public boolean useLL;
-    public boolean isUsingLL;
+    public static GoBildaPinpointDriver pinpoint;
+
+    public static boolean useAT;
+    public static AprilTagProcessor aprilTag;
+    public static Optional<ArrayList<AprilTagDetection>> latestATResults = Optional.empty();
 
     /**
      * The Field-Relative Robot Pose.
      * @param hwMap OpMode Hardware Map passthrough for LL, OTOS, and Gyro initialization.
      * @param initialPose Pose2D for robot's initial field-relative position.
      */
-    public PoseEstimator(HardwareMap hwMap, Pose2D initialPose, boolean useLL) {
-        this.useLL = useLL;
-        Optional<Point> LLPose = Optional.empty();
+    public static void init(HardwareMap hwMap, Pose2D initialPose, boolean useAT) {
+
+        if (initialized) return;
+
+        PoseEstimator.initialPose = initialPose;
+        PoseEstimator.robotPose = initialPose;
+        PoseEstimator.useAT = useAT;
         pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.setOffsets(-4, -17, DistanceUnit.CM);
         pinpoint.initialize();
-
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setPosition(initialPose);
         pinpoint.update();
 
-//        if (useLL) {
-//            limelight = new LimelightComponent(hwMap, otos::getYawRate);
-//            limelight.updateWithPose(initialPose.getHeading(AngleUnit.DEGREES));
-//            LLPose = limelight.getRobotPose();
-//        }
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+        aprilTag = AprilTagProcessor.easyCreateWithDefaults();
+        builder.setCamera(hwMap.get(WebcamName.class, "W"));
+        builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
+        builder.setCameraResolution(new Size(1280, 720));
+        builder.addProcessor(aprilTag);
+        VisionPortal visionPortal = builder.build();
+
+        visionPortal.resumeStreaming();
 
         //If the limelight can localize at startup, use that for the initial pose.
 //        if (useLL && LLPose.isPresent() ) {
@@ -67,23 +83,26 @@ public class PoseEstimator implements DrivetrainConstants {
 //            this.robotPose = this.initialPose;
 //
 //        }
+
+        initialized = true;
+
     }
 
-    public Pose2D getPose() { return robotPose; }
+    public static void waitForPinpointInit(BooleanSupplier opModeIsActive) {
+        while (opModeIsActive.getAsBoolean() || pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) {}
+    }
 
-    public boolean isUsingLL() { return isUsingLL; }
+    public static Pose2D getPose() { return robotPose; }
 
-    public void update() {
+    public static void periodic() {
         pinpoint.update();
 
         robotPose = pinpoint.getPosition();
+
+        latestATResults = Optional.ofNullable(aprilTag.getFreshDetections());
     }
 
-    public double getInitialHeading(AngleUnit unit) {
-        return initialPose.getHeading(unit);
-    }
-
-    private double getFieldHeading(AngleUnit unit) {
+    private static double getFieldHeading(AngleUnit unit) {
         if (unit == AngleUnit.DEGREES) {
             return Angles.clipDegrees(initialPose.getHeading(AngleUnit.DEGREES) + pinpoint.getHeading(AngleUnit.DEGREES));
         } else {
@@ -97,26 +116,15 @@ public class PoseEstimator implements DrivetrainConstants {
      * @param inputVector The robot-oriented vector.
      * @return The field-oriented vector.
      */
-    private Vector transformFieldOriented(Vector inputVector) {
+    private static Vector transformFieldOriented(Vector inputVector) {
         return new Vector(
                 (Math.cos(initialPose.getHeading(AngleUnit.RADIANS)) * inputVector.x) - (Math.sin(initialPose.getHeading(AngleUnit.RADIANS)) * inputVector.y),
                 (Math.sin(initialPose.getHeading(AngleUnit.RADIANS)) * inputVector.x) + (Math.cos(initialPose.getHeading(AngleUnit.RADIANS)) * inputVector.y)
         );
     }
 
-    /**
-     * Method for testing the robot to field transformation using the OTOS data (not deltas)
-     * @return The transformed Vector.
-     */
-    public Pose2D debugTransform() {
-        Vector pinpointPos = new Vector(pinpoint.getPosX(DistanceUnit.METER), pinpoint.getPosY(DistanceUnit.METER));
-        Vector transformedPos = transformFieldOriented(pinpointPos);
-
-        return new Pose2D(DistanceUnit.METER, initialPose.getX(DistanceUnit.METER) + transformedPos.x, initialPose.getY(DistanceUnit.METER) + transformedPos.y, AngleUnit.DEGREES, getFieldHeading(AngleUnit.DEGREES));
-    }
-
-    public void resetOTOSIMU(){
-        pinpoint.resetPosAndIMU();
+    public static Optional<ArrayList<AprilTagDetection>> getATResults() {
+        return latestATResults;
     }
 
 }
