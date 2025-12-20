@@ -44,6 +44,9 @@ public class Turret extends SubsystemBase implements TurretConstants {
             }
         }
     }
+
+
+
     public void turretSetAngle(double angle){
         turretSetPower((angle - inputs.turretAngle) * turretP);
     }
