@@ -37,6 +37,7 @@ public class CompTeleop extends OpMode {
         dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 
+
     }
     @Override
     public void init_loop(){
@@ -57,12 +58,12 @@ public class CompTeleop extends OpMode {
         PoseEstimator.periodic();
 
         //field-oriented driving on controller1
-        drivetrain.driveField(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, isRed ? 0 : -180); //TODO: change the 0 to an actual known value
+        drivetrain.driveField(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, isRed ? -90 : -180); //TODO: change the 0 to an actual known value
 
         //kickstand/climb on controller1
-        if(gamepad1.options){
+        if(gamepad1.x){
             drivetrain.eggPos(0,0);
-        }else if(gamepad1.share){
+        }else if(gamepad1.y){
             drivetrain.eggPos(1,1);
         }
 

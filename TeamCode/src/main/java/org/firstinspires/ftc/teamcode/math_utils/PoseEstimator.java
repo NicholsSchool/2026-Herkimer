@@ -88,11 +88,13 @@ public class PoseEstimator implements DrivetrainConstants {
     }
 
     public static void resetIMU(){
-        pinpoint.setPosition( new Pose2D(DistanceUnit.INCH, getPose().getX(DistanceUnit.INCH), getPose().getY(DistanceUnit.INCH), AngleUnit.DEGREES, 0));
+        pinpoint.setPosition( new Pose2D(DistanceUnit.INCH, getPose().getX(DistanceUnit.INCH), getPose().getY(DistanceUnit.INCH), AngleUnit.DEGREES, 45));
+        pinpoint.update();
     }
 
     public static void setPosition(Pose2D inputPose){
         pinpoint.setPosition(inputPose);
+        pinpoint.update();
     }
 
     public static Pose2D getPose() { return robotPose; }

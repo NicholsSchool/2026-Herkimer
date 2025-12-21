@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name = "THE AUTO", group = "Auto")
-public class Auto extends LinearOpMode{
+@Autonomous(name = "RED AUTO", group = "Auto")
+public class RedAuto extends LinearOpMode{
 
 
     public Drivetrain drivetrain;
@@ -75,13 +75,14 @@ public class Auto extends LinearOpMode{
         waitForStart();
 
 //        if(!isAudience) {
-            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.METER, -1.6, -1, AngleUnit.DEGREES, 0)));
+            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.METER, -1.6,  1, AngleUnit.DEGREES, 0)));
 //        }else{
-//            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 27, -12, AngleUnit.DEGREES, 0)));
+//            //PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 27, -12, AngleUnit.DEGREES, 0)));
 //        }
 
         LightManager.setLights(new double[]{0, 0, 0});
 
+        List<Callable<AutoUtil.AutoActionState>> actionSet = new ArrayList<>();
         periodicSet.add(drivetrain::periodic);
         periodicSet.add(PoseEstimator::periodic);
         periodicSet.add(turret::periodic);
@@ -99,6 +100,7 @@ public class Auto extends LinearOpMode{
         compress();
         shoot();
         intakeRow(1);
+        openGate();
         driveToShoot();
         aim();
         compress();
@@ -231,10 +233,10 @@ public class Auto extends LinearOpMode{
         actionSet.clear();
 
         intake.intakeGO(0.3);
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -10, -14, AngleUnit.DEGREES, 0))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -10, 14, AngleUnit.DEGREES, 0))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 4);
         actionSet.clear();
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -10, -14, AngleUnit.DEGREES, 45))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -10, 14, AngleUnit.DEGREES, -45))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
 
         actionSet.clear();
@@ -274,14 +276,14 @@ public class Auto extends LinearOpMode{
         double rowX = -36 + (24 * row);
 
         //Go To Row
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -32, AngleUnit.DEGREES, -90))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, 32, AngleUnit.DEGREES, 90))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3);
         actionSet.clear();
 
         AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.5);
 
         //Drive and Intake
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -60, AngleUnit.DEGREES, -90)), 0.4));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, 60, AngleUnit.DEGREES, 90)), 0.4));
         intake.intakeGO(0.5);
         turret.setShooterVelocity(-1);
         intake.kickerGO(0.5);
@@ -297,12 +299,12 @@ public class Auto extends LinearOpMode{
         actionSet.clear();
 
         //drive to gate opening pos
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 0, -50, AngleUnit.DEGREES, 0))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 0, 50, AngleUnit.DEGREES, 0))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3.5);
         actionSet.clear();
 
         //drive forward into gate
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 0, -65, AngleUnit.DEGREES, 0))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 0, 65, AngleUnit.DEGREES, 0))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 2);
 
         actionSet.clear();
