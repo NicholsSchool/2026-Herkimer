@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.testTeleops;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.vision.Vision;
 import org.firstinspires.ftc.teamcode.subsystems.vision.VisionIOReal;
-
+@Disabled
 @TeleOp(name = "turrettest")
 public class TurretTestOpMode extends OpMode {
 
@@ -28,7 +29,7 @@ public class TurretTestOpMode extends OpMode {
 
     @Override
     public void init(){
-        PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 1, 1, AngleUnit.DEGREES, 90), false);
+        PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 1, 1, AngleUnit.DEGREES, 90), false, false);
         turret = new Turret(new TurretIOReal(hardwareMap));
         intake = new Intake(new IntakeIOReal(hardwareMap));
         vision = new Vision(new VisionIOReal(hardwareMap));

@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
 import org.firstinspires.ftc.teamcode.math_utils.PIDController;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
+import org.firstinspires.ftc.teamcode.subsystems.LightManager;
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
@@ -15,15 +16,13 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public PIDController turretPIDController;
+    public PIDController turretPIDController = new PIDController(2, 0.0, 0.0);    // for goToPosition: 0.75, 0,, 0
     public boolean aimTagDetected = false;
-    public double aimTagX = 0.0, aimTagDistance = 0.0;
-    public static double kP = 2.0, kI = 0.0, kD = 0.0;
-    public Turret(TurretIO io) {
-        this.io = io;
-        turretPIDController = new PIDController(turretP, turretI, turretD);
-    }
+    public double aimError = 0.0, aimTagDistance = 0.0;
 
+    public Turret(TurretIO io) {this.io = io;}
+
+    public double desiredVelocity = 0.0;
 
 
     @Override
@@ -32,15 +31,18 @@ public class Turret extends SubsystemBase implements TurretConstants {
         io.updateInputs(inputs);
 
         if (!PoseEstimator.getATResults().isPresent()) {
+            LightManager.setTopLight(0);
             aimTagDetected = false;
             return;
         }
 
+        aimTagDetected = false;
         for(AprilTagDetection tag: PoseEstimator.getATResults().get()){
             if(tag.id == TAGID){
                 aimTagDetected = true;
+                LightManager.setTopLight(LightManager.LightConstants.Green);
                 aimTagDistance = distanceFromTag(tag.ftcPose.range);
-                aimTagX = tag.center.x;
+                aimError = ((tag.center.x - ((double)frameWidth / 2)) / (double)frameWidth / 2);
             }
         }
     }
@@ -48,7 +50,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
 
     public void turretSetAngle(double angle){
-        turretSetPower((angle - inputs.turretAngle) * turretP);
+//        turretSetPower((angle - inputs.turretAngle) * turretP);
     }
 //     io.turretSetPower(turretPIDController.calculate(inputs.turretAngle, angle));
 
@@ -82,19 +84,17 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
         if (!aimTagDetected) {
             turretSetPower(0);
-            return AutoUtil.AutoActionState.RUNNING;
+            return AutoUtil.AutoActionState.IDLE;
         }
 
-        double aimError = ((aimTagX - ((double)frameWidth / 2)) / (double)frameWidth / 2);
+        redirectorAimAtDistance();
 
-        if (Math.abs(aimError) < 0.02) {
+        if (Math.abs(aimError) < 0.05) {
+            turretSetPower(0);
             return AutoUtil.AutoActionState.FINISHED;
         }
 
-        turretPIDController.setPID(kP, kI, kD);
-        io.turretSetPower(-turretPIDController.calculate(aimError));
-
-        redirectorAimAtDistance();
+        turretSetPower(-turretPIDController.calculate(aimError));
 
         return AutoUtil.AutoActionState.RUNNING;
 
@@ -104,6 +104,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
         return inputs.shooterVelocity;
     }
 
+
     //IN M/S
     public void setShooterVelocity(double velocity){
         io.shooterSetVelocity(234.25 * velocity);
@@ -111,6 +112,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
 
     public void runShooterForDistance() {
-        setShooterVelocity(0.69 * (aimTagDistance - 1) + 5.17699);
+        desiredVelocity = 0.69 * (aimTagDistance - 1) + 5.17699;
+        setShooterVelocity(desiredVelocity);
     }
 }

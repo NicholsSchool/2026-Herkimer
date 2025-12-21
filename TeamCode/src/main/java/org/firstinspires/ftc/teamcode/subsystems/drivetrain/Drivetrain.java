@@ -19,7 +19,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
     private DrivetrainIO io;
     private final DrivetrainIO.DrivetrainIOInputs inputs = new DrivetrainIO.DrivetrainIOInputs();
-    public Pose2D setpoint;
+    public Pose2D setpoint = new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0);
     public PIDController drivePID;
     public PIDController turnController;
     private double drivePIDError = 0.0;
@@ -28,7 +28,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
     public Drivetrain(DrivetrainIO io, HardwareMap hwMap){
         this.io = io;
-        drivePID = new PIDController(2, 0.3, 0.6);
+        drivePID = new PIDController(2.1, 1.4, 0.5);
         drivePID.setIZone(0.3);
         turnController = new PIDController(2.2, 0.04, 0.2);
     }
@@ -36,7 +36,6 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        PoseEstimator.periodic();
     }
 
     public void drive(double y, double x, double turn){
@@ -44,10 +43,6 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
     }
 
     public void driveField(double y, double x, double turn, double headingOffset){io.setFieldDriveMotorPower(y, x ,turn, headingOffset);}
-    
-    public void lightColor (double color){
-        io.setBackLightColor(color);
-    }
 
     public void eggPos(double pos1, double pos2) { io.setEggPos(pos1, pos2); }
 
@@ -56,6 +51,8 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
     }
 
     public Pose2D getPose() { return PoseEstimator.getPose(); }
+
+    public void resetPID() { drivePID.reset(); turnController.reset(); }
 
     public AutoUtil.AutoActionState driveToPose(Pose2D targetPose) {
         return driveToPose(targetPose, AUTO_BASE_SPEED);
@@ -70,7 +67,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
         Vector diffVector = new Vector(targetPose.getX(DistanceUnit.METER) - PoseEstimator.getPose().getX(DistanceUnit.METER),
                 targetPose.getY(DistanceUnit.METER) - PoseEstimator.getPose().getY(DistanceUnit.METER));
 
-        if ( diffVector.magnitude() < DRIVE_POSITION_THRESHOLD &&
+        if ( Math.abs(diffVector.magnitude()) < DRIVE_POSITION_THRESHOLD &&
                 Math.abs(Angles.clipDegrees(inputs.imuHeading - targetPose.getHeading(AngleUnit.DEGREES))) < TURN_POSITION_THRESHOLD) {
             drive(0, 0, 0);
             return AutoUtil.AutoActionState.FINISHED;
@@ -123,7 +120,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
                         PoseEstimator.getPose().getY(DistanceUnit.INCH) + (9 * Math.sin(PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)))
                 )
                 .setStroke("Purple")
-                .strokeCircle(setpoint.getX(DistanceUnit.INCH), setpoint.getY(DistanceUnit.INCH), 2)
+                .strokeCircle(setpoint.getX(DistanceUnit.INCH), setpoint.getY(DistanceUnit.INCH), DistanceUnit.INCH.fromMeters(DRIVE_POSITION_THRESHOLD))
                 .setStroke("Cyan")
                 .strokeLine(
                         PoseEstimator.getPose().getX(DistanceUnit.INCH),

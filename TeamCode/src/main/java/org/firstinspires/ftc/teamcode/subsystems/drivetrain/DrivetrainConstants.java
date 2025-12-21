@@ -21,7 +21,7 @@ public interface DrivetrainConstants {
          double motorRPM = 2000; //TODO: Change values to be more correcter
          double ticksPerRot = 200;
 
-         double DRIVE_POSITION_THRESHOLD = 0.05;
+         double DRIVE_POSITION_THRESHOLD = 0.08;
          double TURN_POSITION_THRESHOLD = 5.0;
 
          double AUTO_BASE_SPEED = 0.8;

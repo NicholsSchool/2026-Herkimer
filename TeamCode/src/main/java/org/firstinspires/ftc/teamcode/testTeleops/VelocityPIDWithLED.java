@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.testTeleops;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.math_utils.PIDController;
 
 @TeleOp(name = "VelocityPID")
 @Config
+@Disabled
 public class VelocityPIDWithLED extends OpMode{
 
 

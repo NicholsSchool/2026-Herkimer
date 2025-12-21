@@ -22,8 +22,6 @@ import java.util.function.BooleanSupplier;
  * The Robot Pose (x, y, theta)
  */
 public class PoseEstimator implements DrivetrainConstants {
-    public static boolean initialized = false;
-
     public static Pose2D initialPose;
     public static Pose2D robotPose;
 
@@ -38,18 +36,17 @@ public class PoseEstimator implements DrivetrainConstants {
      * @param hwMap OpMode Hardware Map passthrough for LL, OTOS, and Gyro initialization.
      * @param initialPose Pose2D for robot's initial field-relative position.
      */
-    public static void init(HardwareMap hwMap, Pose2D initialPose, boolean useAT) {
+    public static void init(HardwareMap hwMap, Pose2D initialPose, boolean useAT, boolean forceReset) {
 
-        if (initialized) return;
 
         PoseEstimator.initialPose = initialPose;
         PoseEstimator.robotPose = initialPose;
         PoseEstimator.useAT = useAT;
         pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.setOffsets(-4, -17, DistanceUnit.CM);
+        if (forceReset || pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) pinpoint.setPosition(initialPose);
         pinpoint.initialize();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        pinpoint.setPosition(initialPose);
         pinpoint.update();
 
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -59,8 +56,8 @@ public class PoseEstimator implements DrivetrainConstants {
         builder.setCameraResolution(new Size(1280, 720));
         builder.addProcessor(aprilTag);
         VisionPortal visionPortal = builder.build();
-
         visionPortal.resumeStreaming();
+
 
         //If the limelight can localize at startup, use that for the initial pose.
 //        if (useLL && LLPose.isPresent() ) {
@@ -84,12 +81,18 @@ public class PoseEstimator implements DrivetrainConstants {
 //
 //        }
 
-        initialized = true;
-
     }
 
     public static void waitForPinpointInit(BooleanSupplier opModeIsActive) {
         while (opModeIsActive.getAsBoolean() || pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) {}
+    }
+
+    public static void resetIMU(){
+        pinpoint.setPosition( new Pose2D(DistanceUnit.INCH, getPose().getX(DistanceUnit.INCH), getPose().getY(DistanceUnit.INCH), AngleUnit.DEGREES, 0));
+    }
+
+    public static void setPosition(Pose2D inputPose){
+        pinpoint.setPosition(inputPose);
     }
 
     public static Pose2D getPose() { return robotPose; }
@@ -99,7 +102,7 @@ public class PoseEstimator implements DrivetrainConstants {
 
         robotPose = pinpoint.getPosition();
 
-        latestATResults = Optional.ofNullable(aprilTag.getFreshDetections());
+        latestATResults = Optional.ofNullable(aprilTag.getDetections());
     }
 
     private static double getFieldHeading(AngleUnit unit) {

@@ -38,13 +38,8 @@ public class TurretIOReal implements TurretIO, TurretConstants {
     DcMotorEx artifactAccelerator, artifactAccelerator2, turretEncoder;
     //the servos that turn our turret
     CRServo turretTurner1, turretTurner2;
-
-
-
-    Intake intake;
     //the magnet sensor that acts as a limit switch for our turret
     DigitalChannel magnet;
-
 
 
     public TurretIOReal(HardwareMap hwMap){
@@ -58,7 +53,22 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         turretEncoder = hwMap.get(DcMotorEx.class, "intake");
         magnet = hwMap.get(DigitalChannel.class, "magnet");
 
+//        artifactAccelerator.setVelocityPIDFCoefficients(1,0,0,0);
+//        artifactAccelerator2.setVelocityPIDFCoefficients(1,0,0,0);
+
         magnet.setMode(DigitalChannel.Mode.INPUT);
+//        List<AprilTagDetection> result = aprilTag.getDetections();
+//        if(!result.isEmpty()){
+//            for(AprilTagDetection tag: result){
+//                if(tag.id == TAGID){
+//                    inputs.tagDistance = tag.ftcPose.range;
+//                    inputs.tagX = tag.center.x;
+//                }
+//            }
+//        }else{
+//            inputs.tagX = (double)frameWidth / 2;
+//        }
+
 
 
     }
@@ -74,19 +84,6 @@ public class TurretIOReal implements TurretIO, TurretConstants {
             turretEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turretEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
-
-//        List<AprilTagDetection> result = aprilTag.getDetections();
-//        if(!result.isEmpty()){
-//            for(AprilTagDetection tag: result){
-//                if(tag.id == TAGID){
-//                    inputs.tagDistance = tag.ftcPose.range;
-//                    inputs.tagX = tag.center.x;
-//                }
-//            }
-//        }else{
-//            inputs.tagX = (double)frameWidth / 2;
-//        }
-
     }
 
     @Override

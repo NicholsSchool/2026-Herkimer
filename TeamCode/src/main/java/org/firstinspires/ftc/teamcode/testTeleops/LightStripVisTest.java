@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.testTeleops;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.I2CDevices.AdafruitNeoPixel;
 
+@Disabled
 @TeleOp(name = "LIGHT STRIP VISIBILITY")
 public class LightStripVisTest extends LinearOpMode {
     @Override
