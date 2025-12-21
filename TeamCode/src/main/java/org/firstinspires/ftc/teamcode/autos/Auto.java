@@ -35,6 +35,7 @@ public class Auto extends LinearOpMode{
     public Vision vision;
 
     private boolean isRed = false;
+    private boolean isAudience = false;
 
     List<Runnable> periodicSet = new ArrayList<>();
     List<Callable<AutoUtil.AutoActionState>> actionSet = new ArrayList<>();
@@ -63,7 +64,10 @@ public class Auto extends LinearOpMode{
 
         while (opModeInInit()) {
             if (gamepad1.aWasPressed()) isRed = !isRed;
-            telemetry.addLine("Auto Side " + (isRed ? "RED" : "BLUE"));
+            telemetry.addLine("Auto alliance side" + (isRed ? "RED" : "BLUE"));
+            telemetry.update();
+            if (gamepad1.bWasPressed()) isAudience = !isAudience;
+            telemetry.addLine("Auto side" + (isAudience ? "AUDIENCE SIDE" : "GOAL SIDE"));
             telemetry.update();
         }
 
@@ -73,7 +77,11 @@ public class Auto extends LinearOpMode{
 
         waitForStart();
 
-        PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.METER, -1.6, -0.305, AngleUnit.DEGREES, 0)));
+        if(!isAudience) {
+            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.METER, -1.6, -0.305, AngleUnit.DEGREES, 0)));
+        }else{
+            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 27, -12, AngleUnit.DEGREES, 0)));
+        }
 
         LightManager.setLights(new double[]{0, 0, 0});
 

@@ -2,12 +2,13 @@ package org.firstinspires.ftc.teamcode.testTeleops;
 
 import android.graphics.Color;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
 import org.firstinspires.ftc.teamcode.I2CDevices.AdafruitNeoPixel;
-
+@Disabled
 @TeleOp
 public class RandomColorsTest extends OpMode {
 

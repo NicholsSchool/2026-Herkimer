@@ -25,6 +25,7 @@ public class CompTeleop extends OpMode {
     public Turret turret;
     public Intake intake;
     private FtcDashboard dashboard;
+    private boolean isRed = false;
 
     @Override
     public void init(){
@@ -35,8 +36,15 @@ public class CompTeleop extends OpMode {
         turret = new Turret(new TurretIOReal(hardwareMap));
         dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
-        telemetry.setMsTransmissionInterval(50);
 
+    }
+    @Override
+    public void init_loop(){
+        if(gamepad1.aWasPressed()){
+            isRed = !isRed;
+        }
+        telemetry.addLine("Teleop Alliance Color" + (isRed ? "RED" : "BLUE"));
+        telemetry.update();
     }
 
     @Override
@@ -49,7 +57,7 @@ public class CompTeleop extends OpMode {
         PoseEstimator.periodic();
 
         //field-oriented driving on controller1
-        drivetrain.driveField(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, -180);
+        drivetrain.driveField(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, isRed ? 0 : -180); //TODO: change the 0 to an actual known value
 
         //kickstand/climb on controller1
         if(gamepad1.options){
@@ -58,6 +66,7 @@ public class CompTeleop extends OpMode {
             drivetrain.eggPos(1,1);
         }
 
+        //reset the IMU to reset Field oriented on controller1
         if (gamepad1.dpad_up){
             PoseEstimator.resetIMU();
         }
@@ -105,6 +114,7 @@ public class CompTeleop extends OpMode {
         //adjusting shoot angle between 2 points based on distance from tag
         turret.redirectorAimAtDistance();
 
+        //FTC Dashboard telemetry packet
         drivetrain.sendDashboardPacket(dashboard);
 
     }

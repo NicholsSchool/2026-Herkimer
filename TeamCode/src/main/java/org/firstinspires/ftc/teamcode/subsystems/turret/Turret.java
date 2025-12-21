@@ -16,7 +16,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public PIDController turretPIDController = new PIDController(2, 0.0, 0.0);    // for goToPosition: 0.75, 0,, 0
+    public PIDController turretPIDController = new PIDController(1.25, 0.0, 0.0);    // for goToPosition: 0.75, 0,, 0
     public boolean aimTagDetected = false;
     public double aimError = 0.0, aimTagDistance = 0.0;
 
