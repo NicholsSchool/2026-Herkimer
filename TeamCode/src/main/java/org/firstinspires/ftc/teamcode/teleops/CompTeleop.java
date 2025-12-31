@@ -24,7 +24,7 @@ public class CompTeleop extends OpMode {
     public Drivetrain drivetrain;
     public Turret turret;
     public Intake intake;
-    private FtcDashboard dashboard;
+//    private FtcDashboard dashboard;
     private boolean isRed = false;
 
     @Override
@@ -34,8 +34,8 @@ public class CompTeleop extends OpMode {
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
         intake = new Intake(new IntakeIOReal(hardwareMap));
         turret = new Turret(new TurretIOReal(hardwareMap));
-        dashboard = FtcDashboard.getInstance();
-        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
+//        dashboard = FtcDashboard.getInstance();
+//        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 
 
     }
@@ -116,7 +116,7 @@ public class CompTeleop extends OpMode {
         turret.redirectorAimAtDistance();
 
         //FTC Dashboard telemetry packet
-        drivetrain.sendDashboardPacket(dashboard);
+//        drivetrain.sendDashboardPacket(dashboard);
 
     }
 }

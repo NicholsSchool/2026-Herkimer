@@ -39,6 +39,7 @@ public class PoseEstimator implements DrivetrainConstants {
     public static void init(HardwareMap hwMap, Pose2D initialPose, boolean useAT, boolean forceReset) {
 
 
+
         PoseEstimator.initialPose = initialPose;
         PoseEstimator.robotPose = initialPose;
         PoseEstimator.useAT = useAT;
@@ -131,5 +132,7 @@ public class PoseEstimator implements DrivetrainConstants {
     public static Optional<ArrayList<AprilTagDetection>> getATResults() {
         return latestATResults;
     }
+
+    public static GoBildaPinpointDriver.DeviceStatus getPinpointStatus() { return pinpoint.getDeviceStatus(); }
 
 }

@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.subsystems.turret;
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
 import org.firstinspires.ftc.teamcode.math_utils.PIDController;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
@@ -16,13 +17,15 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public PIDController turretPIDController = new PIDController(1.4, 0.0, 0.0);    // for goToPosition: 0.75, 0,, 0
+    public PIDController turretPIDController = new PIDController(1.6, 0.0, 0.0);    // for goToPosition: 0.75, 0,, 0
     public boolean aimTagDetected = false;
     public double aimError = 0.0, aimTagDistance = 0.0;
 
     public Turret(TurretIO io) {this.io = io;}
 
     public double desiredVelocity = 0.0;
+
+    public double tagID = DEFAULT_TAGID;
 
 
     @Override
@@ -38,16 +41,22 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
         aimTagDetected = false;
         for(AprilTagDetection tag: PoseEstimator.getATResults().get()){
-            if(tag.id == TAGID){
+            if(tag.id == tagID){
                 aimTagDetected = true;
                 LightManager.setTopLight(LightManager.LightConstants.Green);
-                aimTagDistance = distanceFromTag(tag.ftcPose.range);
+//                aimTagDistance = distanceFromTag(tag.ftcPose.range);
+                aimTagDistance = Math.hypot((PoseEstimator.getPose().getX(DistanceUnit.INCH) - aprilTagPos.getX(DistanceUnit.INCH)), (PoseEstimator.getPose().getY(DistanceUnit.INCH) - aprilTagPos.getY(DistanceUnit.INCH)));
+                //eventually i wanna use the distance from the center of the robot to the center of the goal rather than the aprilTag, but we would have to redo the regressions
                 aimError = ((tag.center.x - ((double)frameWidth / 2)) / (double)frameWidth / 2);
             }
+
+
         }
     }
 
-
+    public void setTagID(int id) {
+        tagID = id;
+    }
 
     public void turretSetAngle(double angle){
 //        turretSetPower((angle - inputs.turretAngle) * turretP);

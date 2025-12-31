@@ -28,7 +28,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
     public Drivetrain(DrivetrainIO io, HardwareMap hwMap){
         this.io = io;
-        drivePID = new PIDController(2.1, 1.4, 0.5);
+        drivePID = new PIDController(2, 1.8, 0.6);
         drivePID.setIZone(0.3);
         turnController = new PIDController(2.2, 0.04, 0.2);
     }

@@ -2,14 +2,12 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.math_utils.Angles;
 import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.subsystems.LightManager;
@@ -26,8 +24,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name = "THE AUTO", group = "Auto")
-public class Auto extends LinearOpMode{
+@Autonomous(name = "BLUE AUTO", group = "Auto")
+public class BlueAuto extends LinearOpMode{
 
 
     public Drivetrain drivetrain;
@@ -54,33 +52,32 @@ public class Auto extends LinearOpMode{
 
         AutoUtil.supplyOpModeActive(this::opModeIsActive);
 
-        FtcDashboard dashboard = FtcDashboard.getInstance();
-        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
-        telemetry.setMsTransmissionInterval(50);
+
+//        FtcDashboard dashboard = FtcDashboard.getInstance();
+//        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
+//        telemetry.setMsTransmissionInterval(50);
 
         telemetry.update();
         telemetry.addData("drive magnitude", 0.0);
         telemetry.update();
 
-        while (opModeInInit()) {
-            if (gamepad2.aWasPressed()) isRed = !isRed;
-            telemetry.addLine("Auto alliance side" + (isRed ? "RED" : "BLUE"));
-            if (gamepad2.bWasPressed()) isAudience = !isAudience;
-            telemetry.addLine("Auto side" + (isAudience ? "AUDIENCE SIDE" : "GOAL SIDE"));
-            telemetry.update();
+//        while (opModeInInit()) {
+//            if (gamepad1.aWasPressed()) isRed = !isRed;
+//            telemetry.addLine("Auto alliance side" + (isRed ? "RED" : "BLUE"));
+//            if (gamepad1.bWasPressed()) isAudience = !isAudience;
+//            telemetry.addLine("Auto side" + (isAudience ? "AUDIENCE SIDE" : "GOAL SIDE"));
+//            telemetry.update();
+//        }
 
-            if (PoseEstimator.getPinpointStatus() == GoBildaPinpointDriver.DeviceStatus.READY) {
-                LightManager.setLights(new double[]{LightManager.LightConstants.Green, LightManager.LightConstants.Green, LightManager.LightConstants.Green});
-            }
-        }
+        LightManager.setLights(new double[]{LightManager.LightConstants.Green, LightManager.LightConstants.Green, LightManager.LightConstants.Green});
 
-        if (isRed) {turret.setTagID(24);} else {turret.setTagID(20);}
+        waitForStart();
 
-        if(!isAudience) {
+//        if(!isAudience) {
             PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.METER, -1.6, -1, AngleUnit.DEGREES, 0)));
-        }else{
-            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 27, -12, AngleUnit.DEGREES, 0)));
-        }
+//        }else{
+//            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 27, -12, AngleUnit.DEGREES, 0)));
+//        }
 
         LightManager.setLights(new double[]{0, 0, 0});
 
@@ -90,7 +87,7 @@ public class Auto extends LinearOpMode{
         periodicSet.add(intake::periodic);
 
         periodicSet.add(() -> telemetry.addLine(AutoUtil.getLoopStatesReadout()));
-        periodicSet.add(() -> drivetrain.sendDashboardPacket(dashboard));
+//        periodicSet.add(() -> drivetrain.sendDashboardPacket(dashboard));
         periodicSet.add(() -> telemetry.addData("Drive magnitude", drivetrain.getDrivePIDError()));
         periodicSet.add(() -> telemetry.addData("Pose", drivetrain.getPose().toString()));
         periodicSet.add(() -> telemetry.addData("Drive magnitude", drivetrain.getDrivePIDError()));
@@ -219,13 +216,14 @@ public class Auto extends LinearOpMode{
     }
 
     public Pose2D allianceFlip(boolean red, Pose2D inputPose) {
-        return new Pose2D(
-                DistanceUnit.INCH,
-                inputPose.getX(DistanceUnit.INCH),
-                inputPose.getY(DistanceUnit.INCH) * (red ? -1 : 1),
-                AngleUnit.DEGREES,
-                Angles.clipDegrees(inputPose.getHeading(AngleUnit.DEGREES) * (red ? -1 : 1))
-        );
+        return inputPose;
+//        return new Pose2D(
+//                DistanceUnit.INCH,
+//                inputPose.getX(DistanceUnit.INCH),
+//                inputPose.getY(DistanceUnit.INCH) * (red ? -1 : 1),
+//                AngleUnit.DEGREES,
+//                Angles.clipDegrees(inputPose.getHeading(AngleUnit.DEGREES) * (red ? -1 : 1))
+//        );
     }
 
     public void driveToShoot(){
@@ -253,19 +251,17 @@ public class Auto extends LinearOpMode{
     public void compress() {
         intake.kickerGO(-0.5);
         intake.intakeGO(0.5);
-        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.25);
+        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.5);
         intake.kickerGO(0);
         intake.intakeGO(0);
     }
 
     public void shoot() {
-        List<Runnable> shootSet = new ArrayList<>(periodicSet);
-        shootSet.add(() -> turret.runShooterForDistance());
-        shootSet.add(() -> turret.redirectorAimAtDistance());
-        AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 3);
+        turret.runShooterForDistance();
+        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 2);
         intake.kickerGO(1);
         intake.intakeGO(1);
-        AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 4);
+        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 4);
         turret.setShooterVelocity(0);
         intake.kickerGO(0);
         intake.intakeGO(0);
@@ -277,7 +273,7 @@ public class Auto extends LinearOpMode{
         double rowX = -36 + (24 * row);
 
         //Go To Row
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -32, AngleUnit.DEGREES, -90))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -32, AngleUnit.DEGREES, -90)), 0.6));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3);
         actionSet.clear();
 
@@ -288,7 +284,7 @@ public class Auto extends LinearOpMode{
         intake.intakeGO(0.5);
         turret.setShooterVelocity(-1);
         intake.kickerGO(0.5);
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3);
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 2);
         actionSet.clear();
 
         intake.intakeGO(0);
