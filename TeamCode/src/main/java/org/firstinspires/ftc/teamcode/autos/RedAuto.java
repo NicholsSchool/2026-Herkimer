@@ -45,7 +45,7 @@ public class RedAuto extends LinearOpMode{
 
         PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true);
         LightManager.inititalize(hardwareMap);
-        turret = new Turret(new TurretIOReal(hardwareMap));
+        turret = new Turret(new TurretIOReal(hardwareMap, isRed));
 
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap),  hardwareMap);
 
@@ -70,7 +70,7 @@ public class RedAuto extends LinearOpMode{
 //            telemetry.update();
 //        }
 
-        LightManager.setLights(new double[]{LightManager.LightConstants.Green, LightManager.LightConstants.Green, LightManager.LightConstants.Green});
+        LightManager.GoBildaLights.setLights(new double[]{LightManager.LightConstants.Green, LightManager.LightConstants.Green, LightManager.LightConstants.Green});
 
         waitForStart();
 
@@ -80,7 +80,7 @@ public class RedAuto extends LinearOpMode{
 //            //PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 27, -12, AngleUnit.DEGREES, 0)));
 //        }
 
-        LightManager.setLights(new double[]{0, 0, 0});
+        LightManager.GoBildaLights.setLights(new double[]{0, 0, 0});
 
         List<Callable<AutoUtil.AutoActionState>> actionSet = new ArrayList<>();
         periodicSet.add(drivetrain::periodic);

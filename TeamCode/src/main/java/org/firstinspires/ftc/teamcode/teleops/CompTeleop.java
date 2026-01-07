@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.subsystems.LightManager;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -24,18 +25,19 @@ public class CompTeleop extends OpMode {
     public Drivetrain drivetrain;
     public Turret turret;
     public Intake intake;
-//    private FtcDashboard dashboard;
+    private FtcDashboard dashboard;
     private boolean isRed = false;
+    private AutoUtil.AutoActionState turretState = AutoUtil.AutoActionState.IDLE;
 
     @Override
     public void init(){
         LightManager.inititalize(hardwareMap);
-        PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 1, 1, AngleUnit.DEGREES, 180), false, false);
+        PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true); //TODO: PLEASE CHANGE THIS TO NOT RESET FOR COMP
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
         intake = new Intake(new IntakeIOReal(hardwareMap));
-        turret = new Turret(new TurretIOReal(hardwareMap));
-//        dashboard = FtcDashboard.getInstance();
-//        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
+        turret = new Turret(new TurretIOReal(hardwareMap, isRed));
+        dashboard = FtcDashboard.getInstance();
+        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 
 
     }
@@ -58,7 +60,7 @@ public class CompTeleop extends OpMode {
         PoseEstimator.periodic();
 
         //field-oriented driving on controller1
-        drivetrain.driveField(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, isRed ? -90 : -180); //TODO: change the 0 to an actual known value
+        drivetrain.driveField(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, isRed ? -Math.PI / 2 : Math.PI); //TODO: change the 0 to an actual known value
 
         //kickstand/climb on controller1
         if(gamepad1.x){
@@ -102,6 +104,11 @@ public class CompTeleop extends OpMode {
             intake.kickerGO(0);
         }
 
+        if (gamepad2.right_trigger > 0.2) {
+            LightManager.LEDStrip.setRPMLights(turret.getShooterVelocity(), turret.getShooterSetpoint());
+        } else {
+            LightManager.LEDStrip.clear();
+        }
 
 //        //shoot on controller2
 //        if (gamepad2.right_trigger > 0.5) {
@@ -111,12 +118,21 @@ public class CompTeleop extends OpMode {
 //        }
 
         //Always looking at apriltag
-        turret.autoAim();
+        turretState = turret.autoAim();
         //adjusting shoot angle between 2 points based on distance from tag
         turret.redirectorAimAtDistance();
 
+        telemetry.addData("Turret position error", turret.getAimError());
+        telemetry.addData("Turret Position", turret.getTurretPosition(AngleUnit.DEGREES));
+        telemetry.addData("setpoint", turret.getTurretSetpoint());
+        telemetry.addData("turret state", AutoUtil.toString(turretState));
+        telemetry.addData("Distance to tag vector angle", Math.toDegrees(turret.aimTagDistance.angle()));
+        telemetry.addData("robot heading", PoseEstimator.getPose().getHeading(AngleUnit.DEGREES));
+        telemetry.addData("Shooter Vel", turret.getShooterVelocity());
+        telemetry.addData("Shooter Setpoint", turret.getShooterSetpoint());
+
         //FTC Dashboard telemetry packet
-//        drivetrain.sendDashboardPacket(dashboard);
+        drivetrain.sendDashboardPacket(dashboard);
 
     }
 }

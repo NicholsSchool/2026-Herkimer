@@ -25,12 +25,13 @@ public class TurretTestOpMode extends OpMode {
     public Intake intake;
     public Vision vision;
     public Drivetrain drivetrain;
+    public boolean isRed = false;
 
 
     @Override
     public void init(){
         PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 1, 1, AngleUnit.DEGREES, 90), false, false);
-        turret = new Turret(new TurretIOReal(hardwareMap));
+        turret = new Turret(new TurretIOReal(hardwareMap, isRed));
         intake = new Intake(new IntakeIOReal(hardwareMap));
         vision = new Vision(new VisionIOReal(hardwareMap));
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
@@ -69,7 +70,7 @@ public class TurretTestOpMode extends OpMode {
             turret.turretSetAngle(-Math.PI / 4);
         }
 
-        telemetry.addData("turret pos", turret.getTurretPosition());
+        telemetry.addData("turret pos", turret.getTurretPosition(AngleUnit.DEGREES));
 
         telemetry.addData("shooter velocity", turret.getShooterVelocity());
 

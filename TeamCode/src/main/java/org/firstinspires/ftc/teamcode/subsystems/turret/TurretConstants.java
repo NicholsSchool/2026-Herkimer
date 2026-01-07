@@ -9,5 +9,6 @@ public interface TurretConstants {
 
         public int DEFAULT_TAGID = 24;
 
-        public Pose2D aprilTagPos = new Pose2D(DistanceUnit.INCH, 0 ,0, AngleUnit.DEGREES, 0);
+        public Pose2D redTagPos = new Pose2D(DistanceUnit.METER, -1.41, 1.43, AngleUnit.DEGREES, 0);
+        public Pose2D blueTagPos = new Pose2D(DistanceUnit.METER, -1.41, -1.43, AngleUnit.DEGREES, 0);
 }

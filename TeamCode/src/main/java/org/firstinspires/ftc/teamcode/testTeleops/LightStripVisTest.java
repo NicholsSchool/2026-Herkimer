@@ -3,25 +3,31 @@ package org.firstinspires.ftc.teamcode.testTeleops;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.I2CDevices.AdafruitNeoPixel;
+import org.firstinspires.ftc.teamcode.subsystems.LightManager;
 
-@Disabled
-@TeleOp(name = "LIGHT STRIP VISIBILITY")
+@TeleOp(name = "Light Strip Test")
 public class LightStripVisTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        AdafruitNeoPixel driver = hardwareMap.get(AdafruitNeoPixel.class, "NeoPixel");
-        driver.initialize(30, 3);
+        LightManager.inititalize(hardwareMap);
 
-        waitForStart();
+        ElapsedTime time = new ElapsedTime();
 
-        for (int i = 0; i < 29; i++) {
-            driver.setLed(i, AdafruitNeoPixel.rgbToColor(255, 255, 255));
-            telemetry.addData("Current LED Number", i);
+        time.reset();
+
+        LightManager.GoBildaLights.setLights(new double[] {LightManager.LightConstants.Red, LightManager.LightConstants.Green, LightManager.LightConstants.Blue});
+
+        while (opModeInInit()) {
+            telemetry.addData("LED CONN INFO", LightManager.LEDStrip.getStripConnInfo());
             telemetry.update();
-            sleep(1000);
+        }
+
+        while (opModeIsActive()) {
+            LightManager.LEDStrip.setRPMLights(Math.abs(Math.sin(time.seconds())), 1);
         }
 
     }

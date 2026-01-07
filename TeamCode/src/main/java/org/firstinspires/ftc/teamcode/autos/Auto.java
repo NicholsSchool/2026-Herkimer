@@ -46,7 +46,7 @@ public class Auto extends LinearOpMode{
 
         PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true);
         LightManager.inititalize(hardwareMap);
-        turret = new Turret(new TurretIOReal(hardwareMap));
+        turret = new Turret(new TurretIOReal(hardwareMap, isRed));
 
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap),  hardwareMap);
 
@@ -70,7 +70,7 @@ public class Auto extends LinearOpMode{
             telemetry.update();
 
             if (PoseEstimator.getPinpointStatus() == GoBildaPinpointDriver.DeviceStatus.READY) {
-                LightManager.setLights(new double[]{LightManager.LightConstants.Green, LightManager.LightConstants.Green, LightManager.LightConstants.Green});
+                LightManager.GoBildaLights.setLights(new double[]{LightManager.LightConstants.Green, LightManager.LightConstants.Green, LightManager.LightConstants.Green});
             }
         }
 
@@ -82,7 +82,7 @@ public class Auto extends LinearOpMode{
             PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 27, -12, AngleUnit.DEGREES, 0)));
         }
 
-        LightManager.setLights(new double[]{0, 0, 0});
+        LightManager.GoBildaLights.setLights(new double[]{0, 0, 0});
 
         periodicSet.add(drivetrain::periodic);
         periodicSet.add(PoseEstimator::periodic);

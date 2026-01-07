@@ -13,10 +13,11 @@ import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIOReal;
 public class turretServoTestTele extends OpMode {
 
     Turret turret;
+    public boolean isRed = false;
     @Override
     public void init() {
         LightManager.inititalize(hardwareMap);
-        turret = new Turret(new TurretIOReal(hardwareMap));
+        turret = new Turret(new TurretIOReal(hardwareMap, isRed));
 
     }
 

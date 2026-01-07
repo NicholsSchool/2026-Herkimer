@@ -89,7 +89,7 @@ public class PoseEstimator implements DrivetrainConstants {
     }
 
     public static void resetIMU(){
-        pinpoint.setPosition( new Pose2D(DistanceUnit.INCH, getPose().getX(DistanceUnit.INCH), getPose().getY(DistanceUnit.INCH), AngleUnit.DEGREES, 45));
+        pinpoint.setPosition( new Pose2D(DistanceUnit.INCH, getPose().getX(DistanceUnit.INCH), getPose().getY(DistanceUnit.INCH), AngleUnit.DEGREES, 0));
         pinpoint.update();
     }
 

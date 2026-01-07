@@ -5,9 +5,11 @@ import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.math_utils.Angles;
 import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
 import org.firstinspires.ftc.teamcode.math_utils.PIDController;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
+import org.firstinspires.ftc.teamcode.math_utils.Vector;
 import org.firstinspires.ftc.teamcode.subsystems.LightManager;
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -17,9 +19,9 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public PIDController turretPIDController = new PIDController(1.6, 0.0, 0.0);    // for goToPosition: 0.75, 0,, 0
+    public PIDController turretPIDController = new PIDController(0.8, 0.0, 0.0);
     public boolean aimTagDetected = false;
-    public double aimError = 0.0, aimTagDistance = 0.0;
+    public Vector aimTagDistance = new Vector(0.0, 0.0);
 
     public Turret(TurretIO io) {this.io = io;}
 
@@ -27,31 +29,16 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public double tagID = DEFAULT_TAGID;
 
-
     @Override
     public void periodic() {
 
         io.updateInputs(inputs);
 
-        if (!PoseEstimator.getATResults().isPresent()) {
-            LightManager.setTopLight(0);
-            aimTagDetected = false;
-            return;
-        }
+        //aimTagDistance = Math.hypot((PoseEstimator.getPose().getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)), (PoseEstimator.getPose().getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
+        //eventually i wanna use the distance from the center of the robot to the center of the goal rather than the aprilTag, but we would have to redo the regressions
 
-        aimTagDetected = false;
-        for(AprilTagDetection tag: PoseEstimator.getATResults().get()){
-            if(tag.id == tagID){
-                aimTagDetected = true;
-                LightManager.setTopLight(LightManager.LightConstants.Green);
-//                aimTagDistance = distanceFromTag(tag.ftcPose.range);
-                aimTagDistance = Math.hypot((PoseEstimator.getPose().getX(DistanceUnit.INCH) - aprilTagPos.getX(DistanceUnit.INCH)), (PoseEstimator.getPose().getY(DistanceUnit.INCH) - aprilTagPos.getY(DistanceUnit.INCH)));
-                //eventually i wanna use the distance from the center of the robot to the center of the goal rather than the aprilTag, but we would have to redo the regressions
-                aimError = ((tag.center.x - ((double)frameWidth / 2)) / (double)frameWidth / 2);
-            }
+        aimTagDistance = new Vector((PoseEstimator.getPose().getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)), (PoseEstimator.getPose().getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
 
-
-        }
     }
 
     public void setTagID(int id) {
@@ -67,8 +54,12 @@ public class Turret extends SubsystemBase implements TurretConstants {
         io.turretSetPower(power);
     }
 
-    public double getTurretPosition(){
-        return inputs.turretAngle;
+    public double getTurretPosition(AngleUnit angleUnit){
+        if (angleUnit == AngleUnit.RADIANS){
+            return inputs.turretAngle;
+        }else {
+            return Math.toDegrees(inputs.turretAngle);
+        }
     }
 
     /* Angle relative to protractor */
@@ -78,7 +69,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public void redirectorAimAtDistance() {
-        if (aimTagDistance > 2.5) {
+        if (aimTagDistance.magnitude() > 2.5) {
             redirectorSetAngle(AngleUnit.RADIANS, 0.5708);
         } else {
             redirectorSetAngle(AngleUnit.RADIANS, 0.3491);
@@ -91,26 +82,41 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public AutoUtil.AutoActionState autoAim(){
 
-        if (!aimTagDetected) {
-            turretSetPower(0);
-            return AutoUtil.AutoActionState.IDLE;
-        }
-
         redirectorAimAtDistance();
 
-        if (Math.abs(aimError) < 0.05) {
+        double setPoint = Angles.clipRadians(aimTagDistance.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS));
+        if (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (setPoint)) < 0.065) {
             turretSetPower(0);
             return AutoUtil.AutoActionState.FINISHED;
         }
 
-        turretSetPower(-turretPIDController.calculate(aimError));
+        if (setPoint < -Math.PI/2 || setPoint > Math.PI/2){
+            turretSetPower(0);
+        }else{
+            turretPIDController.setSetpoint(setPoint);
+            turretSetPower(turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)));
+//            turretSetPower((getTurretPosition(AngleUnit.DEGREES) - (setPoint)));
+        }
 
-        return AutoUtil.AutoActionState.RUNNING;
+
+     return AutoUtil.AutoActionState.RUNNING;
 
     }
 
     public double getShooterVelocity(){
         return inputs.shooterVelocity;
+    }
+
+    public double getShooterSetpoint() {
+        return 23.425 * desiredVelocity;
+    }
+
+    public double getTurretSetpoint(){
+        return Angles.clipDegrees(Math.toDegrees(aimTagDistance.angle()) - PoseEstimator.getPose().getHeading(AngleUnit.DEGREES));
+    }
+
+    public double getAimError(){
+        return turretPIDController.getPositionError();
     }
 
 
@@ -121,7 +127,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
 
     public void runShooterForDistance() {
-        desiredVelocity = 0.69 * (aimTagDistance - 1) + 5.17699;
+        desiredVelocity = 0.69 * (aimTagDistance.magnitude()) + 5.17699;
         setShooterVelocity(desiredVelocity);
     }
 }
