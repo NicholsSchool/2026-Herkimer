@@ -20,7 +20,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
     private DrivetrainIO io;
     private final DrivetrainIO.DrivetrainIOInputs inputs = new DrivetrainIO.DrivetrainIOInputs();
     public Pose2D setpoint = new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0);
-    public PIDController drivePID;
+    public PIDController drivePIDX, drivePIDY;
     public PIDController turnController;
     private double drivePIDError = 0.0;
     private double turnPIDError = 0.0;
@@ -28,8 +28,11 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
     public Drivetrain(DrivetrainIO io, HardwareMap hwMap){
         this.io = io;
-        drivePID = new PIDController(2, 1.8, 0.6);
-        drivePID.setIZone(0.3);
+        //TODO: THESE NEEEEED TO BE TUNED FOR TIME OPTIMIZATION
+        drivePIDX = new PIDController(2, 1.8, 0.6);
+        drivePIDX.setIZone(0.3);
+        drivePIDY = new PIDController(2, 1.8, 0.6);
+        drivePIDY.setIZone(0.3);
         turnController = new PIDController(2.2, 0.04, 0.2);
     }
 
@@ -52,7 +55,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
     public Pose2D getPose() { return PoseEstimator.getPose(); }
 
-    public void resetPID() { drivePID.reset(); turnController.reset(); }
+//    public void resetPID() { drivePID.reset(); turnController.reset(); }
 
     public AutoUtil.AutoActionState driveToPose(Pose2D targetPose) {
         return driveToPose(targetPose, AUTO_BASE_SPEED);
@@ -72,16 +75,16 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
             drive(0, 0, 0);
             return AutoUtil.AutoActionState.FINISHED;
         }
-        double driveMagnitude = drivePID.calculate(diffVector.magnitude(), 0);
-        double driveAngle = diffVector.angle();
+        double driveMagnitudeX = drivePIDX.calculate(diffVector.x, 0);
+        double driveMagnitudeY = drivePIDY.calculate(diffVector.y, 0);
 
         drivePIDError = diffVector.magnitude();
         turnPIDError = Angles.clipDegrees(inputs.imuHeading - targetPose.getHeading(AngleUnit.DEGREES));
 
         PIDDriveVector = new Vector(
 
-                driveMagnitude * speed * Math.cos(driveAngle),
-                driveMagnitude * speed * Math.sin(driveAngle)
+                driveMagnitudeX * speed,
+                driveMagnitudeY * speed
         );
 
         PIDDriveVector.clipMagnitude(1.0);

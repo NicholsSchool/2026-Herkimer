@@ -28,8 +28,8 @@ public class PoseEstimator implements DrivetrainConstants {
     public static GoBildaPinpointDriver pinpoint;
 
     public static boolean useAT;
-    public static AprilTagProcessor aprilTag;
-    public static Optional<ArrayList<AprilTagDetection>> latestATResults = Optional.empty();
+//    public static AprilTagProcessor aprilTag;
+//    public static Optional<ArrayList<AprilTagDetection>> latestATResults = Optional.empty();
 
     /**
      * The Field-Relative Robot Pose.
@@ -50,14 +50,14 @@ public class PoseEstimator implements DrivetrainConstants {
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.update();
 
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-        aprilTag = AprilTagProcessor.easyCreateWithDefaults();
-        builder.setCamera(hwMap.get(WebcamName.class, "W"));
-        builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
-        builder.setCameraResolution(new Size(1280, 720));
-        builder.addProcessor(aprilTag);
-        VisionPortal visionPortal = builder.build();
-        visionPortal.resumeStreaming();
+//        VisionPortal.Builder builder = new VisionPortal.Builder();
+//        aprilTag = AprilTagProcessor.easyCreateWithDefaults();
+        //builder.setCamera(hwMap.get(WebcamName.class, "W"));
+//        builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
+//        builder.setCameraResolution(new Size(1280, 720));
+//        builder.addProcessor(aprilTag);
+//        VisionPortal visionPortal = builder.build();
+//        visionPortal.resumeStreaming();
 
 
         //If the limelight can localize at startup, use that for the initial pose.
@@ -105,7 +105,7 @@ public class PoseEstimator implements DrivetrainConstants {
 
         robotPose = pinpoint.getPosition();
 
-        latestATResults = Optional.ofNullable(aprilTag.getDetections());
+//        latestATResults = Optional.ofNullable(aprilTag.getDetections());
     }
 
     private static double getFieldHeading(AngleUnit unit) {
@@ -129,9 +129,9 @@ public class PoseEstimator implements DrivetrainConstants {
         );
     }
 
-    public static Optional<ArrayList<AprilTagDetection>> getATResults() {
-        return latestATResults;
-    }
+//    public static Optional<ArrayList<AprilTagDetection>> getATResults() {
+//        return latestATResults;
+//    }
 
     public static GoBildaPinpointDriver.DeviceStatus getPinpointStatus() { return pinpoint.getDeviceStatus(); }
 

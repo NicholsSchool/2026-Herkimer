@@ -16,14 +16,14 @@ import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.vision.Vision;
-import org.firstinspires.ftc.teamcode.subsystems.vision.VisionIOReal;
+//import org.firstinspires.ftc.teamcode.subsystems.vision.VisionIOReal;
 @Disabled
 @TeleOp(name = "turrettest")
 public class TurretTestOpMode extends OpMode {
 
     public Turret turret;
     public Intake intake;
-    public Vision vision;
+    //public Vision vision;
     public Drivetrain drivetrain;
     public boolean isRed = false;
 
@@ -33,7 +33,7 @@ public class TurretTestOpMode extends OpMode {
         PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 1, 1, AngleUnit.DEGREES, 90), false, false);
         turret = new Turret(new TurretIOReal(hardwareMap, isRed));
         intake = new Intake(new IntakeIOReal(hardwareMap));
-        vision = new Vision(new VisionIOReal(hardwareMap));
+        //vision = new Vision(new VisionIOReal(hardwareMap));
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
     }
 
@@ -41,14 +41,12 @@ public class TurretTestOpMode extends OpMode {
     public void loop(){
 
         turret.periodic();
-        vision.periodic();
+        //vision.periodic();
         if (gamepad1.a) {
             turret.runShooterForDistance();
         } else {
             turret.setShooterVelocity(0);
         }
-
-        turret.redirectorAimAtDistance();
 
         //1.55 x 1.55 y
 
@@ -74,8 +72,8 @@ public class TurretTestOpMode extends OpMode {
 
         telemetry.addData("shooter velocity", turret.getShooterVelocity());
 
-        telemetry.addData("X", vision.getBotX() );
-        telemetry.addData("Y", vision.getBotY() );
+        //telemetry.addData("X", vision.getBotX() );
+        //telemetry.addData("Y", vision.getBotY() );
 
         telemetry.addData("Pose", drivetrain.getPose().toString());
         telemetry.addData("heading", drivetrain.getIMU());

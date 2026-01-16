@@ -39,6 +39,8 @@ public class CompTeleop extends OpMode {
         dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 
+        turret.resetTurretEncoder();
+
 
     }
     @Override
@@ -60,7 +62,7 @@ public class CompTeleop extends OpMode {
         PoseEstimator.periodic();
 
         //field-oriented driving on controller1
-        drivetrain.driveField(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, isRed ? -Math.PI / 2 : Math.PI); //TODO: change the 0 to an actual known value
+        drivetrain.driveField(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, isRed ? -Math.PI / 2 : Math.PI / 2);
 
         //kickstand/climb on controller1
         if(gamepad1.x){
@@ -77,38 +79,39 @@ public class CompTeleop extends OpMode {
             //Compact on controller2
         if (gamepad2.y){
             intake.intakeGO(.7);
-            intake.kickerGO(-.7);
+            intake.kickerGO(.7);
             turret.setShooterVelocity(0);
+            turret.redirectorSetVelocity(0);
         }else if(gamepad2.b){
             //intake on controller2
             intake.intakeGO(.7);
-            turret.setShooterVelocity(-1);
-            intake.kickerGO(.7);
+            turret.setShooterVelocity(1);
+            turret.redirectorSetVelocity(0);
+            intake.kickerGO(-.7);
         }else if(gamepad2.a){
             //outtake on controller2
             intake.intakeGO(-0.5);
-            intake.kickerGO(-0.5);
+            intake.kickerGO(0.5);
             turret.setShooterVelocity(0);
-        }else if (gamepad2.right_trigger > 0.5) {
-            turret.runShooterForDistance();
-            intake.intakeGO(.5);
-            intake.kickerGO(0.7);
-        }else if (gamepad2.right_trigger <= 0.5 && gamepad2.right_trigger > 0.2) {
-            turret.runShooterForDistance();
-            intake.kickerGO(0);
-            intake.intakeGO(0);
+            turret.redirectorSetVelocity(0);
+        }else if (gamepad2.right_trigger > 0.2) {
+            turret.autoAccelerate();
+            LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
+            if(Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < 50){
+                intake.kickerGO(-0.75);
+                intake.intakeGO(1);
+            }
         }else{
             //everything off
             turret.setShooterVelocity(0);
+            turret.redirectorSetVelocity(0);
             intake.intakeGO(0);
             intake.kickerGO(0);
-        }
-
-        if (gamepad2.right_trigger > 0.2) {
-            LightManager.LEDStrip.setRPMLights(turret.getShooterVelocity(), turret.getShooterSetpoint());
-        } else {
             LightManager.LEDStrip.clear();
         }
+
+        //manual turret control
+//        turret.turretSetPower(gamepad2.left_stick_x);
 
 //        //shoot on controller2
 //        if (gamepad2.right_trigger > 0.5) {
@@ -117,19 +120,23 @@ public class CompTeleop extends OpMode {
 //            turret.setShooterVelocity(0);
 //        }
 
-        //Always looking at apriltag
-        turretState = turret.autoAim();
-        //adjusting shoot angle between 2 points based on distance from tag
-        turret.redirectorAimAtDistance();
+//        Always looking at apriltag
+//        turretState = turret.autoAim();
 
-        telemetry.addData("Turret position error", turret.getAimError());
+        telemetry.addData("Turret position error", turret.getAimError(AngleUnit.DEGREES));
         telemetry.addData("Turret Position", turret.getTurretPosition(AngleUnit.DEGREES));
-        telemetry.addData("setpoint", turret.getTurretSetpoint());
+        telemetry.addData("Turret RAW Position", turret.getRawTurretPos());
+        telemetry.addData("setpoint", turret.getTurretSetpoint(AngleUnit.DEGREES));
         telemetry.addData("turret state", AutoUtil.toString(turretState));
         telemetry.addData("Distance to tag vector angle", Math.toDegrees(turret.aimTagDistance.angle()));
         telemetry.addData("robot heading", PoseEstimator.getPose().getHeading(AngleUnit.DEGREES));
         telemetry.addData("Shooter Vel", turret.getShooterVelocity());
-        telemetry.addData("Shooter Setpoint", turret.getShooterSetpoint());
+        telemetry.addData("Shooter Setpoint", turret.getAcceleratorSetpoint());
+        telemetry.addData("Distance from tag", turret.getTagDistance(DistanceUnit.METER));
+        telemetry.addLine("");
+        telemetry.addData("redirector vel", turret.getRedirectorVelocity());
+        telemetry.addData("redirector setpoint", turret.getRedirectorSetpoint() );
+        telemetry.addData("redirector power", turret.getRedirectorPower());
 
         //FTC Dashboard telemetry packet
         drivetrain.sendDashboardPacket(dashboard);

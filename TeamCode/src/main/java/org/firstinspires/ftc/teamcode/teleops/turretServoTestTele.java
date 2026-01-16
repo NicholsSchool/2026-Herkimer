@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystems.LightManager;
+//import org.firstinspires.ftc.teamcode.subsystems.LightManager;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIOReal;
 
@@ -16,7 +16,7 @@ public class turretServoTestTele extends OpMode {
     public boolean isRed = false;
     @Override
     public void init() {
-        LightManager.inititalize(hardwareMap);
+        //LightManager.inititalize(hardwareMap);
         turret = new Turret(new TurretIOReal(hardwareMap, isRed));
 
     }

@@ -11,11 +11,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
@@ -32,10 +34,10 @@ import java.util.function.IntSupplier;
 
 public class TurretIOReal implements TurretIO, TurretConstants {
 
-    //the servos that control the angle of our shot
-    Servo rapidRedirector, rapidRedirector2;
     //the actual shooter wheel (one motor on both sides attached to the same shaft)
-    DcMotorEx artifactAccelerator, artifactAccelerator2, turretEncoder;
+    DcMotorEx artifactAccelerator, turretEncoder;
+    //the top wheel that "redirects" the artifact
+    DcMotorEx rapidRedirector;
     //the servos that turn our turret
     CRServo turretTurner1, turretTurner2;
     //the magnet sensor that acts as a limit switch for our turret
@@ -46,20 +48,21 @@ public class TurretIOReal implements TurretIO, TurretConstants {
 
     public TurretIOReal(HardwareMap hwMap, boolean isRed){
 
-        artifactAccelerator = hwMap.get(DcMotorEx.class, "AA");
-        artifactAccelerator2 = hwMap.get(DcMotorEx.class, "AA2");
-        rapidRedirector = hwMap.get(Servo.class, "RR1");
-        rapidRedirector2 = hwMap.get(Servo.class, "RR2");
+        artifactAccelerator = hwMap.get(DcMotorEx.class, "shooter");
+        rapidRedirector = hwMap.get(DcMotorEx.class, "redirector");
         turretTurner1 = hwMap.get(CRServo.class, "TT1");
         turretTurner2 = hwMap.get(CRServo.class, "TT2");
         turretEncoder = hwMap.get(DcMotorEx.class, "intake");
         magnet = hwMap.get(DigitalChannel.class, "magnet");
 
-        isRed = this.isRed;
+        artifactAccelerator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rapidRedirector.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-//        artifactAccelerator.setVelocityPIDFCoefficients(1,0,0,0);
-//        artifactAccelerator2.setVelocityPIDFCoefficients(1,0,0,0);
+        rapidRedirector.setVelocityPIDFCoefficients(120,7,0.0,0.0);
+        artifactAccelerator.setVelocityPIDFCoefficients(320,20,0.0,50);
 
+
+        this.isRed = isRed;
         magnet.setMode(DigitalChannel.Mode.INPUT);
 //        List<AprilTagDetection> result = aprilTag.getDetections();
 //        if(!result.isEmpty()){
@@ -79,29 +82,24 @@ public class TurretIOReal implements TurretIO, TurretConstants {
 
     @Override
     public void updateInputs (TurretIO.TurretIOInputs inputs){
-        inputs.turretAngle = (turretEncoder.getCurrentPosition() * 0.00009) + Math.PI / 2;
+        inputs.turretAngle = (turretEncoder.getCurrentPosition() / 7274.78146);
         inputs.magnetState = magnet.getState();
         inputs.rawTurretAngle = turretEncoder.getCurrentPosition();
         inputs.shooterVelocity = artifactAccelerator.getVelocity();
+        inputs.redirectorVelocity = rapidRedirector.getVelocity();
+        inputs.redirectorPower = rapidRedirector.getPower();
 
         inputs.aprilTagPos = (isRed ? redTagPos : blueTagPos);
-
-        if (!inputs.magnetState) {
-            turretEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            turretEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
     }
 
     @Override
     public void shooterSetVelocity(double velocity){
         artifactAccelerator.setVelocity(velocity);
-        artifactAccelerator2.setVelocity(-velocity);
     }
 
     @Override
-    public void redirectorSetPosition(double pos){
-        rapidRedirector.setPosition(pos);
-        rapidRedirector2.setPosition(pos);
+    public void redirectorSetVelocity(double velocity){
+        rapidRedirector.setVelocity(velocity);
     }
 
     @Override
@@ -109,6 +107,12 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         turretTurner2.setPower(power);
         turretTurner1.setPower(power);
 
+    }
+
+    @Override
+    public void resetTurretEncoder(TurretIO.TurretIOInputs inputs){
+        turretEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turretEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
 

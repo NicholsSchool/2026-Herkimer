@@ -7,8 +7,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 public interface TurretIO {
 
     public static class TurretIOInputs{
-        public double turretAngle = Math.PI / 2;
-        public double redirectorAngle  = 0.0;
+        public double turretAngle = 0.0;
+        public double redirectorVelocity  = 0.0;
+        public double redirectorPower = 0.0;
         public double shooterVelocity = 0.0;
         public boolean magnetState = true;
         public double rawTurretAngle = 0.0;
@@ -18,8 +19,9 @@ public interface TurretIO {
     }
 
     public void updateInputs(TurretIOInputs inputs);
+    public void resetTurretEncoder(TurretIOInputs inputs);
     public void shooterSetVelocity(double velocity);
-    public void redirectorSetPosition(double angle);
+    public void redirectorSetVelocity(double velocity);
     public void turretSetPower(double power);
 
 
