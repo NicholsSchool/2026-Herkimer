@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
+import org.firstinspires.ftc.teamcode.subsystems.turret.TurretConstants;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIOReal;
 
 @TeleOp (name = "comptele")
@@ -32,7 +33,7 @@ public class CompTeleop extends OpMode {
     @Override
     public void init(){
         LightManager.inititalize(hardwareMap);
-        PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true); //TODO: PLEASE CHANGE THIS TO NOT RESET FOR COMP
+        PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, false);
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
         intake = new Intake(new IntakeIOReal(hardwareMap));
         turret = new Turret(new TurretIOReal(hardwareMap, isRed));
@@ -48,7 +49,7 @@ public class CompTeleop extends OpMode {
         if(gamepad1.aWasPressed()){
             isRed = !isRed;
         }
-        telemetry.addLine("Teleop Alliance Color" + (isRed ? "RED" : "BLUE"));
+        telemetry.addLine("Teleop Alliance Color: " + (isRed ? "RED" : "BLUE"));
         telemetry.update();
     }
 
@@ -78,8 +79,8 @@ public class CompTeleop extends OpMode {
 
             //Compact on controller2
         if (gamepad2.y){
-            intake.intakeGO(.7);
-            intake.kickerGO(.7);
+            intake.intakeGO(.8);
+            intake.kickerGO(.8);
             turret.setShooterVelocity(0);
             turret.redirectorSetVelocity(0);
         }else if(gamepad2.b){
@@ -97,9 +98,12 @@ public class CompTeleop extends OpMode {
         }else if (gamepad2.right_trigger > 0.2) {
             turret.autoAccelerate();
             LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
-            if(Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < 50){
-                intake.kickerGO(-0.75);
+            if(turret.getShooterVelocity() <= turret.getAcceleratorSetpoint() || Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE){
+                intake.kickerGO(-0.9);
                 intake.intakeGO(1);
+            } else {
+                intake.kickerGO(0);
+                intake.intakeGO(0);
             }
         }else{
             //everything off

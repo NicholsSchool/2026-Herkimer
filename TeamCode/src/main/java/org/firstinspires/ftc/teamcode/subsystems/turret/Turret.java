@@ -19,11 +19,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public PIDController turretPIDController = new PIDController(0.5, 2, 0.01);
+    public PIDController turretPIDController = new PIDController(0.4, 2, 0.01);
     public boolean aimTagDetected = false;
     public Vector aimTagDistance = new Vector(0.0, 0.0);
-    public static double acceleratorSetpoint = -1700;
-    public static double redirectorSetpoint = 0.0;
+    public double acceleratorSetpoint = -1700; //make static for tuning
+//    public static double redirectorSetpoint = 0.0;
 //    public PIDController velocityPIDController = new PIDController(4,0.0,0.05);
 
     public Turret(TurretIO io) {
@@ -107,7 +107,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
         setPoint = Angles.clipRadians(aimTagDistance.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS));
         if (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (setPoint)) < 0.045) {
-            turretSetPower(0);//TODO: PLEASEEEE TURN THIS BACK ON
+            turretSetPower(0);
             return AutoUtil.AutoActionState.FINISHED;
         }
 
@@ -169,7 +169,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public void autoAccelerate() {
         setShooterVelocityTicks(acceleratorSetpoint);
 //        redirectorSetVelocity((-314.28571 * getTagDistance(DistanceUnit.METER) + 290.47619));
-        redirectorSetVelocity(redirectorSetpoint);
+        redirectorSetVelocity( (178 * getTagDistance(DistanceUnit.METER) + 185) * -1 );
     }
 
     public double getRedirectorSetpoint() {

@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
+import org.firstinspires.ftc.teamcode.subsystems.turret.TurretConstants;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.vision.Vision;
 
@@ -59,10 +60,6 @@ public class Auto extends LinearOpMode{
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
         telemetry.setMsTransmissionInterval(50);
 
-        telemetry.update();
-        telemetry.addData("drive magnitude", 0.0);
-        telemetry.update();
-
         while (opModeInInit()) {
             if (gamepad2.aWasPressed()) isRed = !isRed;
             telemetry.addLine("Auto alliance side" + (isRed ? "RED" : "BLUE"));
@@ -94,9 +91,8 @@ public class Auto extends LinearOpMode{
 
         periodicSet.add(() -> telemetry.addLine(AutoUtil.getLoopStatesReadout()));
         periodicSet.add(() -> drivetrain.sendDashboardPacket(dashboard));
-        periodicSet.add(() -> telemetry.addData("Drive magnitude", drivetrain.getDrivePIDError()));
+        periodicSet.add(() -> telemetry.addData("Drive Error", drivetrain.getDrivePIDError().magnitude()));
         periodicSet.add(() -> telemetry.addData("Pose", drivetrain.getPose().toString()));
-        periodicSet.add(() -> telemetry.addData("Drive magnitude", drivetrain.getDrivePIDError()));
         periodicSet.add(() -> telemetry.update());
 
 
@@ -330,15 +326,21 @@ public class Auto extends LinearOpMode{
 
     public void shoot() {
         List<Runnable> shootSet = new ArrayList<>(periodicSet);
-        shootSet.add(() -> turret.autoAccelerate());
 //        shootSet.add(() -> turret.redirectorAimAtDistance());
-        AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 2);
-        intake.kickerGO(-1);
-        intake.intakeGO(1);
-        AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 2);
+        shootSet.add(() -> {
+                    turret.autoAccelerate();
+                    LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
+                    if (turret.getShooterVelocity() <= turret.getAcceleratorSetpoint() || Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
+                        intake.kickerGO(-0.9);
+                        intake.intakeGO(1);
+                    } else {
+                        intake.kickerGO(0);
+                        intake.intakeGO(0);
+                    }
+                });
+        AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 5.5);
         turret.setShooterVelocity(0);
-        intake.kickerGO(0);
-        intake.intakeGO(0);
+        turret.redirectorSetVelocity(0);
     }
 
     public void intakeRow(int row) {
@@ -354,7 +356,7 @@ public class Auto extends LinearOpMode{
         AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 1);
 
         //Drive and Intake
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -63, AngleUnit.DEGREES, -90)), 0.8));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -67, AngleUnit.DEGREES, -90)), 0.8));
         intake.intakeGO(0.9);
         turret.setShooterVelocity(-1);
         intake.kickerGO(-0.5);

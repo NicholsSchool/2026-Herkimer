@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -15,25 +16,26 @@ import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.math_utils.Vector;
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 
+@Config
 public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
     private DrivetrainIO io;
     private final DrivetrainIO.DrivetrainIOInputs inputs = new DrivetrainIO.DrivetrainIOInputs();
     public Pose2D setpoint = new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0);
     public PIDController drivePIDX, drivePIDY;
+    public static double kDP = 8, kDI = 1.8, kDD = 4; // "konstant Drivetrain P/I/D - shouldn't be different since they're field X and Y
     public PIDController turnController;
-    private double drivePIDError = 0.0;
+    private Vector drivePIDError = new Vector(0, 0);
     private double turnPIDError = 0.0;
     private Vector PIDDriveVector = new Vector(0, 0);
 
     public Drivetrain(DrivetrainIO io, HardwareMap hwMap){
         this.io = io;
-        //TODO: THESE NEEEEED TO BE TUNED FOR TIME OPTIMIZATION
-        drivePIDX = new PIDController(2, 1.8, 0.6);
-        drivePIDX.setIZone(0.3);
-        drivePIDY = new PIDController(2, 1.8, 0.6);
-        drivePIDY.setIZone(0.3);
-        turnController = new PIDController(2.2, 0.04, 0.2);
+        drivePIDX = new PIDController(kDP, kDI, kDD);
+        drivePIDX.setIZone(0.5);
+        drivePIDY = new PIDController(kDP, kDI, kDD);
+        drivePIDY.setIZone(0.5);
+        turnController = new PIDController(2.3, 0.04, 0.2);
     }
 
     @Override
@@ -78,7 +80,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
         double driveMagnitudeX = drivePIDX.calculate(diffVector.x, 0);
         double driveMagnitudeY = drivePIDY.calculate(diffVector.y, 0);
 
-        drivePIDError = diffVector.magnitude();
+        drivePIDError = diffVector;
         turnPIDError = Angles.clipDegrees(inputs.imuHeading - targetPose.getHeading(AngleUnit.DEGREES));
 
         PIDDriveVector = new Vector(
@@ -96,7 +98,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
         return AutoUtil.AutoActionState.RUNNING;
     }
 
-    public double getDrivePIDError(){
+    public Vector getDrivePIDError(){
         return drivePIDError;
     }
 

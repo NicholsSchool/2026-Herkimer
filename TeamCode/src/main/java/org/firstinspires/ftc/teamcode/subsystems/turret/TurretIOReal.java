@@ -59,7 +59,7 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         rapidRedirector.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         rapidRedirector.setVelocityPIDFCoefficients(120,7,0.0,0.0);
-        artifactAccelerator.setVelocityPIDFCoefficients(320,20,0.0,50);
+        artifactAccelerator.setVelocityPIDFCoefficients(400,40,20.0,50);
 
 
         this.isRed = isRed;
