@@ -27,6 +27,7 @@ public class TestDriveAuto extends LinearOpMode {
     private boolean runAxisTests = true;
     private boolean runDiagonalTests = true;
     private boolean runAngleTests = true;
+    private boolean runCompactTest = false;
 
     @Override
     public void runOpMode() {
@@ -57,6 +58,8 @@ public class TestDriveAuto extends LinearOpMode {
             telemetry.addLine("[X] Diagonal Position Tests " + (runDiagonalTests ? "ENABLED" : "DISABLED"));
             if (gamepad1.bWasPressed()) runAngleTests = !runAngleTests;
             telemetry.addLine("[B] Angle Tests " + (runAngleTests ? "ENABLED" : "DISABLED"));
+            if (gamepad1.yWasPressed()) runCompactTest = !runCompactTest;
+            telemetry.addLine("[Y] Angle Tests " + (runCompactTest ? "ENABLED" : "DISABLED"));
             telemetry.update();
         }
 
@@ -133,6 +136,25 @@ public class TestDriveAuto extends LinearOpMode {
             actionSet.clear();
 
             actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 360)));
+            AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+            actionSet.clear();
+        }
+
+        if(runCompactTest) {
+
+            actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0)));
+            AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+            actionSet.clear();
+
+            actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 24, 0, AngleUnit.DEGREES, 90)));
+            AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+            actionSet.clear();
+
+            actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 48, 0, AngleUnit.DEGREES, 180)));
+            AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+            actionSet.clear();
+
+            actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0)));
             AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
             actionSet.clear();
         }

@@ -94,12 +94,12 @@ public class TurretIOReal implements TurretIO, TurretConstants {
 
     @Override
     public void shooterSetVelocity(double velocity){
-        artifactAccelerator.setVelocity(velocity);
+        //artifactAccelerator.setVelocity(velocity); TODO: WHAT HE SAID
     }
 
     @Override
     public void redirectorSetVelocity(double velocity){
-        rapidRedirector.setVelocity(velocity);
+        //rapidRedirector.setVelocity(velocity); TODO: DO NOT UNDER ANY CONDITION FORGET TO UNCOMMENT THIS
     }
 
     @Override

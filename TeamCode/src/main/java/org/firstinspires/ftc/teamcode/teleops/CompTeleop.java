@@ -77,6 +77,10 @@ public class CompTeleop extends OpMode {
             PoseEstimator.resetIMU();
         }
 
+        if (gamepad1.dpad_down){
+            PoseEstimator.resetPoseToAutoStart(isRed);
+        }
+
             //Compact on controller2
         if (gamepad2.y){
             intake.intakeGO(.8);
@@ -124,8 +128,9 @@ public class CompTeleop extends OpMode {
 //            turret.setShooterVelocity(0);
 //        }
 
-//        Always looking at apriltag
-//        turretState = turret.autoAim();
+        if (gamepad2.left_trigger < 0.2) {
+            turretState = turret.autoAim();
+        }
 
         telemetry.addData("Turret position error", turret.getAimError(AngleUnit.DEGREES));
         telemetry.addData("Turret Position", turret.getTurretPosition(AngleUnit.DEGREES));

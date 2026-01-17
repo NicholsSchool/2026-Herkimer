@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.math_utils.Angles;
 import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.subsystems.LightManager;
@@ -241,16 +240,6 @@ public class Auto extends LinearOpMode{
 //
     }
 
-    public Pose2D allianceFlip(boolean red, Pose2D inputPose) {
-        return new Pose2D(
-                DistanceUnit.INCH,
-                inputPose.getX(DistanceUnit.INCH),
-                inputPose.getY(DistanceUnit.INCH) * (red ? -1 : 1),
-                AngleUnit.DEGREES,
-                Angles.clipDegrees(inputPose.getHeading(AngleUnit.DEGREES) * (red ? -1 : 1))
-        );
-    }
-
     //TODO: THIS POSITION WAS CHANGED FROM -10 -14 to -24 -24 FOR SHOOTER, CHANGE IF SHOOTER IS FIXED
 
     public void driveToShoot(){
@@ -295,13 +284,12 @@ public class Auto extends LinearOpMode{
         actionSet.clear();
     }
 
-    //TODO: Change these positions to be the correct ones, PLEASE
     public void leaveTriangle(){
         actionSet.clear();
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -10, -14, AngleUnit.DEGREES, 0))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 48, -24, AngleUnit.DEGREES, 0))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 4);
         actionSet.clear();
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -10, -14, AngleUnit.DEGREES, 45))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 48, -24, AngleUnit.DEGREES, 45))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
 
         actionSet.clear();
@@ -392,6 +380,10 @@ public class Auto extends LinearOpMode{
 
     public void delay(TimeUnit timeUnit, double time){
         AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 2);
+    }
+
+    private Pose2D allianceFlip(boolean isRed, Pose2D pose){
+        return PoseEstimator.allianceFlip(isRed, pose);
     }
 
 }

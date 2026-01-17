@@ -93,6 +93,11 @@ public class PoseEstimator implements DrivetrainConstants {
         pinpoint.update();
     }
 
+    public static void resetPoseToAutoStart(boolean isRed){
+        pinpoint.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.METER, -1.6, -1, AngleUnit.DEGREES, 0)));
+        pinpoint.update();
+    }
+
     public static void setPosition(Pose2D inputPose){
         pinpoint.setPosition(inputPose);
         pinpoint.update();
@@ -134,5 +139,15 @@ public class PoseEstimator implements DrivetrainConstants {
 //    }
 
     public static GoBildaPinpointDriver.DeviceStatus getPinpointStatus() { return pinpoint.getDeviceStatus(); }
+
+    public static Pose2D allianceFlip(boolean red, Pose2D inputPose) {
+        return new Pose2D(
+                DistanceUnit.INCH,
+                inputPose.getX(DistanceUnit.INCH),
+                inputPose.getY(DistanceUnit.INCH) * (red ? -1 : 1),
+                AngleUnit.DEGREES,
+                Angles.clipDegrees(inputPose.getHeading(AngleUnit.DEGREES) * (red ? -1 : 1))
+        );
+    }
 
 }

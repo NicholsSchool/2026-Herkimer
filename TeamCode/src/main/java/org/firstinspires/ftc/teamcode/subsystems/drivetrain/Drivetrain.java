@@ -23,7 +23,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
     private final DrivetrainIO.DrivetrainIOInputs inputs = new DrivetrainIO.DrivetrainIOInputs();
     public Pose2D setpoint = new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0);
     public PIDController drivePIDX, drivePIDY;
-    public static double kDP = 8, kDI = 1.8, kDD = 4; // "konstant Drivetrain P/I/D - shouldn't be different since they're field X and Y
+    public static double kDP = 8, kDI = 1.8, kDD = 1.7; // "konstant Drivetrain P/I/D - shouldn't be different since they're field X and Y
     public PIDController turnController;
     private Vector drivePIDError = new Vector(0, 0);
     private double turnPIDError = 0.0;
