@@ -61,11 +61,11 @@ public class Auto extends LinearOpMode{
 
         while (opModeInInit()) {
             if (gamepad2.aWasPressed()) isRed = !isRed;
-            telemetry.addLine("Auto alliance side" + (isRed ? "RED" : "BLUE"));
+            telemetry.addLine("[G2 X] Alliance: " + (isRed ? "RED" : "BLUE"));
             if (gamepad2.bWasPressed()) isAudience = !isAudience;
-            telemetry.addLine("Auto side" + (isAudience ? "AUDIENCE SIDE" : "GOAL SIDE"));
+            telemetry.addLine("[G2 CIRCLE] Starting Side: " + (isAudience ? "AUDIENCE SIDE" : "GOAL SIDE"));
             if (gamepad2.xWasPressed()) isLeaveAuto = !isLeaveAuto;
-            telemetry.addLine("Just an Auto Leave" + (isLeaveAuto ? "LEAVE" : "NORMAL"));
+            telemetry.addLine("[G2 TRI] Only Leave: " + (isLeaveAuto ? "ENABLED" : "DISABLED"));
             telemetry.update();
 
             if (PoseEstimator.getPinpointStatus() == GoBildaPinpointDriver.DeviceStatus.READY) {
@@ -105,17 +105,17 @@ public class Auto extends LinearOpMode{
             compress();
             shoot();
             intakeRow(2);
-            driveToShootFar();
-            aim();
-            compress();
-            shoot();
-            intakeRow(1);
-            driveToShootFar();
-            aim();
-            compress();
-            shoot();
+//            driveToShootFar();
+//            aim();
+//            compress();
+//            shoot();
+//            intakeRow(1);
+//            driveToShootFar();
+//            aim();
+//            compress();
+//            shoot();
         }else if(isLeaveAuto){
-
+            leaveTriangle();
         }else{
             driveToShoot();
             aim();
