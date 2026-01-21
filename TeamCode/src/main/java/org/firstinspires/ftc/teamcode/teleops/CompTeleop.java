@@ -19,6 +19,8 @@ import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretConstants;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIOReal;
 
+import java.util.logging.Logger;
+
 @TeleOp (name = "comptele")
 public class CompTeleop extends OpMode {
 
@@ -28,7 +30,6 @@ public class CompTeleop extends OpMode {
     public Intake intake;
     private FtcDashboard dashboard;
     private boolean isRed = false;
-    private AutoUtil.AutoActionState turretState = AutoUtil.AutoActionState.IDLE;
 
     @Override
     public void init(){
@@ -41,16 +42,26 @@ public class CompTeleop extends OpMode {
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 
         turret.resetTurretEncoder();
-
-
     }
     @Override
     public void init_loop(){
-        if(gamepad1.aWasPressed()){
+        if(gamepad2.aWasPressed()){
             isRed = !isRed;
         }
-        telemetry.addLine("Teleop Alliance Color: " + (isRed ? "RED" : "BLUE"));
+        telemetry.addLine("[G2 A] Teleop Alliance Color: " + (isRed ? "RED" : "BLUE"));
         telemetry.update();
+    }
+
+    @Override
+    public void start() {
+        if (isRed) {
+            turret.setTagID(24);
+            LightManager.GoBildaLights.setLights(new double[] {LightManager.LightConstants.Red, LightManager.LightConstants.Red, LightManager.LightConstants.Red});
+        } else {
+            turret.setTagID(20);
+            LightManager.GoBildaLights.setLights(new double[] {LightManager.LightConstants.Blue, LightManager.LightConstants.Blue, LightManager.LightConstants.Blue});
+        }
+
     }
 
     @Override
@@ -128,24 +139,20 @@ public class CompTeleop extends OpMode {
 //            turret.setShooterVelocity(0);
 //        }
 
-        if (gamepad2.left_trigger < 0.2) {
-            turretState = turret.autoAim();
-        }
+//        if (gamepad2.left_trigger > 0.2) {
+//            turret.autoAim();
+//            Logger.getLogger("CompTeleop Turret").info("Updated PID");
+//        } else {
+//            turret.turretSetPower(0);
+//        }
 
         telemetry.addData("Turret position error", turret.getAimError(AngleUnit.DEGREES));
         telemetry.addData("Turret Position", turret.getTurretPosition(AngleUnit.DEGREES));
-        telemetry.addData("Turret RAW Position", turret.getRawTurretPos());
         telemetry.addData("setpoint", turret.getTurretSetpoint(AngleUnit.DEGREES));
-        telemetry.addData("turret state", AutoUtil.toString(turretState));
         telemetry.addData("Distance to tag vector angle", Math.toDegrees(turret.aimTagDistance.angle()));
         telemetry.addData("robot heading", PoseEstimator.getPose().getHeading(AngleUnit.DEGREES));
-        telemetry.addData("Shooter Vel", turret.getShooterVelocity());
-        telemetry.addData("Shooter Setpoint", turret.getAcceleratorSetpoint());
         telemetry.addData("Distance from tag", turret.getTagDistance(DistanceUnit.METER));
-        telemetry.addLine("");
-        telemetry.addData("redirector vel", turret.getRedirectorVelocity());
-        telemetry.addData("redirector setpoint", turret.getRedirectorSetpoint() );
-        telemetry.addData("redirector power", turret.getRedirectorPower());
+
 
         //FTC Dashboard telemetry packet
         drivetrain.sendDashboardPacket(dashboard);

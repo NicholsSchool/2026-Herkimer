@@ -19,7 +19,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public PIDController turretPIDController = new PIDController(0.4, 2, 0.01);
+    public static double kTP = 0.42, kTI = 0, kTD = 0.004;
+    public static double cTP = 0.2, cTI = 0, cTD = 0.0004;
+    public PIDController turretPIDController = new PIDController(kTP, kTI, kTD);
+    public PIDController turretTelePIDController = new PIDController(cTP, cTI, cTD);
     public boolean aimTagDetected = false;
     public Vector aimTagDistance = new Vector(0.0, 0.0);
     public double acceleratorSetpoint = -1700; //make static for tuning
@@ -58,10 +61,22 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public void setTagID(int id) {
         tagID = id;
+        if (id == 24) {
+            inputs.aprilTagPos = TurretConstants.redTagPos;
+        } else if (id == 20) {
+            inputs.aprilTagPos = TurretConstants.blueTagPos;
+        }
     }
 
-    public void turretSetAngle(double angle) {
+    public void turretSetAngle(double angle, AngleUnit unit) {
 //        turretSetPower((angle - inputs.turretAngle) * turretP);
+        setPoint = unit.toRadians(angle);
+        if (setPoint < -Math.PI / 2 || setPoint > Math.PI / 2) {
+            turretSetPower(0);
+        } else {
+            turretPIDController.setSetpoint(setPoint);
+            turretSetPower(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)));
+        }
     }
 //     io.turretSetPower(turretPIDController.calculate(inputs.turretAngle, angle));
 

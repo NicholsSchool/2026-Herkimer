@@ -17,6 +17,7 @@ public class LightManager {
     static AdafruitNeoPixel driver; // LED Strip Driver Board
     static Servo gbLightTop, gbLightMiddle, gbLightBottom; // Big GoBilda Lights
     static ElapsedTime updateTime = new ElapsedTime();
+    static ElapsedTime runTime = new ElapsedTime();
 
     public static void inititalize(HardwareMap hardwareMap) {
 
@@ -26,6 +27,7 @@ public class LightManager {
         gbLightMiddle = hardwareMap.get(Servo.class, "MiddleLight");
         gbLightBottom = hardwareMap.get(Servo.class, "BottomLight");
         updateTime.reset();
+        runTime.reset();
 
     }
 
@@ -89,11 +91,11 @@ public class LightManager {
                     continue;
                 }
                 if (i < 9) {
-                    bar[i] = AdafruitNeoPixel.rgbToColor(255, 10, 10);
+                    bar[i] = AdafruitNeoPixel.rgbToColor(150, 10, 10);
                 } else if (i < 13) {
-                    bar[i] = AdafruitNeoPixel.rgbToColor(255, 10, 96);
+                    bar[i] = AdafruitNeoPixel.rgbToColor(150, 10, 50);
                 } else {
-                    bar[i] = AdafruitNeoPixel.rgbToColor(10, 10, 255);
+                    bar[i] = AdafruitNeoPixel.rgbToColor(10, 10, 150);
                 }
             }
 
@@ -104,6 +106,24 @@ public class LightManager {
 
             update();
 
+        }
+
+        public static void runIdleAnim(boolean isRed) {
+            int[] bar = new int[LightConstants.visibleLength];
+
+            for (int i = 0; i < bar.length; i++) {
+
+                int color = Range.clip( (int) (60 * (1 + Math.sin(runTime.seconds() + ((double) i / 3)))), 0, 255);
+
+                bar[i] = AdafruitNeoPixel.rgbToColor(isRed ? color : 0, isRed ? 0 : color, 0);
+            }
+
+            int[] barReversed = IntStream.range(0, bar.length).map(i -> bar[bar.length - 1 - i]).toArray();
+
+            setLED(0, barReversed);
+            setLED(LightConstants.visibleLength + LightConstants.gapLength, bar);
+
+            update();
         }
     }
 

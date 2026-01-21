@@ -61,7 +61,6 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         rapidRedirector.setVelocityPIDFCoefficients(120,7,0.0,0.0);
         artifactAccelerator.setVelocityPIDFCoefficients(400,40,20.0,50);
 
-
         this.isRed = isRed;
         magnet.setMode(DigitalChannel.Mode.INPUT);
 //        List<AprilTagDetection> result = aprilTag.getDetections();
@@ -89,7 +88,7 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         inputs.redirectorVelocity = rapidRedirector.getVelocity();
         inputs.redirectorPower = rapidRedirector.getPower();
 
-        inputs.aprilTagPos = (isRed ? redTagPos : blueTagPos);
+//        inputs.aprilTagPos = (isRed ? redTagPos : blueTagPos);
     }
 
     @Override

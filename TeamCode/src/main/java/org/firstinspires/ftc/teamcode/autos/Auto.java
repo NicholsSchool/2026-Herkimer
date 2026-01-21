@@ -67,11 +67,16 @@ public class Auto extends LinearOpMode{
             if (gamepad2.xWasPressed()) isLeaveAuto = !isLeaveAuto;
             telemetry.addLine("[G2 TRI] Only Leave: " + (isLeaveAuto ? "ENABLED" : "DISABLED"));
             telemetry.update();
+//
+//            if (PoseEstimator.getPinpointStatus() == GoBildaPinpointDriver.DeviceStatus.READY) {
+//                LightManager.GoBildaLights.setLights(new double[]{LightManager.LightConstants.Green, LightManager.LightConstants.Green, LightManager.LightConstants.Green});
+//            }
 
-            if (PoseEstimator.getPinpointStatus() == GoBildaPinpointDriver.DeviceStatus.READY) {
-                LightManager.GoBildaLights.setLights(new double[]{LightManager.LightConstants.Green, LightManager.LightConstants.Green, LightManager.LightConstants.Green});
-            }
+//            LightManager.LEDStrip.runIdleAnim(isRed);
+
         }
+
+        LightManager.LEDStrip.clear();
 
         if (isRed) {turret.setTagID(24);} else {turret.setTagID(20);}
 
@@ -104,7 +109,7 @@ public class Auto extends LinearOpMode{
             aim();
             compress();
             shoot();
-            intakeRow(2);
+            leaveTriangle();
 //            driveToShootFar();
 //            aim();
 //            compress();
@@ -126,15 +131,15 @@ public class Auto extends LinearOpMode{
             compress();
             shoot();
             intakeRow(2);
-            lastDriveToShoot();
-            aim();
-            compress();
-            shoot();
-            intakeRow(3);
-            driveToShoot();
-            aim();
-            compress();
-            shoot();
+//            lastDriveToShoot();
+//            aim();
+//            compress();
+//            shoot();
+//            intakeRow(3);
+//            driveToShoot();
+//            aim();
+//            compress();
+//            shoot();
         }
 
 
@@ -289,7 +294,7 @@ public class Auto extends LinearOpMode{
         actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 48, -24, AngleUnit.DEGREES, 0))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 4);
         actionSet.clear();
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 48, -24, AngleUnit.DEGREES, 45))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 48, -24, AngleUnit.DEGREES, 0))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
 
         actionSet.clear();
@@ -327,6 +332,7 @@ public class Auto extends LinearOpMode{
                     }
                 });
         AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 5.5);
+        LightManager.LEDStrip.clear();
         turret.setShooterVelocity(0);
         turret.redirectorSetVelocity(0);
     }
@@ -344,7 +350,7 @@ public class Auto extends LinearOpMode{
         AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 1);
 
         //Drive and Intake
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -67, AngleUnit.DEGREES, -90)), 0.8));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -61, AngleUnit.DEGREES, -90)), 0.5));
         intake.intakeGO(0.9);
         turret.setShooterVelocity(-1);
         intake.kickerGO(-0.5);
