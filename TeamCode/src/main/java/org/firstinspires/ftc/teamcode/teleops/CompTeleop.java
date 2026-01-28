@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.subsystems.LightManager;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -16,7 +15,6 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
-import org.firstinspires.ftc.teamcode.subsystems.turret.TurretConstants;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIOReal;
 
 import java.util.logging.Logger;
@@ -78,9 +76,9 @@ public class CompTeleop extends OpMode {
 
         //kickstand/climb on controller1
         if(gamepad1.x){
-            drivetrain.eggPos(0,0);
+            drivetrain.eggPos(0.1,0.1);
         }else if(gamepad1.y){
-            drivetrain.eggPos(1,1);
+            drivetrain.eggPos(0.9,0.9);
         }
 
         //reset the IMU to reset Field oriented on controller1
@@ -112,14 +110,16 @@ public class CompTeleop extends OpMode {
             turret.redirectorSetVelocity(0);
         }else if (gamepad2.right_trigger > 0.2) {
             turret.autoAccelerate();
-            LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
-            if(turret.getShooterVelocity() <= turret.getAcceleratorSetpoint() || Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE){
-                intake.kickerGO(-0.9);
-                intake.intakeGO(1);
-            } else {
-                intake.kickerGO(0);
-                intake.intakeGO(0);
-            }
+//            LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
+//            if(turret.getShooterVelocity() <= turret.getAcceleratorSetpoint() || Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE){
+//                intake.kickerGO(-0.9);
+//                intake.intakeGO(1);
+//            } else {
+//                intake.kickerGO(0);
+//                intake.intakeGO(0);
+//            }
+            intake.kickerGO(-0.9);
+            intake.intakeGO(1);
         }else{
             //everything off
             turret.setShooterVelocity(0);
@@ -139,19 +139,21 @@ public class CompTeleop extends OpMode {
 //            turret.setShooterVelocity(0);
 //        }
 
-//        if (gamepad2.left_trigger > 0.2) {
-//            turret.autoAim();
-//            Logger.getLogger("CompTeleop Turret").info("Updated PID");
-//        } else {
-//            turret.turretSetPower(0);
-//        }
+        if (gamepad2.left_trigger > 0.2) {
+            turret.autoAim();
+            Logger.getLogger("CompTeleop Turret").info("Updated PID");
+        } else {
+            turret.turretSetPower(0);
+        }
 
-        telemetry.addData("Turret position error", turret.getAimError(AngleUnit.DEGREES));
+        telemetry.addData("Turret Aim Error", turret.getAimError(AngleUnit.DEGREES));
         telemetry.addData("Turret Position", turret.getTurretPosition(AngleUnit.DEGREES));
-        telemetry.addData("setpoint", turret.getTurretSetpoint(AngleUnit.DEGREES));
-        telemetry.addData("Distance to tag vector angle", Math.toDegrees(turret.aimTagDistance.angle()));
-        telemetry.addData("robot heading", PoseEstimator.getPose().getHeading(AngleUnit.DEGREES));
-        telemetry.addData("Distance from tag", turret.getTagDistance(DistanceUnit.METER));
+        telemetry.addData("Turret Setpoint", turret.getTurretSetpoint(AngleUnit.DEGREES));
+        telemetry.addData("Goal Angle", Math.toDegrees(turret.aimDiffVector.angle()));
+        telemetry.addData("Heading", PoseEstimator.getPose().getHeading(AngleUnit.DEGREES));
+        telemetry.addData("Goal Distance", turret.getGoalDistance(DistanceUnit.METER));
+        telemetry.addData("Shooter Velocity", turret.getShooterVelocity());
+        telemetry.addData("Redirector Velocity", turret.getRedirectorVelocity());
 
 
         //FTC Dashboard telemetry packet

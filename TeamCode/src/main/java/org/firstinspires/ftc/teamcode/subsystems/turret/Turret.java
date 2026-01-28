@@ -20,13 +20,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
     public static double kTP = 0.42, kTI = 0, kTD = 0.004;
-    public static double cTP = 0.2, cTI = 0, cTD = 0.0004;
     public PIDController turretPIDController = new PIDController(kTP, kTI, kTD);
-    public PIDController turretTelePIDController = new PIDController(cTP, cTI, cTD);
     public boolean aimTagDetected = false;
-    public Vector aimTagDistance = new Vector(0.0, 0.0);
-    public double acceleratorSetpoint = -1700; //make static for tuning
-//    public static double redirectorSetpoint = 0.0;
+    public Vector aimDiffVector = new Vector(0.0, 0.0);
+    public static double acceleratorSetpoint = -1700; //make static for tuning
+    public static double redirectorSetpoint = 0.0;
 //    public PIDController velocityPIDController = new PIDController(4,0.0,0.05);
 
     public Turret(TurretIO io) {
@@ -55,7 +53,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
                 PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
         );
 
-        aimTagDistance = new Vector((turretCenter.getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)), (turretCenter.getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
+        aimDiffVector = new Vector((turretCenter.getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)), (turretCenter.getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
 
     }
 
@@ -92,11 +90,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
         }
     }
 
-    public double getTagDistance(DistanceUnit distanceUnit) {
+    public double getGoalDistance(DistanceUnit distanceUnit) {
         if (distanceUnit == DistanceUnit.INCH) {
-            return aimTagDistance.magnitude();
+            return aimDiffVector.magnitude();
         } else {
-            return (aimTagDistance.magnitude() / 39.37);
+            return (aimDiffVector.magnitude() / 39.37);
         }
     }
 
@@ -120,7 +118,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public AutoUtil.AutoActionState autoAim() {
 
 
-        setPoint = Angles.clipRadians(aimTagDistance.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS));
+        setPoint = Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS));
         if (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (setPoint)) < 0.045) {
             turretSetPower(0);
             return AutoUtil.AutoActionState.FINISHED;
@@ -177,18 +175,19 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
 
     public void runShooterForDistance() {
-        desiredVelocity = 0.69 * (aimTagDistance.magnitude()) + 5.17699;
+        desiredVelocity = 0.69 * (aimDiffVector.magnitude()) + 5.17699;
         setShooterVelocity(desiredVelocity);
     }
 
     public void autoAccelerate() {
         setShooterVelocityTicks(acceleratorSetpoint);
 //        redirectorSetVelocity((-314.28571 * getTagDistance(DistanceUnit.METER) + 290.47619));
-        redirectorSetVelocity( (178 * getTagDistance(DistanceUnit.METER) + 185) * -1 );
+//        redirectorSetVelocity( (178 * getTagDistance(DistanceUnit.METER) + 185) * -1 );
+        redirectorSetVelocity(redirectorSetpoint);
     }
 
     public double getRedirectorSetpoint() {
-        return (-314.28571 * getTagDistance(DistanceUnit.METER) + 290.47619);
+        return (-314.28571 * getGoalDistance(DistanceUnit.METER) + 290.47619);
     }
 
     public void resetTurretEncoder(){

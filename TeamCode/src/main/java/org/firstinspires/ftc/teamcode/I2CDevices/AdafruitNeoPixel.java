@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.configuration.annotations.I2cDeviceType;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.logging.Logger;
 
 import android.graphics.Color;
 
@@ -264,7 +265,11 @@ public class AdafruitNeoPixel extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
             if (endOfSequence || maxLengthReached || trackingEndOfBuffer) {
                 // Write the sequence to the device
-                writeDeviceBuffer(createPayload(startIndex, length));
+                try {
+                    writeDeviceBuffer(createPayload(startIndex, length));
+                } catch (Exception e) {
+                    Logger.getLogger("AdafruitNeoPixel").warning("I2C Error: " + e.getMessage());
+                }
                 startIndex = -1;
                 length = 0;
             }
