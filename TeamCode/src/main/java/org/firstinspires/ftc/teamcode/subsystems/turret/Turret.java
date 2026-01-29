@@ -19,7 +19,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public static double kTP = 0.7, kTI = 0.02, kTD = 0.09;
+    public static double kTP = 0.7, kTI = 0.15, kTD = 0.015;
     public PIDController turretPIDController = new PIDController(kTP, kTI, kTD);
     public boolean aimTagDetected = false;
     public Vector aimDiffVector = new Vector(0.0, 0.0);
@@ -119,7 +119,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
 
         setPoint = Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS));
-        if (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (setPoint)) < 0.045) {
+        if (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (setPoint)) < AngleUnit.RADIANS.fromDegrees(2)) {
             turretSetPower(0);
             return AutoUtil.AutoActionState.FINISHED;
         }

@@ -109,6 +109,10 @@ public class Auto extends LinearOpMode{
             aim();
             compress();
             shoot();
+            intakeRow(2);
+            driveToShootFar();
+            compress();
+            shoot();
             leaveTriangle();
 //            driveToShootFar();
 //            aim();
@@ -309,7 +313,7 @@ public class Auto extends LinearOpMode{
     public void compress() {
         intake.kickerGO(0.5);
         intake.intakeGO(0.5);
-        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.01);
+        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.005);
         intake.kickerGO(0);
         intake.intakeGO(0);
     }
