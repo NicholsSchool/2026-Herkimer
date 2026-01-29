@@ -19,11 +19,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public static double kTP = 0.42, kTI = 0, kTD = 0.004;
+    public static double kTP = 0.7, kTI = 0.02, kTD = 0.09;
     public PIDController turretPIDController = new PIDController(kTP, kTI, kTD);
     public boolean aimTagDetected = false;
     public Vector aimDiffVector = new Vector(0.0, 0.0);
-    public static double acceleratorSetpoint = -1700; //make static for tuning
+    public static double acceleratorSetpoint = 1200; //make static for tuning
     public static double redirectorSetpoint = 0.0;
 //    public PIDController velocityPIDController = new PIDController(4,0.0,0.05);
 
@@ -130,7 +130,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
             turretSetPower(0);
         } else {
             turretPIDController.setSetpoint(setPoint);
-            turretSetPower(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)));
+            turretSetPower((-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS))) * 0.8); // 0.8 is a speed multiplier
 //            turretSetPower((getTurretPosition(AngleUnit.DEGREES) - (setPoint)));
         }
 
@@ -181,10 +181,16 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public void autoAccelerate() {
         setShooterVelocityTicks(acceleratorSetpoint);
-//        redirectorSetVelocity((-314.28571 * getTagDistance(DistanceUnit.METER) + 290.47619));
-//        redirectorSetVelocity( (178 * getTagDistance(DistanceUnit.METER) + 185) * -1 );
-        redirectorSetVelocity(redirectorSetpoint);
+        //the quadratic redirector function
+        redirectorSetVelocity((-27.6) * Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-117.4 * (getGoalDistance(DistanceUnit.METER))) + 14.95);
     }
+
+    //the redirector power function
+    //redirectorSetVelocity((-122.5) * (Math.pow(getGoalDistance(DistanceUnit.METER), 1.4315)));
+
+    //the redirector linear function
+    //redirectorSetVelocity((-258 * getGoalDistance) + 169);
+
 
     public double getRedirectorSetpoint() {
         return (-314.28571 * getGoalDistance(DistanceUnit.METER) + 290.47619);

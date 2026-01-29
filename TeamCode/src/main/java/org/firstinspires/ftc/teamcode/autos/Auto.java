@@ -123,18 +123,15 @@ public class Auto extends LinearOpMode{
             leaveTriangle();
         }else{
             driveToShoot();
-            aim();
             shoot();
-            intakeRow(1);
+            intakeRow1();
             driveToShoot();
-            aim();
             compress();
             shoot();
             intakeRow(2);
-//            lastDriveToShoot();
-//            aim();
-//            compress();
-//            shoot();
+            lastDriveToShoot();
+            compress();
+            shoot();
 //            intakeRow(3);
 //            driveToShoot();
 //            aim();
@@ -266,10 +263,10 @@ public class Auto extends LinearOpMode{
         actionSet.clear();
 
         intake.intakeGO(0.3);
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -36, -14, AngleUnit.DEGREES, 0))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -36, -18, AngleUnit.DEGREES, 0))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 4);
         actionSet.clear();
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -36, -14, AngleUnit.DEGREES, 45))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -36, -18, AngleUnit.DEGREES, 65))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
 
         actionSet.clear();
@@ -304,7 +301,7 @@ public class Auto extends LinearOpMode{
         actionSet.clear();
 
         actionSet.add(turret::autoAim);
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.2);
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
 
         actionSet.clear();
     }
@@ -312,7 +309,7 @@ public class Auto extends LinearOpMode{
     public void compress() {
         intake.kickerGO(0.5);
         intake.intakeGO(0.5);
-        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.05);
+        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.01);
         intake.kickerGO(0);
         intake.intakeGO(0);
     }
@@ -323,7 +320,7 @@ public class Auto extends LinearOpMode{
         shootSet.add(() -> {
                     turret.autoAccelerate();
                     LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
-                    if (turret.getShooterVelocity() <= turret.getAcceleratorSetpoint() || Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
+                    if (Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
                         intake.kickerGO(-0.9);
                         intake.intakeGO(1);
                     } else {
@@ -331,7 +328,7 @@ public class Auto extends LinearOpMode{
                         intake.intakeGO(0);
                     }
                 });
-        AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 5.5);
+        AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 3.2);
         LightManager.LEDStrip.clear();
         turret.setShooterVelocity(0);
         turret.redirectorSetVelocity(0);
@@ -343,30 +340,62 @@ public class Auto extends LinearOpMode{
         double rowX = -36 + (24 * row);
 
         //Go To Row
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -30, AngleUnit.DEGREES, -90))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -26, AngleUnit.DEGREES, -90))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.2);
         actionSet.clear();
 
-        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 1);
+        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.1);
 
         //Drive and Intake
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -61, AngleUnit.DEGREES, -90)), 0.5));
-        intake.intakeGO(0.9);
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -70, AngleUnit.DEGREES, -90)), 0.7));
+        intake.intakeGO(1);
         turret.setShooterVelocity(-1);
         intake.kickerGO(-0.5);
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.0);
+        actionSet.clear();
+
+
+        //back up
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -28, AngleUnit.DEGREES, -90))));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 0.8);
         actionSet.clear();
 
         intake.intakeGO(0);
         turret.setShooterVelocity(0);
         intake.kickerGO(0);
 
-        //back up
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, rowX, -30, AngleUnit.DEGREES, -90))));
+//        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 1);
+    }
+
+    public void intakeRow1() {
+        actionSet.clear();
+
+        //Go To Row
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -12, -28, AngleUnit.DEGREES, -90))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.2);
         actionSet.clear();
 
-        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 1);
+        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.1);
+
+        //Drive and Intake
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -12, -60, AngleUnit.DEGREES, -90)), 0.7));
+        intake.intakeGO(1);
+        turret.setShooterVelocity(-1);
+        intake.kickerGO(-0.5);
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.0);
+        actionSet.clear();
+
+
+        //back up
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -12, -28, AngleUnit.DEGREES, -90))));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 0.8);
+        actionSet.clear();
+
+        intake.intakeGO(0);
+        turret.setShooterVelocity(0);
+        intake.kickerGO(0);
+
+//        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 1);
     }
 
     public void openGate() {

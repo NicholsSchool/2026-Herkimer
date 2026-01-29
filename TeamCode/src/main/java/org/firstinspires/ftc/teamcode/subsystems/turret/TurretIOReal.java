@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.util.Size;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -31,7 +32,7 @@ import org.opencv.core.Mat;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.IntSupplier;
-
+@Config
 public class TurretIOReal implements TurretIO, TurretConstants {
 
     //the actual shooter wheel (one motor on both sides attached to the same shaft)
@@ -59,7 +60,7 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         rapidRedirector.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         rapidRedirector.setVelocityPIDFCoefficients(120,7,0.0,0.0);
-        artifactAccelerator.setVelocityPIDFCoefficients(400,40,20.0,50);
+        artifactAccelerator.setVelocityPIDFCoefficients(400,60,30.0,50);
 
         this.isRed = isRed;
         magnet.setMode(DigitalChannel.Mode.INPUT);
