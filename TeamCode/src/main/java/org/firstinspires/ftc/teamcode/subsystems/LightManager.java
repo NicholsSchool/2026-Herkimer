@@ -64,7 +64,7 @@ public class LightManager {
 
         public static void clear() {
             driver.clearLeds();
-            driver.show(true);
+            update();
         }
 
         public static int getLength() {
@@ -72,8 +72,7 @@ public class LightManager {
         }
 
         public static void update() {
-            driver.show(updateTime.seconds() > LightConstants.fullUpdatePeriod);
-            if (updateTime.seconds() > LightConstants.fullUpdatePeriod) updateTime.reset();
+            driver.show(false);
         }
 
         public static String getStripConnInfo() {

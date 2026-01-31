@@ -84,7 +84,7 @@ public class Auto extends LinearOpMode{
             // the isRed in the X position is because the red auto DOES NOT WORK unless it has +4 inches. i dont know why. pls send help. :(
             PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.METER, isRed ? -1.5 : -1.6, -1, AngleUnit.DEGREES, 0)));
         }else{
-            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 64, -24, AngleUnit.DEGREES, 0)));
+            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, isRed ? 65 : 64, -24, AngleUnit.DEGREES, 0)));
         }
 
         LightManager.GoBildaLights.setLights(new double[]{0, 0, 0});
@@ -110,15 +110,15 @@ public class Auto extends LinearOpMode{
             compress();
             shoot();
             //human player intaking
-//            humanPlayerIntake();
-//            driveToShootFar();
-//            compress();
-//            shoot();
-//            leaveTriangle();
-            intakeRow(2);
+            humanPlayerIntake();
             driveToShootFar();
             compress();
             shoot();
+//            leaveTriangle();
+//            intakeRow(2);
+//            driveToShootFar();
+//            compress();
+//            shoot();
             leaveTriangle();
 
         }else if(isLeaveAuto){
@@ -436,33 +436,17 @@ public class Auto extends LinearOpMode{
 
     public void humanPlayerIntake(){
 
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 50, -60, AngleUnit.DEGREES, -95))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 44, -63, AngleUnit.DEGREES, 0))));
         intake.intakeGO(1);
         intake.kickerGO(-0.5);
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3.5);
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3);
         actionSet.clear();
 
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 56, -60, AngleUnit.DEGREES, -95))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 64, -63, AngleUnit.DEGREES, -5)), 0.2));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.5);
         actionSet.clear();
 
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 56, -57, AngleUnit.DEGREES, -120))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
-        actionSet.clear();
-
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 56, -61, AngleUnit.DEGREES, -120))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
-        actionSet.clear();
-
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 59, -58, AngleUnit.DEGREES, -120))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
-        actionSet.clear();
-
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 59, -61, AngleUnit.DEGREES, -120))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
-        actionSet.clear();
-
-
+        turret.setShooterVelocity(0);
         intake.intakeGO(0);
         intake.kickerGO(0);
 
