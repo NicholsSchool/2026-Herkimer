@@ -35,7 +35,7 @@ public class CompTeleop extends OpMode {
     @Override
     public void init(){
         LightManager.inititalize(hardwareMap);
-        PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, false);
+        PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true);//TODO: CHANGE B4 COMP PLSSSS DO NOT GO TO COMP WITH THIS TRUE
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
         intake = new Intake(new IntakeIOReal(hardwareMap));
         turret = new Turret(new TurretIOReal(hardwareMap, isRed));
@@ -177,6 +177,9 @@ public class CompTeleop extends OpMode {
         telemetry.addData("Shooter Velocity", turret.getShooterVelocity());
         telemetry.addData("Redirector Velocity", turret.getRedirectorVelocity());
         telemetry.addData("full loop time", time.time());
+
+        telemetry.addData("1. pos X", PoseEstimator.getPose().getX(DistanceUnit.INCH));
+        telemetry.addData("2. pos Y", PoseEstimator.getPose().getY(DistanceUnit.INCH));
 
 
 

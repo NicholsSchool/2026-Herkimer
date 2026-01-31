@@ -44,7 +44,8 @@ public class PoseEstimator implements DrivetrainConstants {
         PoseEstimator.robotPose = initialPose;
         PoseEstimator.useAT = useAT;
         pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
-        pinpoint.setOffsets(-4, -17, DistanceUnit.CM);
+        pinpoint.setOffsets(-1.9, -15.6, DistanceUnit.CM);
+        //used to be 4,17
         if (forceReset || pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) pinpoint.setPosition(initialPose);
         pinpoint.initialize();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);

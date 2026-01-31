@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.math_utils.Angles;
 import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.subsystems.LightManager;
@@ -28,14 +29,19 @@ public class TestDriveAuto extends LinearOpMode {
     private boolean runDiagonalTests = true;
     private boolean runAngleTests = true;
     private boolean runCompactTest = false;
+    private boolean runAllianceTest = false;
+    private boolean isRed = false;
 
     @Override
     public void runOpMode() {
 
         LightManager.inititalize(hardwareMap);
 
-        PoseEstimator.init(hardwareMap,  new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true);
-        
+//        if(runAllianceTest) {
+        PoseEstimator.init(hardwareMap, (allianceFlip(isRed, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0))), false, true);
+//        }else{
+//            PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, -24, AngleUnit.DEGREES, 0), false, true);
+//        }
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
         
         AutoUtil.supplyOpModeActive(this::opModeIsActive);
@@ -60,6 +66,10 @@ public class TestDriveAuto extends LinearOpMode {
             telemetry.addLine("[B] Angle Tests " + (runAngleTests ? "ENABLED" : "DISABLED"));
             if (gamepad1.yWasPressed()) runCompactTest = !runCompactTest;
             telemetry.addLine("[Y] Angle Tests " + (runCompactTest ? "ENABLED" : "DISABLED"));
+            if (gamepad1.dpadUpWasPressed()) runAllianceTest = !runAllianceTest;
+            telemetry.addLine("[DUP] Alliance Tests " + (runAllianceTest ? "ENABLED" : "DISABLED"));
+            if (gamepad1.dpadDownWasPressed()) isRed = !isRed;
+            telemetry.addLine("[DDOWN] Alliance color " + ( isRed? "RED" : "BLUE"));
             telemetry.update();
         }
 
@@ -158,10 +168,24 @@ public class TestDriveAuto extends LinearOpMode {
             AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
             actionSet.clear();
         }
+
+        if(runAllianceTest){
+            actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 48, -24, AngleUnit.DEGREES, 0))));
+            AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+            actionSet.clear();
+
+        }
              
         actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0)));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
         actionSet.clear();
 
+
+
     }
+    public static Pose2D allianceFlip(boolean isRed, Pose2D pose) {
+        return PoseEstimator.allianceFlip(isRed, pose);
+
+    }
+
 }
