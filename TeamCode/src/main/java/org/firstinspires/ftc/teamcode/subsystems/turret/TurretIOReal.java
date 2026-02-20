@@ -105,7 +105,7 @@ public class TurretIOReal implements TurretIO, TurretConstants {
     @Override
     public void turretSetPower(double power){
         turretTurner2.setPower(power);
-        turretTurner1.setPower(power);
+//        turretTurner1.setPower(power);
 
     }
 

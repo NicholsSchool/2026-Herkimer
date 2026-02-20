@@ -35,7 +35,7 @@ public class CompTeleop extends OpMode {
     @Override
     public void init(){
         LightManager.inititalize(hardwareMap);
-        PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true);//TODO: CHANGE B4 COMP PLSSSS DO NOT GO TO COMP WITH THIS TRUE
+        PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, false);//TODO: CHANGE B4 COMP PLSSSS DO NOT GO TO COMP WITH THIS TRUE
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
         intake = new Intake(new IntakeIOReal(hardwareMap));
         turret = new Turret(new TurretIOReal(hardwareMap, isRed));
@@ -127,7 +127,7 @@ public class CompTeleop extends OpMode {
             turret.autoAccelerate();
 //            LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
             if(Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE){
-                intake.kickerGO(-0.9);
+                intake.kickerGO(-1);
                 intake.intakeGO(1);
             } else {
                 intake.kickerGO(0);

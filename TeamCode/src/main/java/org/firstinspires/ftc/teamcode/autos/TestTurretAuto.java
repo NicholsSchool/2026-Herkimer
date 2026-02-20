@@ -45,13 +45,15 @@ public class TestTurretAuto extends LinearOpMode {
         telemetry.setMsTransmissionInterval(50);
 
         telemetry.update();
-        telemetry.addData("ERROR", -1.0);
+        telemetry.addData("Position", -1.0);
+        telemetry.addData("Setpoint", -1.0);
         telemetry.addData("Time", AutoUtil.getLoopTime());
         telemetry.update();
 
         waitForStart();
 
-        periodicSet.add(() -> telemetry.addData("ERROR", turret.turretPIDController.getPositionError()));
+        periodicSet.add(() -> telemetry.addData("Position", turret.getTurretPosition(AngleUnit.RADIANS)));
+        periodicSet.add(() -> telemetry.addData("Setpoint", turret.getTurretSetpoint(AngleUnit.RADIANS)));
         periodicSet.add(() -> telemetry.addData("Time", AutoUtil.getLoopTime()));
         periodicSet.add(telemetry::update);
 

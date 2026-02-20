@@ -51,6 +51,9 @@ public class PoseEstimator implements DrivetrainConstants {
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.update();
 
+        pinpoint.recalibrateIMU();
+        pinpoint.update();
+
 //        VisionPortal.Builder builder = new VisionPortal.Builder();
 //        aprilTag = AprilTagProcessor.easyCreateWithDefaults();
         //builder.setCamera(hwMap.get(WebcamName.class, "W"));

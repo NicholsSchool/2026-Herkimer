@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems.turret;
 
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -70,10 +71,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
 //        turretSetPower((angle - inputs.turretAngle) * turretP);
         setPoint = unit.toRadians(angle);
         if (setPoint < -Math.PI / 2 || setPoint > Math.PI / 2) {
-            turretSetPower(0);
+//            turretSetPower(0);
         } else {
             turretPIDController.setSetpoint(setPoint);
-            turretSetPower(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)));
+            turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1) * 0.9);
         }
     }
 //     io.turretSetPower(turretPIDController.calculate(inputs.turretAngle, angle));
@@ -118,7 +119,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public AutoUtil.AutoActionState autoAim() {
 
 
-        setPoint = Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS));
+        setPoint = Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + Math.toRadians(180));
         if (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (setPoint)) < AngleUnit.RADIANS.fromDegrees(2)) {
             turretSetPower(0);
             return AutoUtil.AutoActionState.FINISHED;
@@ -127,11 +128,9 @@ public class Turret extends SubsystemBase implements TurretConstants {
         //(Math.abs(getTurretPosition(AngleUnit.RADIANS) - (setPoint))
 
         if (setPoint < -Math.PI / 2 || setPoint > Math.PI / 2) {
-            turretSetPower(0);
+//            turretSetPower(0);
         } else {
-            turretPIDController.setSetpoint(setPoint);
-            turretSetPower((-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS))) * 0.8); // 0.8 is a speed multiplier
-//            turretSetPower((getTurretPosition(AngleUnit.DEGREES) - (setPoint)));
+            turretSetAngle(setPoint, AngleUnit.RADIANS);
         }
 
 
@@ -182,7 +181,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public void autoAccelerate() {
         setShooterVelocityTicks(acceleratorSetpoint);
         //the quadratic redirector function
-        redirectorSetVelocity((-27.6) * Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-117.4 * (getGoalDistance(DistanceUnit.METER))) + 14.95);
+//        redirectorSetVelocity((-27.6) * Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-117.4 * (getGoalDistance(DistanceUnit.METER))) + 14.95);
+        //NEW quadratic redirector function
+        redirectorSetVelocity((-20.31152)* Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-101.9002 * (getGoalDistance(DistanceUnit.METER))) + 18.06928);
+//        redirectorSetVelocity(redirectorSetpoint);
     }
 
     //the redirector power function
