@@ -20,7 +20,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public static double kTP = 0.7, kTI = 0.15, kTD = 0.015;
+    public static double kTP = 0.7, kTI = 0.015, kTD = 0.08;
     public PIDController turretPIDController = new PIDController(kTP, kTI, kTD);
     public boolean aimTagDetected = false;
     public Vector aimDiffVector = new Vector(0.0, 0.0);
@@ -54,7 +54,8 @@ public class Turret extends SubsystemBase implements TurretConstants {
                 PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
         );
 
-        aimDiffVector = new Vector((turretCenter.getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)), (turretCenter.getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
+        aimDiffVector = new Vector((turretCenter.getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)),
+                (turretCenter.getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
 
     }
 
@@ -74,7 +75,13 @@ public class Turret extends SubsystemBase implements TurretConstants {
 //            turretSetPower(0);
         } else {
             turretPIDController.setSetpoint(setPoint);
-            turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1) * 0.9);
+            if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < 0.1 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > 0.01)) {
+                turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS) - 0.05), -1, 1));
+            }else if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > -0.1 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < -0.01)) {
+                turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS) + 0.05), -1, 1));
+            }else{
+                turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1));
+            }
         }
     }
 //     io.turretSetPower(turretPIDController.calculate(inputs.turretAngle, angle));
@@ -90,6 +97,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
             return Math.toDegrees(inputs.turretAngle);
         }
     }
+
+    public double getTurretPIDPower(){
+        return (Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1));
+    }
+
 
     public double getGoalDistance(DistanceUnit distanceUnit) {
         if (distanceUnit == DistanceUnit.INCH) {

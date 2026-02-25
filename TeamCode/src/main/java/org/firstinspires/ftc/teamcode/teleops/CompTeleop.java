@@ -102,14 +102,14 @@ public class CompTeleop extends OpMode {
 
         //Compact on controller2
         if (gamepad2.y){
-            intake.intakeGO(.8);
-            intake.kickerGO(.8);
-            turret.setShooterVelocity(0);
+            intake.intakeGO(-0.8);
+            intake.kickerGO(0.8);
+            turret.setShooterVelocity(-1);
             turret.redirectorSetVelocity(0);
             telemetry.addData("compact time", time.time());
         }else if(gamepad2.b){
             //intake on controller2
-            intake.intakeGO(.7);
+            intake.intakeGO(-0.7);
             turret.setShooterVelocity(-1);
             turret.redirectorSetVelocity(0);
             intake.kickerGO(-.7);
@@ -117,9 +117,9 @@ public class CompTeleop extends OpMode {
 
         }else if(gamepad2.a){
             //outtake on controller2
-            intake.intakeGO(-0.5);
+            intake.intakeGO(0.5);
             intake.kickerGO(0.5);
-            turret.setShooterVelocity(0);
+            turret.setShooterVelocity(-1);
             turret.redirectorSetVelocity(0);
             telemetry.addData("outtake time", time.time());
 
@@ -128,7 +128,7 @@ public class CompTeleop extends OpMode {
 //            LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
             if(Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE){
                 intake.kickerGO(-1);
-                intake.intakeGO(1);
+                intake.intakeGO(-1);
             } else {
                 intake.kickerGO(0);
                 intake.intakeGO(0);
@@ -180,6 +180,8 @@ public class CompTeleop extends OpMode {
 
         telemetry.addData("1. pos X", PoseEstimator.getPose().getX(DistanceUnit.INCH));
         telemetry.addData("2. pos Y", PoseEstimator.getPose().getY(DistanceUnit.INCH));
+
+        telemetry.addData("Turret Power", turret.getTurretPIDPower());
 
 
 
