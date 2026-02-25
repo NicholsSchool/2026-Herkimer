@@ -182,6 +182,7 @@ public class CompTeleop extends OpMode {
         telemetry.addData("2. pos Y", PoseEstimator.getPose().getY(DistanceUnit.INCH));
 
         telemetry.addData("Turret Power", turret.getTurretPIDPower());
+        telemetry.addData("Raw Turret Ticks", turret.getRawTurretPos());
 
 
 

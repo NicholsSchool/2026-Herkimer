@@ -82,7 +82,8 @@ public class TurretIOReal implements TurretIO, TurretConstants {
 
     @Override
     public void updateInputs (TurretIO.TurretIOInputs inputs){
-        inputs.turretAngle = (turretEncoder.getCurrentPosition() / 7274.78146);
+        inputs.turretAngle = (turretEncoder.getCurrentPosition() / 7848.15287);
+                //7274.78146
         inputs.magnetState = magnet.getState();
         inputs.rawTurretAngle = turretEncoder.getCurrentPosition();
         inputs.shooterVelocity = artifactAccelerator.getVelocity();

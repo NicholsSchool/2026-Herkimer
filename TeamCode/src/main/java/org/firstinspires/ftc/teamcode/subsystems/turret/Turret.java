@@ -76,9 +76,9 @@ public class Turret extends SubsystemBase implements TurretConstants {
         } else {
             turretPIDController.setSetpoint(setPoint);
             if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < 0.1 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > 0.01)) {
-                turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS) - 0.05), -1, 1));
+                turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1));
             }else if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > -0.1 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < -0.01)) {
-                turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS) + 0.05), -1, 1));
+                turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1));
             }else{
                 turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1));
             }
