@@ -82,7 +82,13 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         setDriveMotorPower(fieldY, fieldX, turn);
     }
 
-    ;
+    @Override
+    public void setMotorPowerPlain(double power){
+        backRight.setPower(power);
+        backLeft.setPower(power);
+        frontRight.setPower(power);
+        frontLeft.setPower(power);
+    }
 
     @Override
     public void setEggPos(double pos1, double pos2) {

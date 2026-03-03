@@ -44,10 +44,7 @@ public class TurretIOReal implements TurretIO, TurretConstants {
     //the magnet sensor that acts as a limit switch for our turret
     DigitalChannel magnet;
 
-    public boolean isRed;
-
-
-    public TurretIOReal(HardwareMap hwMap, boolean isRed){
+    public TurretIOReal(HardwareMap hwMap){
 
         artifactAccelerator = hwMap.get(DcMotorEx.class, "shooter");
         rapidRedirector = hwMap.get(DcMotorEx.class, "redirector");
@@ -62,7 +59,6 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         rapidRedirector.setVelocityPIDFCoefficients(120,7,0.0,0.0);
         artifactAccelerator.setVelocityPIDFCoefficients(400,60,30.0,50);
 
-        this.isRed = isRed;
         magnet.setMode(DigitalChannel.Mode.INPUT);
 //        List<AprilTagDetection> result = aprilTag.getDetections();
 //        if(!result.isEmpty()){

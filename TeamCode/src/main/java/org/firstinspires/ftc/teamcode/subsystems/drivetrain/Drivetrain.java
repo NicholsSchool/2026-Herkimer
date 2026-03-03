@@ -98,6 +98,10 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
         return AutoUtil.AutoActionState.RUNNING;
     }
 
+    public void setDrivePowerZero(){
+        io.setMotorPowerPlain(0);
+    }
+
     public Vector getDrivePIDError(){
         return drivePIDError;
     }

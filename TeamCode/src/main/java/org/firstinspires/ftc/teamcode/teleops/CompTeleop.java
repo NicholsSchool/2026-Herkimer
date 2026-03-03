@@ -38,7 +38,7 @@ public class CompTeleop extends OpMode {
         PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, false);//TODO: CHANGE B4 COMP PLSSSS DO NOT GO TO COMP WITH THIS TRUE
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
         intake = new Intake(new IntakeIOReal(hardwareMap));
-        turret = new Turret(new TurretIOReal(hardwareMap, isRed));
+        turret = new Turret(new TurretIOReal(hardwareMap));
         dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
         time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);

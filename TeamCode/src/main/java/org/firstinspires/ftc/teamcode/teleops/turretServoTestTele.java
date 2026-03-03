@@ -17,7 +17,7 @@ public class turretServoTestTele extends OpMode {
     @Override
     public void init() {
         //LightManager.inititalize(hardwareMap);
-        turret = new Turret(new TurretIOReal(hardwareMap, isRed));
+        turret = new Turret(new TurretIOReal(hardwareMap));
 
     }
 

@@ -75,10 +75,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
 //            turretSetPower(0);
         } else {
             turretPIDController.setSetpoint(setPoint);
-            if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < 0.1 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > 0.01)) {
-                turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1));
-            }else if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > -0.1 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < -0.01)) {
-                turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1));
+            if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > 0.16 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > 0.01)) {
+                turretSetPower(0.9 * Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1) + 0.07);
+            }else if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < -0.16 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < -0.01)) {
+                turretSetPower(0.9 * Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1) - 0.07);
             }else{
                 turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1));
             }
