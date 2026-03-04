@@ -120,8 +120,6 @@ public class Auto extends LinearOpMode{
 
             if (gamepad2.aWasPressed()) {
                 ConfigOption option = options.get(currentOption);
-//                 assert ConfigOption.values() != null;
-//                List<ConfigOption> possibleValues = Arrays.asList(ConfigOption.values());
                 List<ConfigOption> possibleValues = Collections.emptyList();
                 if (option instanceof StartPosition) {
                     possibleValues = Arrays.asList(StartPosition.values());
@@ -175,77 +173,62 @@ public class Auto extends LinearOpMode{
         periodicSet.add(() -> telemetry.addData("Pose", drivetrain.getPose().toString()));
         periodicSet.add(() -> telemetry.update());
 
-        if (isAudience) {
-            driveToShoot();
-        }
-
         if (options.get("Leave only") == LeaveOnly.ENABLED) {
-
-        } else {
-            runCycle((CycleType) options.get("Cycle 1 Type"));
-            cycleCount = 1;
-            runCycle((CycleType) options.get("Cycle 2 Type"));
-            cycleCount = 2;
-            runCycle((CycleType) options.get("Cycle 3 Type"));
-            cycleCount = 3;
-            runCycle((CycleType) options.get("Cycle 4 Type"));
-            cycleCount = 4;
-            runCycle((CycleType) options.get("Cycle 5 Type"));
+            driveToShoot(false, false);
+            return;
         }
+
+        shoot();
+        runCycle((CycleType) options.get("Cycle 1 Type"));
+        cycleCount = 1;
+        runCycle((CycleType) options.get("Cycle 2 Type"));
+        cycleCount = 2;
+        runCycle((CycleType) options.get("Cycle 3 Type"));
+        cycleCount = 3;
+        runCycle((CycleType) options.get("Cycle 4 Type"));
+        cycleCount = 4;
+        runCycle((CycleType) options.get("Cycle 5 Type"));
 
     }
 
     private void runCycle(CycleType cycleType) {
 
-        HashMap<String, ConfigOption > cycles = (HashMap<String, ConfigOption>) options.clone();
+        if (cycleType == null) return;
 
-        cycles.remove("Alliance");
-        cycles.remove("Starting Position");
-        cycles.remove("Leave only");
-
-        List<ConfigOption> prevCycles = new ArrayList<>(cycles.values()).subList(0, cycleCount - 1);
-
-        if (!prevCycles.contains(CycleType.SKIP) || !prevCycles.contains(CycleType.WAIT)) {
-
-        }
+        List<ConfigOption> cycleValues = new ArrayList<>(((HashMap<String, ConfigOption>) options.clone()).values());
+        cycleValues.removeIf((value) -> value instanceof StartPosition || value instanceof Alliance || value instanceof LeaveOnly);
+        cycleValues.removeIf((value) -> value.equals(CycleType.SKIP) || value.equals(CycleType.WAIT));
+        int driveCycles = cycleValues.size();
 
         switch (cycleType) {
             case AUDIENCE_SPIKE:
                 intakeRow(3);
-                driveToShoot(false, false);
-                shoot();
                 break;
             case MID_SPIKE:
                 intakeRow(2);
-                driveToShoot(false, false);
-                shoot();
                 break;
             case GOAL_SPIKE:
                 intakeRow(1);
-                driveToShoot(false, false);
-                shoot();
                 break;
             case GATE_CYCLE:
                 intakeFromGate();
-                driveToShoot(false,false);
-                shoot();
                 break;
             case HP_PRESET:
                 intakeHumanPlayerPreset();
-                driveToShoot(false,false);
-                shoot();
                 break;
             case HP_JAB:
 
                 break;
             case WAIT:
                 delay(TimeUnit.SECONDS, 5);
-
-                break;
+                return;
             case SKIP:
             default:
-                break;
+                return;
         }
+
+        driveToShoot(false,cycleCount == driveCycles);
+        shoot();
 
     }
 
@@ -254,7 +237,7 @@ public class Auto extends LinearOpMode{
     public void driveToShoot(boolean inTwoSteps, boolean lastShootPos){
         actionSet.clear();
 
-        if(isAudience){
+        if (!isAudience) {
 
             if(inTwoSteps) {
 
