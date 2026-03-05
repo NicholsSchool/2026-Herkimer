@@ -35,6 +35,16 @@ public class Intake extends SubsystemBase implements IntakeConstants {
         io.setTurretEncoder();
     }
 
+    public int[] getCS1Values(){
+        return inputs.cS1Value;
+    }
+    public int[] getCS2Values(){
+        return inputs.cS2Value;
+    }
+    public int[] getCS3Values(){
+        return inputs.cS3Value;
+    }
+
     //One must imagine new sequential command...
     public void nemo(){
         

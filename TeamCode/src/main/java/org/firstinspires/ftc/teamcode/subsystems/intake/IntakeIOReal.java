@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems.intake;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -12,7 +14,7 @@ public class IntakeIOReal implements IntakeIO, IntakeConstants {
 
     DcMotorEx intakeMotor, kickerMotor;
 
-    Rev2mDistanceSensor beam1, beam2;
+    RevColorSensorV3 cS1, cS2, cS3;
 
 
     public IntakeIOReal(HardwareMap hwMap){
@@ -20,15 +22,18 @@ public class IntakeIOReal implements IntakeIO, IntakeConstants {
         intakeMotor = hwMap.get(DcMotorEx.class, "intake");
         kickerMotor = hwMap.get(DcMotorEx.class, "kicker");
 
-//        beam1 = hwMap.get(Rev2mDistanceSensor.class, "beam1");
-//        beam2 = hwMap.get(Rev2mDistanceSensor.class, "beam2");
+        cS1 = hwMap.get(RevColorSensorV3.class, "cS1");
+        cS2 = hwMap.get(RevColorSensorV3.class, "cS2");
+        cS3 = hwMap.get(RevColorSensorV3.class, "cS3");
 
     }
 
 
     @Override
     public void updateInputs (IntakeIO.IntakeIOInputs inputs){
-
+        inputs.cS1Value = new int[]{cS1.red(),cS1.green(),cS1.blue()};
+        inputs.cS2Value = new int[]{cS2.red(),cS2.green(),cS2.blue()};
+        inputs.cS3Value = new int[]{cS3.red(),cS3.green(),cS3.blue()};
     }
 
     @Override

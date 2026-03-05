@@ -6,6 +6,9 @@ public interface IntakeIO {
 
 
     public static class IntakeIOInputs{
+        public int[] cS1Value  = {0,0,0};
+        public int[] cS2Value  = {0,0,0};
+        public int[] cS3Value  = {0,0,0};
 
     }
 
