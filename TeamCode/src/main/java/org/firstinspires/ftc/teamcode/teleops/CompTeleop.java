@@ -171,14 +171,15 @@ public class CompTeleop extends OpMode {
 
         telemetry.addData("Turret Aim Error", turret.getAimError(AngleUnit.DEGREES));
         telemetry.addData("Turret Position", turret.getTurretPosition(AngleUnit.DEGREES));
+        telemetry.addData("Goal distance", turret.getGoalDistance(DistanceUnit.METER));
         telemetry.addData("Turret Setpoint", turret.getTurretSetpoint(AngleUnit.DEGREES));
         telemetry.addData("Heading", PoseEstimator.getPose().getHeading(AngleUnit.DEGREES));
         telemetry.addData("Shooter Velocity", turret.getShooterVelocity());
         telemetry.addData("Redirector Velocity", turret.getRedirectorVelocity());
         telemetry.addData("full loop time", time.time());
-        telemetry.addData("Color sensor 1 Values (RGB)", Arrays.toString(intake.getCS1Values()));
-        telemetry.addData("Color sensor 2 Values (RGB)", Arrays.toString(intake.getCS2Values()));
-        telemetry.addData("Color sensor 3 Values (RGB)", Arrays.toString(intake.getCS3Values()));
+//        telemetry.addData("Color sensor 1 Values (RGB)", Arrays.toString(intake.getCS1Values()));
+//        telemetry.addData("Color sensor 2 Values (RGB)", Arrays.toString(intake.getCS2Values()));
+//        telemetry.addData("Color sensor 3 Values (RGB)", Arrays.toString(intake.getCS3Values()));
 
         telemetry.addData("1. pos X", PoseEstimator.getPose().getX(DistanceUnit.INCH));
         telemetry.addData("2. pos Y", PoseEstimator.getPose().getY(DistanceUnit.INCH));

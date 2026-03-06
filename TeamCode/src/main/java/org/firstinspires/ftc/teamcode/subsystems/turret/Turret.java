@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems.turret;
 
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -26,6 +27,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public Vector aimDiffVector = new Vector(0.0, 0.0);
     public static double acceleratorSetpoint = 1200; //make static for tuning
     public static double redirectorSetpoint = 0.0;
+    public static double kLTP = 0.7, kLTI = 0.015, kLTD = 0.08;
 //    public PIDController velocityPIDController = new PIDController(4,0.0,0.05);
 
     public Turret(TurretIO io) {
@@ -75,10 +77,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
 //            turretSetPower(0);
         } else {
             turretPIDController.setSetpoint(setPoint);
-            if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > 0.16 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > 0.01)) {
-                turretSetPower(0.9 * Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1) + 0.07);
-            }else if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < -0.16 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < -0.01)) {
-                turretSetPower(0.9 * Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1) - 0.07);
+            if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > 0.13 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) > 0.01)) {
+                turretSetPower(0.9 * Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1) + 0.08);
+            }else if(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < -0.13 && (-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)) < -0.01)) {
+                turretSetPower(0.9 * Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1) - 0.08);
             }else{
                 turretSetPower(Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1));
             }
@@ -127,6 +129,15 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public double distanceFromTag(double rawDistance) {
         return ((rawDistance) - 1.02857 / 25.34286);
     }
+
+    //if (Math.abs(turretController.getPositionError()) > TURRET_THRESHOLD) {
+    //                    turretController.setMaxOutput(TURRET_LARGE_MAX_OUTPUT);
+    //                    turretController.setCoefficients(TURRET_LARGE_PIDF_COEFFICIENTS);
+    //                }
+    //                else {
+    //                    turretController.setCoefficients(TURRET_SMALL_PIDF_COEFFICIENTS);
+    //                    turretController.setMaxOutput(TURRET_SMALL_MAX_OUTPUT);
+    //                }
 
     public AutoUtil.AutoActionState autoAim() {
 
@@ -194,9 +205,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
         setShooterVelocityTicks(acceleratorSetpoint);
         //the quadratic redirector function
 //        redirectorSetVelocity((-27.6) * Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-117.4 * (getGoalDistance(DistanceUnit.METER))) + 14.95);
-        //NEW quadratic redirector function
-        redirectorSetVelocity((-20.31152)* Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-101.9002 * (getGoalDistance(DistanceUnit.METER))) + 18.06928);
+        //old NEW quadratic redirector function
+       redirectorSetVelocity((-20.31152)* Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-101.9002 * (getGoalDistance(DistanceUnit.METER))) + 18.06928);
 //        redirectorSetVelocity(redirectorSetpoint);
+        //ANOTHER NEW quadratic redirector function
+        //redirectorSetVelocity((-0.170795) * Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-205.98159 * (getGoalDistance(DistanceUnit.METER))) + 109.14957);
     }
 
     //the redirector power function
