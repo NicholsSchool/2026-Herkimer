@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 @TeleOp (name = "comptele")
 public class CompTeleop extends OpMode {
 
-
     public Drivetrain drivetrain;
     public Turret turret;
     public Intake intake;
@@ -57,6 +56,7 @@ public class CompTeleop extends OpMode {
 
     @Override
     public void start() {
+
         if (isRed) {
             turret.setTagID(24);
             LightManager.GoBildaLights.setLights(new double[] {LightManager.LightConstants.Red, LightManager.LightConstants.Red, LightManager.LightConstants.Red});
@@ -103,13 +103,15 @@ public class CompTeleop extends OpMode {
 
         //Compact on controller2
         if (gamepad2.y){
-            intake.intakeGO(-0.8);
+            turret.moveStopIn();
+            intake.intakeGO(-1);
             intake.kickerGO(0.8);
-            turret.setShooterVelocity(-1);
+            turret.setShooterVelocityTicks(-250);
             turret.redirectorSetVelocity(0);
             telemetry.addData("compact time", time.time());
         }else if(gamepad2.b){
             //intake on controller2
+            turret.moveStopIn();
             intake.intakeGO(-0.7);
             turret.setShooterVelocity(-1);
             turret.redirectorSetVelocity(0);
@@ -118,20 +120,27 @@ public class CompTeleop extends OpMode {
 
         }else if(gamepad2.a){
             //outtake on controller2
+            turret.takeStopOut();
             intake.intakeGO(0.5);
             intake.kickerGO(0.5);
-            turret.setShooterVelocity(-1);
+            turret.setShooterVelocityTicks(-250);
             turret.redirectorSetVelocity(0);
             telemetry.addData("outtake time", time.time());
 
         }else if (gamepad2.right_trigger > 0.2) {
-            turret.autoAccelerate();
+            if (turret.getGoalDistance(DistanceUnit.METER) > 2.7){
+                turret.autoAccelerate((-0.170795) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-205.98159 * (turret.getGoalDistance(DistanceUnit.METER))) + 109.14957);
+            }else{
+                turret.autoAccelerate( (-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
+            }
 //            LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
-            if(Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE){
+            if(Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
                 intake.kickerGO(-1);
+                turret.takeStopOut();
                 intake.intakeGO(-1);
             } else {
                 intake.kickerGO(0);
+                turret.moveStopIn();
                 intake.intakeGO(0);
             }
 //            intake.kickerGO(-0.9);
@@ -139,6 +148,7 @@ public class CompTeleop extends OpMode {
             telemetry.addData("auto shoot time", time.time());
         }else{
             //everything off
+            turret.takeStopOut();
             turret.setShooterVelocity(0);
             turret.redirectorSetVelocity(0);
             intake.intakeGO(0);

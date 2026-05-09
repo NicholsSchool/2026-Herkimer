@@ -43,6 +43,8 @@ public class TurretIOReal implements TurretIO, TurretConstants {
     CRServo turretTurner1, turretTurner2;
     //the magnet sensor that acts as a limit switch for our turret
     DigitalChannel magnet;
+    //mechanical stop
+    Servo mechStop;
 
     public TurretIOReal(HardwareMap hwMap){
 
@@ -52,6 +54,7 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         turretTurner2 = hwMap.get(CRServo.class, "TT2");
         turretEncoder = hwMap.get(DcMotorEx.class, "intake");
         magnet = hwMap.get(DigitalChannel.class, "magnet");
+        mechStop = hwMap.get(Servo.class, "mechStop");
 
         artifactAccelerator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rapidRedirector.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -104,6 +107,10 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         turretTurner2.setPower(power);
         turretTurner1.setPower(power);
 
+    }
+    @Override
+    public void setMechStopPosition(double pos){
+        mechStop.setPosition(pos);
     }
 
     @Override

@@ -10,6 +10,7 @@ public interface TurretIO {
         public double turretAngle = 0.0;
         public double redirectorVelocity  = 0.0;
         public double redirectorPower = 0.0;
+        public double mechStopPos = 0.0;
         public double shooterVelocity = 0.0;
         public boolean magnetState = true;
         public double rawTurretAngle = 0.0;
@@ -23,6 +24,7 @@ public interface TurretIO {
     public void shooterSetVelocity(double velocity);
     public void redirectorSetVelocity(double velocity);
     public void turretSetPower(double power);
+    public void setMechStopPosition(double pos);
 
 
 

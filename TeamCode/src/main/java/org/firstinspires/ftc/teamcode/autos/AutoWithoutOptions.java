@@ -275,7 +275,7 @@ public class AutoWithoutOptions extends LinearOpMode{
 //        shootSet.add(() -> turret.redirectorAimAtDistance());
         drivetrain.setDrivePowerZero();
         shootSet.add(() -> {
-                    turret.autoAccelerate();
+                    turret.autoAccelerate((-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
                     LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
                     if (Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
                         intake.kickerGO(-1);

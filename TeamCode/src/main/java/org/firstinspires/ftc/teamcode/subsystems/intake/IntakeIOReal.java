@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretConstants;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIO;
 
@@ -46,11 +47,11 @@ public class IntakeIOReal implements IntakeIO, IntakeConstants {
         kickerMotor.setPower(power);
     }
 
+
     @Override
     public int getTurretEncoder(){
         return intakeMotor.getCurrentPosition();
     }
-
 
     public void setTurretEncoder(){
         intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
