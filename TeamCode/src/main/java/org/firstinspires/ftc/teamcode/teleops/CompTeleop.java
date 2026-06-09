@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -105,52 +106,58 @@ public class CompTeleop extends OpMode {
         if (gamepad2.y){
             turret.moveStopIn();
             intake.intakeGO(-1);
-            intake.kickerGO(0.8);
+            intake.kickerGO(-0.8);
             turret.setShooterVelocityTicks(-250);
-            turret.redirectorSetVelocity(0);
             telemetry.addData("compact time", time.time());
         }else if(gamepad2.b){
             //intake on controller2
             turret.moveStopIn();
             intake.intakeGO(-0.7);
             turret.setShooterVelocity(-1);
-            turret.redirectorSetVelocity(0);
-            intake.kickerGO(-.7);
+            intake.kickerGO(.7);
             telemetry.addData("intake time", time.time());
 
         }else if(gamepad2.a){
             //outtake on controller2
             turret.takeStopOut();
             intake.intakeGO(0.5);
-            intake.kickerGO(0.5);
+            intake.kickerGO(-0.5);
             turret.setShooterVelocityTicks(-250);
-            turret.redirectorSetVelocity(0);
             telemetry.addData("outtake time", time.time());
 
         }else if (gamepad2.right_trigger > 0.2) {
-            if (turret.getGoalDistance(DistanceUnit.METER) > 2.7){
-                turret.autoAccelerate((-0.170795) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-205.98159 * (turret.getGoalDistance(DistanceUnit.METER))) + 109.14957);
-            }else{
-                turret.autoAccelerate( (-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
-            }
-//            LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
-            if(Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
-                intake.kickerGO(-1);
+            turret.moveStopIn();
+            turret.autoAccelerate();
+            if ((Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint())) < 100){
+                intake.kickerGO(1);
                 turret.takeStopOut();
                 intake.intakeGO(-1);
-            } else {
+            }else{
                 intake.kickerGO(0);
-                turret.moveStopIn();
                 intake.intakeGO(0);
             }
+
+            if (turret.getGoalDistance(DistanceUnit.METER) > 2.7){
+                //turret.autoAccelerate((-0.170795) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-205.98159 * (turret.getGoalDistance(DistanceUnit.METER))) + 109.14957);
+            }else{
+                //turret.autoAccelerate( (-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
+            }
+//            if(Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
+//                intake.kickerGO(1);
+//                turret.takeStopOut();
+//                intake.intakeGO(-1);
+//            } else {
+//                intake.kickerGO(0);
+//                turret.moveStopIn();
+//                intake.intakeGO(0);
+//            }
 //            intake.kickerGO(-0.9);
 //            intake.intakeGO(1);
             telemetry.addData("auto shoot time", time.time());
         }else{
             //everything off
-            turret.takeStopOut();
+            turret.moveStopIn();
             turret.setShooterVelocity(0);
-            turret.redirectorSetVelocity(0);
             intake.intakeGO(0);
             intake.kickerGO(0);
             // LightManager.LEDStrip.clear();
@@ -159,14 +166,14 @@ public class CompTeleop extends OpMode {
 
         }
 
-        //manual turret control
-//        turret.turretSetPower(gamepad2.left_stick_x);
-
-//        //shoot on controller2
-//        if (gamepad2.right_trigger > 0.5) {
-//            turret.runShooterForDistance();
-//        }else{
-//            turret.setShooterVelocity(0);
+//        if(gamepad2.dpad_down){
+//            turret.turretSetAngle(90, AngleUnit.DEGREES);
+//        }else if(gamepad2.dpad_up){
+//            turret.turretSetAngle(45, AngleUnit.DEGREES);
+//        }else if(gamepad2.dpad_right){
+//            turret.turretSetAngle(-90, AngleUnit.DEGREES);
+//        }else if (gamepad2.dpad_left){
+//            turret.turretSetAngle(0, AngleUnit.DEGREES);
 //        }
 
         if (gamepad2.left_trigger > 0.2) {
@@ -183,9 +190,11 @@ public class CompTeleop extends OpMode {
         telemetry.addData("Turret Position", turret.getTurretPosition(AngleUnit.DEGREES));
         telemetry.addData("Goal distance", turret.getGoalDistance(DistanceUnit.METER));
         telemetry.addData("Turret Setpoint", turret.getTurretSetpoint(AngleUnit.DEGREES));
+        telemetry.addData("turret power", turret.getTurretPower());
         telemetry.addData("Heading", PoseEstimator.getPose().getHeading(AngleUnit.DEGREES));
+        telemetry.addData("Hood Position", turret.getHoodAngle());
         telemetry.addData("Shooter Velocity", turret.getShooterVelocity());
-        telemetry.addData("Redirector Velocity", turret.getRedirectorVelocity());
+        telemetry.addData("Shooter Setpoint", turret.getAcceleratorSetpoint());
         telemetry.addData("full loop time", time.time());
 //        telemetry.addData("Color sensor 1 Values (RGB)", Arrays.toString(intake.getCS1Values()));
 //        telemetry.addData("Color sensor 2 Values (RGB)", Arrays.toString(intake.getCS2Values()));

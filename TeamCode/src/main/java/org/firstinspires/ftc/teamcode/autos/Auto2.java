@@ -344,7 +344,7 @@ public class Auto2 extends LinearOpMode{
         List<Runnable> shootSet = new ArrayList<>(periodicSet);
 //        shootSet.add(() -> turret.redirectorAimAtDistance());
         shootSet.add(() -> {
-            turret.autoAccelerate((-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
+            //turret.autoAccelerate((-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
             LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
             if (Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
                 intake.kickerGO(-1);
@@ -357,7 +357,6 @@ public class Auto2 extends LinearOpMode{
         AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 1.55);
         LightManager.LEDStrip.clear();
         turret.setShooterVelocity(0);
-        turret.redirectorSetVelocity(0);
     }
 
     public void intakeRow(int row) {

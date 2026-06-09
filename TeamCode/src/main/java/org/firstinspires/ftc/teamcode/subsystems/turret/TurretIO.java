@@ -8,12 +8,12 @@ public interface TurretIO {
 
     public static class TurretIOInputs{
         public double turretAngle = 0.0;
-        public double redirectorVelocity  = 0.0;
-        public double redirectorPower = 0.0;
+        public double turretPower = 0.0;
         public double mechStopPos = 0.0;
         public double shooterVelocity = 0.0;
         public boolean magnetState = true;
         public double rawTurretAngle = 0.0;
+        public double hoodAngle = 0.0;
         public double tagDistance = 0.0;
         public double tagX = 0.0;
         public Pose2D aprilTagPos = new Pose2D(DistanceUnit.INCH, 0 ,0, AngleUnit.DEGREES, 0);
@@ -22,9 +22,9 @@ public interface TurretIO {
     public void updateInputs(TurretIOInputs inputs);
     public void resetTurretEncoder(TurretIOInputs inputs);
     public void shooterSetVelocity(double velocity);
-    public void redirectorSetVelocity(double velocity);
     public void turretSetPower(double power);
     public void setMechStopPosition(double pos);
+    public void hoodSetPosition(double position);
 
 
 

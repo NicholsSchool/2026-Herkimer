@@ -98,6 +98,11 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
         return AutoUtil.AutoActionState.RUNNING;
     }
 
+    public void somethingIDK(){
+      //  PoseEstimator.getPose()
+
+    }
+
     public void setDrivePowerZero(){
         io.setMotorPowerPlain(0);
     }

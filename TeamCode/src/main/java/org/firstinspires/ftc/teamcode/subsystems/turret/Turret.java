@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems.turret;
 
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -21,16 +19,21 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public static double kTP = 0.6, kTI = 0.015, kTD = 0.05;
+    public static double kTP = 0.1, kTI = 0.0, kTD = 0.0;
     //.6,0.015,0.05
     //.7,0.015,0.08
     public PIDController turretPIDController = new PIDController(kTP, kTI, kTD);
     public boolean aimTagDetected = false;
     public Vector aimDiffVector = new Vector(0.0, 0.0);
-    public static double acceleratorSetpoint = 1200; //make static for tuning
-    public static double redirectorSetpoint = 0.0;
+    public static double acceleratorSetpoint = 2200; //make static for tuning
     public static double kLTP = 0.7, kLTI = 0.015, kLTD = 0.08;
-//    public PIDController velocityPIDController = new PIDController(4,0.0,0.05);
+    public static double hoodPosition;
+    public static double turretPower = 0.0;
+
+
+//    public static double kVP = 1.0, kVI = 0.0, kVD = 0.0, kVF = 0.0;
+//    public static PIDFCoefficients shooterPIDF = new PIDFCoefficients(0.001,0.0,0.0,0.00055);
+//    public PIDFController shooterPIDController = new PIDFController(shooterPIDF);
 
     public Turret(TurretIO io) {
         this.io = io;
@@ -41,14 +44,15 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public double tagID = DEFAULT_TAGID;
 
-    public double setPoint;
+    public double turretSetPoint;
+    double turretPIDPower = 0.0;
 
     @Override
     public void periodic() {
 
         io.updateInputs(inputs);
 
-        //aimTagDistance = Math.hypot((PoseEstimator.getPose().getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)), (PoseEstimator.getPose().getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
+        //aimTagDistance = Math.hypot((PoseEstimator .getPose().getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)), (PoseEstimator.getPose().getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
         //eventually i wanna use the distance from the center of the robot to the center of the goal rather than the aprilTag, but we would have to redo the regressions
 
         Pose2D turretCenter = new Pose2D(DistanceUnit.CM,
@@ -60,6 +64,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
         aimDiffVector = new Vector((turretCenter.getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)),
                 (turretCenter.getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
+
+        turretPIDPower = (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2)) ? 0 :
+                -turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS));
+
+        turretSetPower(turretPIDPower + (TurretConstants.turretFeedForward * Math.signum(turretPIDPower)));
 
     }
 
@@ -73,21 +82,9 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public void turretSetAngle(double angle, AngleUnit unit) {
-//        turretSetPower((angle - inputs.turretAngle) * turretP);
-        setPoint = unit.toRadians(angle);
-        double turretPIDPower = -turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS));
-        if (setPoint < -Math.PI / 2 || setPoint > Math.PI / 2) {
-            turretSetPower(0);
-        } else {
-            turretPIDController.setSetpoint(setPoint);
-            if(turretPIDPower < 0.13 && turretPIDPower > 0.04) {
-                turretSetPower(0.9 * Range.clip(turretPIDPower, -1, 1) + 0.08);
-            }else if(turretPIDPower > -0.13 && turretPIDPower < 0.04) {
-                turretSetPower(0.9 * Range.clip(turretPIDPower, -1, 1) - 0.08);
-            }else{
-                turretSetPower(Range.clip(turretPIDPower, -1, 1));
-            }
-        }
+        turretSetPoint = unit.toRadians(angle);
+        turretPIDController.setSetpoint(turretSetPoint);
+        turretPIDController.reset();
     }
 //     io.turretSetPower(turretPIDController.calculate(inputs.turretAngle, angle));
 
@@ -103,8 +100,9 @@ public class Turret extends SubsystemBase implements TurretConstants {
         }
     }
 
-    public double getTurretPIDPower(){
-        return (Range.clip(-turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS)), -1, 1));
+
+    public double getTurretPower(){
+        return inputs.turretPower;
     }
 
 
@@ -116,24 +114,24 @@ public class Turret extends SubsystemBase implements TurretConstants {
         }
     }
 
-    public double getRedirectorPower() {
-        return inputs.redirectorPower;
+    public double getHoodAngle() {
+        return inputs.hoodAngle;
     }
 
-    public void redirectorSetVelocity(double velocity) {
-        io.redirectorSetVelocity(velocity);
+    public void hoodSetServoPosition(double position) {
+        io.hoodSetPosition(position);
     }
 
-    public double getRedirectorVelocity() {
-        return inputs.redirectorVelocity;
+    public void hoodSetDashboardPosition(){
+        io.hoodSetPosition(hoodPosition);
     }
 
     public void moveStopIn() {
-        io.setMechStopPosition(0.6);
+        io.setMechStopPosition(0.8);
     }
 
     public void takeStopOut(){
-        io.setMechStopPosition(0.8);
+        io.setMechStopPosition(1.0);
     }
 
     public double distanceFromTag(double rawDistance) {
@@ -152,18 +150,18 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public AutoUtil.AutoActionState autoAim() {
 
 
-        setPoint = Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + Math.toRadians(180));
-        if (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (setPoint)) < AngleUnit.RADIANS.fromDegrees(2)) {
+        turretSetPoint = Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + Math.toRadians(180));
+        if (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2)) {
             turretSetPower(0);
             return AutoUtil.AutoActionState.FINISHED;
         }
 
         //(Math.abs(getTurretPosition(AngleUnit.RADIANS) - (setPoint))
 
-        if (setPoint < -Math.PI / 2 || setPoint > Math.PI / 2) {
+        if (turretSetPoint < -Math.PI / 2 || turretSetPoint > Math.PI / 2) {
 //            turretSetPower(0);
         } else {
-            turretSetAngle(setPoint, AngleUnit.RADIANS);
+            turretSetAngle(turretSetPoint, AngleUnit.RADIANS);
         }
 
 
@@ -172,16 +170,13 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public double getTurretSetpoint(AngleUnit unit) {
-        return unit.fromRadians(setPoint);
+        return unit.fromRadians(turretSetPoint);
     }
 
     public double getShooterVelocity() {
         return inputs.shooterVelocity;
     }
 
-    public double getAcceleratorSetpoint() {
-        return acceleratorSetpoint;
-    }
 
     public double getRawTurretPos() {
         return inputs.rawTurretAngle;
@@ -192,7 +187,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 //    }
 
     public double getAimError(AngleUnit unit) {
-        return (Math.abs(getTurretPosition(unit) - (unit.fromRadians(setPoint))));
+        return (Math.abs(getTurretPosition(unit) - (unit.fromRadians(turretSetPoint))));
     }
 
 
@@ -202,7 +197,14 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public void setShooterVelocityTicks(double velocity) {
+//        shooterPIDController.setSetPoint(velocity);
+//        io.shooterSetVelocity(shooterPIDController.calculate(inputs.shooterVelocity, velocity));
         io.shooterSetVelocity(velocity);
+    }
+
+    public double getAcceleratorSetpoint() {
+        return acceleratorSetpoint;
+       // return shooterPIDController.getSetPoint();
     }
 
 
@@ -211,33 +213,20 @@ public class Turret extends SubsystemBase implements TurretConstants {
         setShooterVelocity(desiredVelocity);
     }
 
-    public void autoAccelerate(double regression) {
+
+    public void autoAccelerate() {
         setShooterVelocityTicks(acceleratorSetpoint);
-        //the quadratic redirector function
-//        redirectorSetVelocity((-27.6) * Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-117.4 * (getGoalDistance(DistanceUnit.METER))) + 14.95);
-        //old NEW quadratic redirector function
-       //redirectorSetVelocity((-20.31152)* Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-101.9002 * (getGoalDistance(DistanceUnit.METER))) + 18.06928);
-      //  redirectorSetVelocity(redirectorSetpoint);
-        //ANOTHER NEW quadratic redirector function
-        //redirectorSetVelocity((-0.170795) * Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-205.98159 * (getGoalDistance(DistanceUnit.METER))) + 109.14957);
-
-        redirectorSetVelocity(regression);
-        //new new new quadratic redirector regression 3/25/26
-       // redirectorSetVelocity((-25.60276) * Math.pow(getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (getGoalDistance(DistanceUnit.METER))) - 188.72173);
+        hoodSetServoPosition((0.105132 * (Math.pow(getGoalDistance(DistanceUnit.METER), 2))) - (0.535538 * getGoalDistance(DistanceUnit.METER)) + 0.98676);
+        //put hood auto here
     }
 
-    //the redirector power function
-    //redirectorSetVelocity((-122.5) * (Math.pow(getGoalDistance(DistanceUnit.METER), 1.4315)));
-
-    //the redirector linear function
-    //redirectorSetVelocity((-258 * getGoalDistance) + 169);
-
-    //-25.60276x^{2}-10.56292x-188.72173
 
 
-    public double getRedirectorSetpoint() {
-        return (-314.28571 * getGoalDistance(DistanceUnit.METER) + 290.47619);
-    }
+
+//
+//    public double getRedirectorSetpoint() {
+//        return (-314.28571 * getGoalDistance(DistanceUnit.METER) + 290.47619);
+//    }
 
     public void resetTurretEncoder(){
         io.resetTurretEncoder(inputs);

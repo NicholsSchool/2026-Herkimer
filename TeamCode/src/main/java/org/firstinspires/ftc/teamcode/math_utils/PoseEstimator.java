@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainConstants;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -109,6 +110,21 @@ public class PoseEstimator implements DrivetrainConstants {
 
     public static Pose2D getPose() { return robotPose; }
 
+    public static double getRobotVelocityX(){
+        return pinpoint.getVelX(DistanceUnit.METER);
+    }
+
+    public static double getRobotVelocityY(){
+        return pinpoint.getVelY(DistanceUnit.METER);
+    }
+
+    public static double getRobotVelocityHeading(){
+        return pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES);
+    }
+
+    public static Pose2D getRobotVelocity(){
+        return new Pose2D(DistanceUnit.METER, getRobotVelocityX(), getRobotVelocityY(), AngleUnit.DEGREES, getRobotVelocityHeading());
+    }
     public static void periodic() {
         pinpoint.update();
 

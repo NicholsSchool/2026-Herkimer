@@ -275,7 +275,7 @@ public class Auto extends LinearOpMode{
 
                 intake.kickerGO(0.5);
                 intake.intakeGO(-0.5);
-                turret.setShooterVelocityTicks(-120);
+                turret.moveStopIn();
                 actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -36, -18, AngleUnit.DEGREES, 239)),1));
                 AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3);
 
@@ -286,9 +286,9 @@ public class Auto extends LinearOpMode{
                 actionSet.clear();
                 drivetrain.setDrivePowerZero();
             }else {
-                intake.kickerGO(0.5);
+                intake.kickerGO(-0.5);
                 intake.intakeGO(-0.5);
-                turret.setShooterVelocityTicks(-120);
+                turret.moveStopIn();
                 actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -24, -24, AngleUnit.DEGREES, 220)),1));
                 AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 2);
                 actionSet.clear();
@@ -301,7 +301,7 @@ public class Auto extends LinearOpMode{
         }else{
             actionSet.clear();
 
-            intake.kickerGO(0.5);
+            intake.kickerGO(-0.5);
             intake.intakeGO(-0.5);
             turret.setShooterVelocityTicks(-120);
             actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 52, -14, AngleUnit.DEGREES, 202))));
@@ -356,7 +356,7 @@ public class Auto extends LinearOpMode{
     }
 
     public void compress() {
-        intake.kickerGO(0.5);
+        intake.kickerGO(-0.5);
         intake.intakeGO(-0.5);
         AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.005);
         intake.kickerGO(0);
@@ -367,11 +367,12 @@ public class Auto extends LinearOpMode{
         List<Runnable> shootSet = new ArrayList<>(periodicSet);
 //        shootSet.add(() -> turret.redirectorAimAtDistance());
         shootSet.add(() -> {
-                    turret.autoAccelerate((-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
+                    //turret.autoAccelerate((-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
+                    turret.autoAccelerate();
 //            turret.turretSetAngle(isAudience ? -7 : 0, AngleUnit.DEGREES);
                     LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
                     if (Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
-                        intake.kickerGO(-1);
+                        intake.kickerGO(1);
                         intake.intakeGO(-1);
                     } else {
                         intake.kickerGO(0);
@@ -383,7 +384,7 @@ public class Auto extends LinearOpMode{
         LightManager.LEDStrip.clear();
         turret.turretSetPower(0);
         turret.setShooterVelocity(0);
-        turret.redirectorSetVelocity(0);
+        //turret.hoodSetServoPosition(0.137);
     }
 
     public void intakeRow(int row) {
