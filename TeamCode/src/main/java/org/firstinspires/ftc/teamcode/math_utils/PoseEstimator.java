@@ -119,7 +119,7 @@ public class PoseEstimator implements DrivetrainConstants {
     }
 
     public static double getRobotVelocityHeading(){
-        return pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES);
+        return pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS);
     }
 
     public static Pose2D getRobotVelocity(){

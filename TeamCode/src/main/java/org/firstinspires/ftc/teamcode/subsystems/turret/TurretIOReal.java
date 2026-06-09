@@ -50,7 +50,7 @@ public class TurretIOReal implements TurretIO, TurretConstants {
     Servo mechStop;
     //Hood angle servo
     Servo hood;
-    public static double kVP = 1.0, kVI = 0.0, kVD = 0.0, kVF = 0.0;
+    public static double kVP = 400.0, kVI = 60.0, kVD = 30.0, kVF = 50.0;
 
     public TurretIOReal(HardwareMap hwMap){
 

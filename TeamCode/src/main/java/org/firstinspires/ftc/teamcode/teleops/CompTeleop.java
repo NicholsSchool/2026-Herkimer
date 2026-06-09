@@ -177,7 +177,8 @@ public class CompTeleop extends OpMode {
 //        }
 
         if (gamepad2.left_trigger > 0.2) {
-            turret.autoAim();
+//            turret.autoAim();
+            turret.turretAutoAimShootOnTheMove();
             Logger.getLogger("CompTeleop Turret").info("Updated PID");
         } else {
             turret.turretSetPower(0);

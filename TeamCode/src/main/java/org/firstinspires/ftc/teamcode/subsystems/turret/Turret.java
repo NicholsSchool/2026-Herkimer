@@ -25,10 +25,12 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public PIDController turretPIDController = new PIDController(kTP, kTI, kTD);
     public boolean aimTagDetected = false;
     public Vector aimDiffVector = new Vector(0.0, 0.0);
+    public Vector aimDiffVectorGhost = new Vector(0.0, 0.0);
     public static double acceleratorSetpoint = 2200; //make static for tuning
     public static double kLTP = 0.7, kLTI = 0.015, kLTD = 0.08;
     public static double hoodPosition;
     public static double turretPower = 0.0;
+    public static double rotationalPrediction = 0.3;
 
 
 //    public static double kVP = 1.0, kVI = 0.0, kVD = 0.0, kVF = 0.0;
@@ -65,6 +67,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
         aimDiffVector = new Vector((turretCenter.getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)),
                 (turretCenter.getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
 
+        aimDiffVectorGhost = new Vector(((turretCenter.getX(DistanceUnit.INCH) + predictedPosition().getX(DistanceUnit.INCH))
+                - inputs.aprilTagPos.getX(DistanceUnit.INCH)),
+                (turretCenter.getY(DistanceUnit.INCH) + predictedPosition().getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
+
         turretPIDPower = (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2)) ? 0 :
                 -turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS));
 
@@ -100,6 +106,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
         }
     }
 
+    public void turretAutoAimShootOnTheMove(){
+       turretSetAngle( Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + Math.toRadians(180) - (PoseEstimator.getRobotVelocityHeading() * rotationalPrediction)), AngleUnit.RADIANS);
+    }
+
 
     public double getTurretPower(){
         return inputs.turretPower;
@@ -113,6 +123,20 @@ public class Turret extends SubsystemBase implements TurretConstants {
             return (aimDiffVector.magnitude() / 39.37);
         }
     }
+
+    public Pose2D predictedPosition(){
+        return new Pose2D (
+                DistanceUnit.METER,
+                PoseEstimator.getPose().getX(DistanceUnit.METER) + PoseEstimator.getRobotVelocityX(),
+                PoseEstimator.getPose().getY(DistanceUnit.METER) + PoseEstimator.getRobotVelocityY(),
+                AngleUnit.RADIANS,
+                PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + PoseEstimator.getRobotVelocityHeading());
+    }
+
+    public double getDeltaTheta () {
+        return aimDiffVectorGhost.angle() - aimDiffVector.angle();
+    }
+
 
     public double getHoodAngle() {
         return inputs.hoodAngle;
