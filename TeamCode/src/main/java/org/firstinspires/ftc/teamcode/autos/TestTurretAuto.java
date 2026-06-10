@@ -33,7 +33,7 @@ public class TestTurretAuto extends LinearOpMode {
         PoseEstimator.init(hardwareMap,  new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true);
 
         turret = new Turret(new TurretIOReal(hardwareMap));
-        turret.resetTurretEncoder();
+        //turret.resetTurretEncoder();
 
         AutoUtil.supplyOpModeActive(this::opModeIsActive);
 

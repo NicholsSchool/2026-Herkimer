@@ -52,6 +52,8 @@ public class PoseEstimator implements DrivetrainConstants {
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.update();
 
+
+
         pinpoint.recalibrateIMU();
         pinpoint.update();
 
