@@ -103,6 +103,9 @@ public class Auto extends LinearOpMode{
 
         intake = new Intake(new IntakeIOReal(hardwareMap));
 
+        turret.resetTurretEncoder();
+        turret.turretSetAngle(0, AngleUnit.DEGREES);
+        
         AutoUtil.supplyOpModeActive(this::opModeIsActive);
 
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -114,6 +117,8 @@ public class Auto extends LinearOpMode{
 
 
         while (opModeInInit()) {
+
+            turret.periodic();
 
             if (gamepad2.dpadDownWasPressed() || gamepad2.dpadUpWasPressed()) {
                 int newIndex = (keySet.indexOf(currentOption) + (gamepad2.dpad_down ? 1 : -1)) % keySet.size();
@@ -176,6 +181,8 @@ public class Auto extends LinearOpMode{
         periodicSet.add(() -> telemetry.addData("Drive Error", drivetrain.getDrivePIDError().magnitude()));
         periodicSet.add(() -> telemetry.addData("Pose", drivetrain.getPose().toString()));
         periodicSet.add(() -> telemetry.addData("Looptime", AutoUtil.getLoopTime()));
+        periodicSet.add(() -> telemetry.addData("turretpos", turret.getTurretPosition(AngleUnit.DEGREES)));
+        periodicSet.add(() -> telemetry.addData("turret setpoint", turret.getTurretSetpoint(AngleUnit.DEGREES)));
         periodicSet.add(() -> telemetry.update());
 
         if (options.get("Leave only") == LeaveOnly.ENABLED) {
@@ -290,13 +297,16 @@ public class Auto extends LinearOpMode{
                 actionSet.clear();
                 drivetrain.setDrivePowerZero();
             }else {
-                intake.kickerGO(-0.5);
+                turret.periodic();
+                PoseEstimator.periodic();
+                intake.kickerGO(0.5);
                 turret.setShooterVelocityTicks(2200);
                 intake.intakeGO(-0.5);
-                turret.turretAutoAimShootOnTheMove();
-               // turret.turretSetAngle(45, AngleUnit.DEGREES);
+                //turret.turretAutoAimShootOnTheMove();
+               turret.turretSetAngle(0, AngleUnit.DEGREES);
                 turret.moveStopIn();
-                actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -4, -12, AngleUnit.DEGREES, 270)),1));
+                actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -12, -12, AngleUnit.DEGREES, 220)),1));
+                //-4, -12. 270
                 AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 2);
                 actionSet.clear();
                 intake.kickerGO(0);
@@ -308,7 +318,7 @@ public class Auto extends LinearOpMode{
         }else{
             actionSet.clear();
 
-            intake.kickerGO(-0.5);
+            intake.kickerGO(0.5);
             turret.setShooterVelocityTicks(2200);
             intake.intakeGO(-0.5);
             turret.moveStopIn();
@@ -355,34 +365,37 @@ public class Auto extends LinearOpMode{
     }
 
 
-    public void aim() {
-        actionSet.clear();
-
-        actionSet.add(turret::autoAim);
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
-
-        actionSet.clear();
-    }
+//    public void aim() {
+//        actionSet.clear();
+//
+//        actionSet.add(turret::autoAim);
+//        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
+//
+//        actionSet.clear();
+//    }
 
     public void shoot() {
         List<Runnable> shootSet = new ArrayList<>(periodicSet);
+        turret.periodic();
+        PoseEstimator.periodic();
 //        shootSet.add(() -> turret.redirectorAimAtDistance());
         shootSet.add(() -> {
                     //turret.autoAccelerate((-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
-                    turret.turretAutoAimShootOnTheMove();
-            //turret.turretSetAngle(45, AngleUnit.DEGREES);
+            turret.turretSetAngle(0, AngleUnit.DEGREES);
+            //turret.turretAutoAimShootOnTheMove();
                     turret.autoAccelerate();
 //            turret.turretSetAngle(isAudience ? -7 : 0, AngleUnit.DEGREES);
-                 //   if (Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
+                    if (Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
                         intake.kickerGO(1);
                         intake.intakeGO(-1);
                         turret.takeStopOut();
                         turret.turretSetPower(0);
-//                    } else {
-//                        intake.kickerGO(0);
-//                        intake.intakeGO(0);
-//                        turret.moveStopIn();
-//                    }
+                    } else {
+                        intake.kickerGO(0);
+                        intake.intakeGO(0);
+                        turret.moveStopIn();
+                    }
+
                 });
         AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 0.25);
         actionSet.clear();
@@ -398,7 +411,7 @@ public class Auto extends LinearOpMode{
         //-36
         int[] ySequence;
 
-        if (row == 1) ySequence = new int[]{-28, -60, -28}; // Fix for row 1 going too far
+        if (row == 1) ySequence = new int[]{-28, -56, -28}; // Fix for row 1 going too far
         else if(row == 2 && isRed){
             ySequence = new int[]{-23, -62, -23}; // fix for row 2  being too close to the artifacts
         }
@@ -408,7 +421,7 @@ public class Auto extends LinearOpMode{
 
         //Go To Row
         actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, isAudience? rowX + 4: rowX, ySequence[0], AngleUnit.DEGREES, -75))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, row == 2 ? 1.4 : 1.3);
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.2);
         turret.moveStopIn();
         actionSet.clear();
 
@@ -418,10 +431,10 @@ public class Auto extends LinearOpMode{
         actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, isAudience? rowX + 4: rowX, ySequence[1], AngleUnit.DEGREES, -90))));
         intake.intakeGO(-1);
         turret.setShooterVelocity(-1);
-        intake.kickerGO(-0.5);
+        intake.kickerGO(0.5);
         turret.setShooterVelocityTicks(1000);
         turret.moveStopIn();
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.1);
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, row == 1 ? 0.8 : 1.1);
         actionSet.clear();
 
 
@@ -449,7 +462,7 @@ public class Auto extends LinearOpMode{
         actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 44, -63, AngleUnit.DEGREES, 0))));
         turret.moveStopIn();
         intake.intakeGO(-1);
-        intake.kickerGO(-0.5);
+        intake.kickerGO(0.5);
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3);
         actionSet.clear();
 
@@ -473,7 +486,7 @@ public class Auto extends LinearOpMode{
         actionSet.clear();
         intake.intakeGO(-1);
         turret.moveStopIn();
-        intake.kickerGO(-1);
+        intake.kickerGO(1);
         turret.setShooterVelocityTicks(-120);
 
         //drive

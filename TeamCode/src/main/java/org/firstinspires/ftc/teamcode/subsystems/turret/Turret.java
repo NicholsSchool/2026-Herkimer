@@ -88,6 +88,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
         }
     }
 
+    public boolean turretAtGoal(){
+        return Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2);
+    }
+
     public void turretSetAngle(double angle, AngleUnit unit) {
         turretSetPoint = unit.toRadians(angle);
         turretPIDController.setSetpoint(turretSetPoint);

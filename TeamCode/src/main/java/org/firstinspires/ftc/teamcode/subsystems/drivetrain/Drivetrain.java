@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -141,6 +142,19 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
                         PoseEstimator.getPose().getY(DistanceUnit.INCH),
                         PoseEstimator.getPose().getX(DistanceUnit.INCH) + PIDDriveVector.x,
                         PoseEstimator.getPose().getY(DistanceUnit.INCH) + PIDDriveVector.y
+                )
+                .setStroke("Red")
+                .strokeCircle(
+                        PoseEstimator.getPose().getX(DistanceUnit.INCH) + PoseEstimator.getRobotVelocityX(),
+                        PoseEstimator.getPose().getY(DistanceUnit.INCH) + PoseEstimator.getRobotVelocityY(),
+                        9
+                )
+                .setStroke("Red")
+                .strokeLine(
+                        PoseEstimator.getPose().getX(DistanceUnit.INCH) + PoseEstimator.getRobotVelocityX(),
+                        PoseEstimator.getPose().getY(DistanceUnit.INCH) + PoseEstimator.getRobotVelocityY(),
+                        PoseEstimator.getPose().getX(DistanceUnit.INCH) + PoseEstimator.getRobotVelocityX() + (9 * Math.cos(PoseEstimator.getPose().getHeading(AngleUnit.RADIANS))),
+                        PoseEstimator.getPose().getY(DistanceUnit.INCH) + PoseEstimator.getRobotVelocityY() + (9 * Math.sin(PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)))
                 );
         dashboard.sendTelemetryPacket(packet);
     }
