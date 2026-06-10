@@ -30,7 +30,8 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public static double kLTP = 0.7, kLTI = 0.015, kLTD = 0.08;
     public static double hoodPosition;
     public static double turretPower = 0.0;
-    public static double rotationalPrediction = 0.3;
+    public static double rotationalPrediction = 0.35;
+    public static double rotationTranslationPrediction = -0.25;
 
 
 //    public static double kVP = 1.0, kVI = 0.0, kVD = 0.0, kVF = 0.0;
@@ -107,7 +108,14 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public void turretAutoAimShootOnTheMove(){
-       turretSetAngle( Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + Math.toRadians(180) - (PoseEstimator.getRobotVelocityHeading() * rotationalPrediction)), AngleUnit.RADIANS);
+       turretSetAngle( Angles.clipRadians(
+               aimDiffVector.angle()
+                       - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
+                       + Math.toRadians(180)
+                       - (PoseEstimator.getRobotVelocityHeading()
+                       * rotationalPrediction)
+                       - getDeltaTheta() * rotationTranslationPrediction),
+               AngleUnit.RADIANS);
     }
 
 
