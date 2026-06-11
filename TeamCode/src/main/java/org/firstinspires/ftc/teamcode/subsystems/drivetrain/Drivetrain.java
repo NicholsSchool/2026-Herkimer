@@ -16,11 +16,13 @@ import org.firstinspires.ftc.teamcode.math_utils.PIDController;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.math_utils.Vector;
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
+import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 
 @Config
 public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
     private DrivetrainIO io;
+    public Turret turret;
     private final DrivetrainIO.DrivetrainIOInputs inputs = new DrivetrainIO.DrivetrainIOInputs();
     public Pose2D setpoint = new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0);
     public PIDController drivePIDX, drivePIDY;

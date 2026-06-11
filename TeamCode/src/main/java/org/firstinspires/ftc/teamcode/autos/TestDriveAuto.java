@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.subsystems.LightManager;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIOReal;
+import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
+import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIOReal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class TestDriveAuto extends LinearOpMode {
 
     public Drivetrain drivetrain;
+    public Turret turret;
 
     private boolean runAxisTests = true;
     private boolean runDiagonalTests = true;
@@ -38,11 +41,12 @@ public class TestDriveAuto extends LinearOpMode {
         LightManager.inititalize(hardwareMap);
 
 //        if(runAllianceTest) {
-        PoseEstimator.init(hardwareMap, (allianceFlip(isRed, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0))), false, true);
+        PoseEstimator.init(hardwareMap, (allianceFlip(isRed, new Pose2D(DistanceUnit.METER, -1.6, -1, AngleUnit.DEGREES, 0))), false, true);
 //        }else{
 //            PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, -24, AngleUnit.DEGREES, 0), false, true);
 //        }
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
+        turret = new Turret(new TurretIOReal(hardwareMap));
         
         AutoUtil.supplyOpModeActive(this::opModeIsActive);
 
@@ -89,24 +93,34 @@ public class TestDriveAuto extends LinearOpMode {
         periodicSet.add(() -> telemetry.update());
 
         if (runAxisTests) {
-             
+
+            actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0)));
+            turret.turretSetAngle(0,AngleUnit.DEGREES);
+            AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
+            actionSet.clear();
+
             actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 24, 0, AngleUnit.DEGREES, 0)));
+            turret.turretSetAngle(0,AngleUnit.DEGREES);
             AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
             actionSet.clear();
 
             actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 48, 0, AngleUnit.DEGREES, 0)));
+            turret.turretSetAngle(0,AngleUnit.DEGREES);
             AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
             actionSet.clear();
 
             actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 48, 24, AngleUnit.DEGREES, 90)));
+            turret.turretSetAngle(0,AngleUnit.DEGREES);
             AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
             actionSet.clear();
 
             actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 48, 48, AngleUnit.DEGREES, 90)));
+            turret.turretSetAngle(0,AngleUnit.DEGREES);
             AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
             actionSet.clear();
 
             actionSet.add(() -> drivetrain.driveToPose(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0)));
+            turret.turretSetAngle(0,AngleUnit.DEGREES);
             AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5);
             actionSet.clear();
         }

@@ -104,7 +104,7 @@ public class Auto extends LinearOpMode{
         intake = new Intake(new IntakeIOReal(hardwareMap));
 
         turret.resetTurretEncoder();
-        turret.turretSetAngle(0, AngleUnit.DEGREES);
+        //turret.turretSetAngle(0, AngleUnit.DEGREES);
         
         AutoUtil.supplyOpModeActive(this::opModeIsActive);
 
@@ -304,7 +304,7 @@ public class Auto extends LinearOpMode{
                 turret.setShooterVelocityTicks(2200);
                 intake.intakeGO(-0.5);
                 //turret.turretAutoAimShootOnTheMove();
-               turret.turretSetAngle(0, AngleUnit.DEGREES);
+               //turret.turretSetAngle(0, AngleUnit.DEGREES);
                 turret.moveStopIn();
                 actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -12, -16, AngleUnit.DEGREES, 220)),1));
                 //-4, -12. 270
@@ -382,7 +382,7 @@ public class Auto extends LinearOpMode{
 //        shootSet.add(() -> turret.redirectorAimAtDistance());
         shootSet.add(() -> {
                     //turret.autoAccelerate((-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
-            turret.turretSetAngle(0, AngleUnit.DEGREES);
+            //turret.turretSetAngle(0, AngleUnit.DEGREES);
             //turret.turretAutoAimShootOnTheMove();
                     turret.autoAccelerate();
 //            turret.turretSetAngle(isAudience ? -7 : 0, AngleUnit.DEGREES);

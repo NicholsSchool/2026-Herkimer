@@ -29,9 +29,8 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public static double acceleratorSetpoint = 2200; //make static for tuning
     public static double kLTP = 0.7, kLTI = 0.015, kLTD = 0.08;
     public static double hoodPosition;
-    public static double turretPower = 0.0;
-    public static double rotationalPrediction = 0.35;
-    public static double rotationTranslationPrediction = -0.25;
+    public double rotationalPrediction = 0.35;
+    public double rotationTranslationPrediction = -0.25;
 
 
 //    public static double kVP = 1.0, kVI = 0.0, kVD = 0.0, kVF = 0.0;
@@ -73,7 +72,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
                 (turretCenter.getY(DistanceUnit.INCH) + predictedPosition().getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
 
         turretPIDPower = (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2)) ? 0 :
-                -turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS));
+                -turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS), turretSetPoint);
 
         turretSetPower(turretPIDPower + (TurretConstants.turretFeedForward * Math.signum(turretPIDPower)));
 
@@ -86,6 +85,16 @@ public class Turret extends SubsystemBase implements TurretConstants {
         } else if (id == 20) {
             inputs.aprilTagPos = TurretConstants.blueTagPos;
         }
+    }
+
+    public void turretAutoAim(){
+
+        turretSetPoint = Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + Math.toRadians(180));
+
+        turretPIDPower = (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2)) ? 0 :
+                -turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS));
+
+        turretSetPower(turretPIDPower + (TurretConstants.turretFeedForward * Math.signum(turretPIDPower)));
     }
 
     public boolean turretAtGoal(){
