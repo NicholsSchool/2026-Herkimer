@@ -39,6 +39,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public Turret(TurretIO io) {
         this.io = io;
+        turretSetAngle(0.0, AngleUnit.DEGREES);
         //turretPIDController.setIZone(AngleUnit.RADIANS.fromDegrees(12.0)); //Only uses I when error < 5deg
     }
 
@@ -72,7 +73,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
                 (turretCenter.getY(DistanceUnit.INCH) + predictedPosition().getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
 
         turretPIDPower = (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2)) ? 0 :
-                -turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS), turretSetPoint);
+                -turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS));
 
         turretSetPower(turretPIDPower + (TurretConstants.turretFeedForward * Math.signum(turretPIDPower)));
 
