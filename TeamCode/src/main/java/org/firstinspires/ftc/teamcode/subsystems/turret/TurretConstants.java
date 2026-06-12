@@ -9,6 +9,9 @@ public interface TurretConstants {
 
         public double turretFeedForward = 0.073;
 
+        public double shootingMinRange = 1.0;
+        public double shootingMaxRange = 2.5;
+
         public int DEFAULT_TAGID = 24;
 
         public Pose2D redTagPos = new Pose2D(DistanceUnit.INCH, -68, 68, AngleUnit.DEGREES, 0);

@@ -11,7 +11,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
-import org.firstinspires.ftc.teamcode.subsystems.LightManager;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
@@ -28,7 +27,7 @@ public class TestTurretAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        LightManager.inititalize(hardwareMap);
+
 
         PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true);
 
@@ -60,36 +59,36 @@ public class TestTurretAuto extends LinearOpMode {
 
 
         List<Runnable> periodicWithAngle = new ArrayList<>(periodicSet);
-        periodicWithAngle.add(() -> { turret.turretSetAngle(-45, AngleUnit.DEGREES); });
+        periodicWithAngle.add(() -> { turret.turretSetAngle(-45, AngleUnit.DEGREES,0.0); });
         AutoUtil.runTimedLoop(periodicWithAngle, TimeUnit.SECONDS, 4);
 
         periodicWithAngle = new ArrayList<>(periodicSet);
-        periodicWithAngle.add(() -> { turret.turretSetAngle(0, AngleUnit.DEGREES); });
+        periodicWithAngle.add(() -> { turret.turretSetAngle(0, AngleUnit.DEGREES,0.0); });
         AutoUtil.runTimedLoop(periodicWithAngle, TimeUnit.SECONDS, 4);
 
         periodicWithAngle = new ArrayList<>(periodicSet);
-        periodicWithAngle.add(() -> { turret.turretSetAngle(45, AngleUnit.DEGREES); });
+        periodicWithAngle.add(() -> { turret.turretSetAngle(45, AngleUnit.DEGREES,0.0); });
         AutoUtil.runTimedLoop(periodicWithAngle, TimeUnit.SECONDS, 4);
 
         periodicWithAngle = new ArrayList<>(periodicSet);
-        periodicWithAngle.add(() -> { turret.turretSetAngle(0, AngleUnit.DEGREES); });
+        periodicWithAngle.add(() -> { turret.turretSetAngle(0, AngleUnit.DEGREES,0.0); });
         AutoUtil.runTimedLoop(periodicWithAngle, TimeUnit.SECONDS, 4);
 
 
         periodicWithAngle = new ArrayList<>(periodicSet);
-        periodicWithAngle.add(() -> { turret.turretSetAngle(-90, AngleUnit.DEGREES); });
+        periodicWithAngle.add(() -> { turret.turretSetAngle(-90, AngleUnit.DEGREES,0.0); });
         AutoUtil.runTimedLoop(periodicWithAngle, TimeUnit.SECONDS, 2);
 
         periodicWithAngle = new ArrayList<>(periodicSet);
-        periodicWithAngle.add(() -> { turret.turretSetAngle(0, AngleUnit.DEGREES); });
+        periodicWithAngle.add(() -> { turret.turretSetAngle(0, AngleUnit.DEGREES,0.0); });
         AutoUtil.runTimedLoop(periodicWithAngle, TimeUnit.SECONDS, 2);
 
         periodicWithAngle = new ArrayList<>(periodicSet);
-        periodicWithAngle.add(() -> { turret.turretSetAngle(90, AngleUnit.DEGREES); });
+        periodicWithAngle.add(() -> { turret.turretSetAngle(90, AngleUnit.DEGREES,0.0); });
         AutoUtil.runTimedLoop(periodicWithAngle, TimeUnit.SECONDS, 2);
 
         periodicWithAngle = new ArrayList<>(periodicSet);
-        periodicWithAngle.add(() -> { turret.turretSetAngle(0, AngleUnit.DEGREES); });
+        periodicWithAngle.add(() -> { turret.turretSetAngle(0, AngleUnit.DEGREES,0.0); });
         AutoUtil.runTimedLoop(periodicWithAngle, TimeUnit.SECONDS, 2);
 
     }

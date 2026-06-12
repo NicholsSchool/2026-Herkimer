@@ -33,13 +33,15 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public double rotationTranslationPrediction = -0.25;
 
 
+
+
 //    public static double kVP = 1.0, kVI = 0.0, kVD = 0.0, kVF = 0.0;
 //    public static PIDFCoefficients shooterPIDF = new PIDFCoefficients(0.001,0.0,0.0,0.00055);
 //    public PIDFController shooterPIDController = new PIDFController(shooterPIDF);
 
     public Turret(TurretIO io) {
         this.io = io;
-        turretSetAngle(0.0, AngleUnit.DEGREES);
+        turretSetAngle(0.0, AngleUnit.DEGREES, 0.0);
         //turretPIDController.setIZone(AngleUnit.RADIANS.fromDegrees(12.0)); //Only uses I when error < 5deg
     }
 
@@ -102,8 +104,8 @@ public class Turret extends SubsystemBase implements TurretConstants {
         return Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2);
     }
 
-    public void turretSetAngle(double angle, AngleUnit unit) {
-        turretSetPoint = unit.toRadians(angle);
+    public void turretSetAngle(double angle, AngleUnit unit, double turretManualOffset) {
+        turretSetPoint = unit.toRadians(angle) + Math.toRadians(turretManualOffset);
         turretPIDController.setSetpoint(turretSetPoint);
         turretPIDController.reset();
     }
@@ -121,15 +123,19 @@ public class Turret extends SubsystemBase implements TurretConstants {
         }
     }
 
-    public void turretAutoAimShootOnTheMove(){
-       turretSetAngle( Angles.clipRadians(
-               aimDiffVector.angle()
-                       - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
-                       + Math.toRadians(180)
-                       - (PoseEstimator.getRobotVelocityHeading()
-                       * rotationalPrediction)
-                       - getDeltaTheta() * rotationTranslationPrediction),
-               AngleUnit.RADIANS);
+    public void turretAutoAimShootOnTheMove(double turretManualOffset){
+        if (turretSetPoint > -Math.PI || turretSetPoint < 1.9) {
+            turretSetAngle(Angles.clipRadians(
+                            aimDiffVector.angle()
+                                    - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
+                                    + Math.toRadians(180)
+                                    - (PoseEstimator.getRobotVelocityHeading()
+                                    * rotationalPrediction)
+                                    - getDeltaTheta() * rotationTranslationPrediction),
+                    AngleUnit.RADIANS, turretManualOffset);
+        }else{
+            turretSetAngle(inputs.turretAngle, AngleUnit.DEGREES, 0.0);
+        }
     }
 
 
@@ -176,6 +182,14 @@ public class Turret extends SubsystemBase implements TurretConstants {
         io.setMechStopPosition(0.8);
     }
 
+    public boolean flywheelAtGoal(){
+        return Math.abs(getShooterVelocity() - getAcceleratorSetpoint()) < SHOOT_SPEED_TOLERANCE;
+    }
+
+    public boolean inShootingRange(){
+        return getGoalDistance(DistanceUnit.METER) > shootingMinRange || getGoalDistance(DistanceUnit.METER) < shootingMaxRange;
+    }
+
     public void takeStopOut(){
         io.setMechStopPosition(1.0);
     }
@@ -207,7 +221,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
         if (turretSetPoint < -Math.PI / 2 || turretSetPoint > Math.PI / 2) {
 //            turretSetPower(0);
         } else {
-            turretSetAngle(turretSetPoint, AngleUnit.RADIANS);
+            turretSetAngle(turretSetPoint, AngleUnit.RADIANS, 0.0);
         }
 
 
@@ -262,8 +276,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public void autoAccelerate() {
         setShooterVelocityTicks(acceleratorSetpoint);
+        //tape
+        //hoodSetServoPosition(-0.0720368 * (Math.pow(getGoalDistance(DistanceUnit.METER), 2)) + (0.344157 * getGoalDistance(DistanceUnit.METER)) + 0.0680431);
+        //no tape
         hoodSetServoPosition((0.105132 * (Math.pow(getGoalDistance(DistanceUnit.METER), 2))) - (0.535538 * getGoalDistance(DistanceUnit.METER)) + 0.98676);
-        //put hood auto here
     }
 
 

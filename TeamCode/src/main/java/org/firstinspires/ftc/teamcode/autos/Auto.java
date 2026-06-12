@@ -13,7 +13,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.math_utils.AutoUtil;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
-import org.firstinspires.ftc.teamcode.subsystems.LightManager;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
@@ -96,7 +95,7 @@ public class Auto extends LinearOpMode{
         options.put("Leave only", LeaveOnly.DISABLED);
 
         PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true);
-        LightManager.inititalize(hardwareMap);
+
         turret = new Turret(new TurretIOReal(hardwareMap));
 
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
@@ -151,7 +150,6 @@ public class Auto extends LinearOpMode{
 
         }
 
-        LightManager.LEDStrip.clear();
 
         isRed = options.get("Alliance") == Alliance.RED;
         isAudience = options.get("Starting Position") == StartPosition.AUDIENCE;
