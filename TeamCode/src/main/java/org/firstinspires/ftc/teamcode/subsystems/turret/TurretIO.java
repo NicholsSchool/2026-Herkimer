@@ -25,6 +25,7 @@ public interface TurretIO {
     public void turretSetPower(double power);
     public void setMechStopPosition(double pos);
     public void hoodSetPosition(double position);
+    public void setLightPosition(double position);
 
 
 

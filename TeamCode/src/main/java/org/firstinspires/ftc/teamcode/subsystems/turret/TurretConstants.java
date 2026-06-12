@@ -9,8 +9,8 @@ public interface TurretConstants {
 
         public double turretFeedForward = 0.073;
 
-        public double shootingMinRange = 1.0;
-        public double shootingMaxRange = 2.5;
+        public double shootingMinRange = 1.5;
+        public double shootingMaxRange = 2.4;
 
         public int DEFAULT_TAGID = 24;
 

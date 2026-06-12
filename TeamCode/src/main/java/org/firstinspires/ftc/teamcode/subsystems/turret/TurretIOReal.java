@@ -50,6 +50,8 @@ public class TurretIOReal implements TurretIO, TurretConstants {
     Servo mechStop;
     //Hood angle servo
     Servo hood;
+
+    Servo middleLight;
     public static double kVP = 400.0, kVI = 60.0, kVD = 30.0, kVF = 50.0;
 
     public TurretIOReal(HardwareMap hwMap){
@@ -63,6 +65,7 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         magnet = hwMap.get(DigitalChannel.class, "magnet");
         mechStop = hwMap.get(Servo.class, "mechStop");
         hood = hwMap.get(Servo.class, "hood");
+        middleLight = hwMap.get(Servo.class, "middleLight");
 
         artifactAccelerator1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         artifactAccelerator2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -128,6 +131,11 @@ public class TurretIOReal implements TurretIO, TurretConstants {
     public void resetTurretEncoder(TurretIO.TurretIOInputs inputs){
         turretEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    @Override
+    public void setLightPosition(double position){
+        middleLight.setPosition(position);
     }
 
 

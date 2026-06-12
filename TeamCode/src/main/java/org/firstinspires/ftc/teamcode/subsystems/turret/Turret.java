@@ -29,8 +29,8 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public static double acceleratorSetpoint = 2200; //make static for tuning
     public static double kLTP = 0.7, kLTI = 0.015, kLTD = 0.08;
     public static double hoodPosition;
-    public double rotationalPrediction = 0.35;
-    public double rotationTranslationPrediction = -0.25;
+    public static double rotationalPrediction = 0.39;
+    public static double rotationTranslationPrediction = -0.25;
 
 
 
@@ -56,6 +56,12 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public void periodic() {
 
         io.updateInputs(inputs);
+
+        if(inShootingRange()){
+            io.setLightPosition(0.0);
+        }else{
+            io.setLightPosition(0.28);
+        }
 
         //aimTagDistance = Math.hypot((PoseEstimator .getPose().getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)), (PoseEstimator.getPose().getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
         //eventually i wanna use the distance from the center of the robot to the center of the goal rather than the aprilTag, but we would have to redo the regressions
@@ -124,7 +130,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public void turretAutoAimShootOnTheMove(double turretManualOffset){
-        if (turretSetPoint > -Math.PI || turretSetPoint < 1.9) {
+        if (turretSetPoint > -2.8 || turretSetPoint < 1.9) {
             turretSetAngle(Angles.clipRadians(
                             aimDiffVector.angle()
                                     - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
@@ -187,7 +193,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public boolean inShootingRange(){
-        return getGoalDistance(DistanceUnit.METER) > shootingMinRange || getGoalDistance(DistanceUnit.METER) < shootingMaxRange;
+        return getGoalDistance(DistanceUnit.METER) > shootingMinRange && getGoalDistance(DistanceUnit.METER) < shootingMaxRange;
     }
 
     public void takeStopOut(){
