@@ -137,7 +137,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
         double error = Angles.clipRadians(PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) - targetPose.getHeading(AngleUnit.RADIANS));
 
-        io.setFieldDriveMotorPower(-PIDDriveVector.y, PIDDriveVector.x, Range.clip(-turnController.calculate(error, 0), 0, rotationalSpeed), 90);
+        io.setFieldDriveMotorPower(-PIDDriveVector.y, PIDDriveVector.x, Range.clip(-turnController.calculate(error, 0), -rotationalSpeed, rotationalSpeed), 90);
 
         return AutoUtil.AutoActionState.RUNNING;
     }

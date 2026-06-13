@@ -102,6 +102,9 @@ public class Auto2 extends LinearOpMode{
 
         intake = new Intake(new IntakeIOReal(hardwareMap));
 
+        turret.resetTurretEncoder();
+        //turret.turretSetAngle(0, AngleUnit.DEGREES);
+
         AutoUtil.supplyOpModeActive(this::opModeIsActive);
 
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -113,6 +116,8 @@ public class Auto2 extends LinearOpMode{
 
 
         while (opModeInInit()) {
+
+            turret.periodic();
 
             if (gamepad2.dpadDownWasPressed() || gamepad2.dpadUpWasPressed()) {
                 int newIndex = (keySet.indexOf(currentOption) + (gamepad2.dpad_down ? 1 : -1)) % keySet.size();
@@ -146,7 +151,6 @@ public class Auto2 extends LinearOpMode{
         }
 
 
-
         isRed = options.get("Alliance") == Alliance.RED;
         isAudience = options.get("Starting Position") == StartPosition.AUDIENCE;
 
@@ -158,11 +162,12 @@ public class Auto2 extends LinearOpMode{
 
         if (!isAudience) {
             // the isRed in the X position is because the red auto DOES NOT WORK unless it has +4 inches. i dont know why. pls send help. :(
-            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.METER, isRed ? -1.5 : -1.6, -1, AngleUnit.DEGREES, 0)));
+            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.METER, -1.6, -1, AngleUnit.DEGREES, 0)));
         } else {
-            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, isRed ? 65 : 64, -24, AngleUnit.DEGREES, 0)));
+            PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 64, -24, AngleUnit.DEGREES, 180)));
         }
 
+//        Ligh22tManager.GoBildaLights.setLights(new double[]{0, 0, 0});
 
         periodicSet.add(drivetrain::periodic);
         periodicSet.add(PoseEstimator::periodic);
@@ -174,16 +179,19 @@ public class Auto2 extends LinearOpMode{
         periodicSet.add(() -> telemetry.addData("Drive Error", drivetrain.getDrivePIDError().magnitude()));
         periodicSet.add(() -> telemetry.addData("Pose", drivetrain.getPose().toString()));
         periodicSet.add(() -> telemetry.addData("Looptime", AutoUtil.getLoopTime()));
+        periodicSet.add(() -> telemetry.addData("turretpos", turret.getTurretPosition(AngleUnit.DEGREES)));
+        periodicSet.add(() -> telemetry.addData("turret setpoint", turret.getTurretSetpoint(AngleUnit.DEGREES)));
         periodicSet.add(() -> telemetry.update());
 
         if (options.get("Leave only") == LeaveOnly.ENABLED) {
             driveToShoot(false, true);
             return;
         } else {
-            driveToShoot(false, false);
+            //driveToShoot(false, false);
+            shootOnTheMove();
         }
 
-        shoot();
+        //shoot(false);
 
         ElapsedTime profiler = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
@@ -242,8 +250,10 @@ public class Auto2 extends LinearOpMode{
         }
 
         driveToShoot(false,cycleCount == driveCycles);
-        shoot();
+        shoot(cycleCount == driveCycles);
+        if (cycleCount == driveCycles && isAudience) leaveTriangle();
         cycleCount++;
+
     }
 
     //TODO: THIS POSITION WAS CHANGED FROM -10 -14 to -24 -24 FOR SHOOTER, CHANGE IF SHOOTER IS FIXED
@@ -257,40 +267,73 @@ public class Auto2 extends LinearOpMode{
 
                 intake.kickerGO(0.5);
                 intake.intakeGO(-0.5);
+                turret.setShooterVelocityTicks(2200);
+                turret.moveStopIn();
                 actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -24, -24, AngleUnit.DEGREES, 0)), 1));
                 AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3);
                 actionSet.clear();
                 actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -24, -24, AngleUnit.DEGREES, 225)),1));
                 AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
-
+                drivetrain.setDrivePowerZero();
                 actionSet.clear();
+                intake.kickerGO(0);
+                intake.intakeGO(0);
+                turret.setShooterVelocityTicks(2200);
+                turret.setShooterVelocityTicks(0);
             }else if(lastShootPos){
 
                 intake.kickerGO(0.5);
                 intake.intakeGO(-0.5);
-                actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -36, -18, AngleUnit.DEGREES, 241)),1));
+                turret.setShooterVelocityTicks(2200);
+                turret.moveStopIn();
+                actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -36, -18, AngleUnit.DEGREES, 239)),1));
                 AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3);
 
+                intake.kickerGO(0);
+                intake.intakeGO(0);
+                turret.setShooterVelocityTicks(2200);
+                turret.setShooterVelocityTicks(0);
+
                 actionSet.clear();
+                drivetrain.setDrivePowerZero();
             }else {
+                turret.periodic();
+                PoseEstimator.periodic();
                 intake.kickerGO(0.5);
+                turret.setShooterVelocityTicks(2200);
                 intake.intakeGO(-0.5);
-                actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -24, -24, AngleUnit.DEGREES, 225)),1));
+                //turret.turretAutoAimShootOnTheMove();
+                //turret.turretSetAngle(0, AngleUnit.DEGREES);
+                turret.moveStopIn();
+                actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -12, -16, AngleUnit.DEGREES, 220)),1));
+                //-4, -12. 270
                 AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 2);
                 actionSet.clear();
+                intake.kickerGO(0);
+                intake.intakeGO(0);
+                turret.setShooterVelocityTicks(2200);
+                drivetrain.setDrivePowerZero();
 
             }
         }else{
             actionSet.clear();
 
-            intake.intakeGO(-0.3);
-            actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 52, -14, AngleUnit.DEGREES, 0))));
-            AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 4);
+            intake.kickerGO(0.5);
+            turret.setShooterVelocityTicks(2200);
+            intake.intakeGO(-0.5);
+            turret.moveStopIn();
+            actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 52, -14, AngleUnit.DEGREES, 202))));
+            AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, isRed ? 1 : 4);
             actionSet.clear();
-            actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 52, -14, AngleUnit.DEGREES, 27))));
+            actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 52, -14, AngleUnit.DEGREES, 202))));
             AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
 
             actionSet.clear();
+            drivetrain.setDrivePowerZero();
+            intake.kickerGO(0);
+            turret.setShooterVelocityTicks(2200);
+            intake.intakeGO(0);
+            turret.setShooterVelocityTicks(0);
         }
 
     }
@@ -321,83 +364,104 @@ public class Auto2 extends LinearOpMode{
         actionSet.clear();
     }
 
-    public void aim() {
-        actionSet.clear();
 
-        actionSet.add(turret::autoAim);
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
+//    public void aim() {
+//        actionSet.clear();
+//
+//        actionSet.add(turret::autoAim);
+//        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
+//
+//        actionSet.clear();
+//    }
 
-        actionSet.clear();
-    }
-
-    public void compress() {
-        intake.kickerGO(0.5);
-        intake.intakeGO(-0.5);
-        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.005);
-        intake.kickerGO(0);
-        intake.intakeGO(0);
-    }
-
-    public void shoot() {
+    public void shoot(boolean lastShot) {
         List<Runnable> shootSet = new ArrayList<>(periodicSet);
+        turret.periodic();
+        PoseEstimator.periodic();
 //        shootSet.add(() -> turret.redirectorAimAtDistance());
         shootSet.add(() -> {
             //turret.autoAccelerate((-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
-
+            //turret.turretSetAngle(0, AngleUnit.DEGREES);
+            //turret.turretAutoAimShootOnTheMove();
+            turret.autoAccelerate();
+//            turret.turretSetAngle(isAudience ? -7 : 0, AngleUnit.DEGREES);
             if (Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
-                intake.kickerGO(-1);
+                intake.kickerGO(1);
                 intake.intakeGO(-1);
+                turret.takeStopOut();
+                turret.turretSetPower(0);
             } else {
                 intake.kickerGO(0);
                 intake.intakeGO(0);
+                turret.moveStopIn();
             }
+
         });
-        AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 1.55);
+        AutoUtil.runTimedLoop(shootSet, TimeUnit.MILLISECONDS, lastShot ? 1000 : 350);
+        actionSet.clear();
+        turret.turretSetPower(0);
         turret.setShooterVelocity(0);
+        //turret.hoodSetServoPosition(0.137);
     }
 
     public void intakeRow(int row) {
         actionSet.clear();
 
         double rowX = -36 + (24 * row);
+        //-36
         int[] ySequence;
 
-        if (row == 1) ySequence = new int[]{-28, -60, -28}; // Fix for row 1 going too far
+        if (row == 1) ySequence = new int[]{-28, -56, -28}; // Fix for row 1 going too far
+        else if(row == 2 && isRed){
+            ySequence = new int[]{-23, -62, -23}; // fix for row 2  being too close to the artifacts
+        }
         else {
-            ySequence = new int[]{-30, -64, -28};
+            ySequence = new int[]{-30, -66, -28};
         }
 
         //Go To Row
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, isAudience ? rowX + 3.5 : rowX, ySequence[0], AngleUnit.DEGREES, -75))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 0.8);
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, isAudience? rowX + 4: rowX, ySequence[0], AngleUnit.DEGREES, -75))));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, row == 1 ? 0.67 : 1.15);
+        turret.moveStopIn();
         actionSet.clear();
 
         drivetrain.drive(0, 0, 0);
 
         //Drive and Intake
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, isAudience ? rowX + 4 : rowX, ySequence[1], AngleUnit.DEGREES, -90))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, isAudience? rowX + 4: rowX, ySequence[1], AngleUnit.DEGREES, -90))));
         intake.intakeGO(-1);
-        turret.setShooterVelocity(-1);
-        intake.kickerGO(-0.5);
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.0);
+        intake.kickerGO(0.5);
+        turret.setShooterVelocityTicks(2000);
+        turret.moveStopIn();
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, row == 1 ? 0.8 : 1.1);
         actionSet.clear();
 
 
         //back up
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, isAudience ? rowX + 4 : rowX, ySequence[2], AngleUnit.DEGREES, -90))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, isAudience? rowX + 4: rowX, ySequence[2], AngleUnit.DEGREES, -90))));
+        //+4
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 0.8);
         actionSet.clear();
 
+        if(!isAudience && isRed && row == 2) {
+            //back up more
+            actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -2, ySequence[2], AngleUnit.DEGREES, -90))));
+            AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 0.4);
+            actionSet.clear();
+        }
+
+
         intake.intakeGO(0);
-        turret.setShooterVelocity(0);
         intake.kickerGO(0);
+        turret.moveStopIn();
     }
 
     public void humanPlayerIntake(){
 
         actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 44, -63, AngleUnit.DEGREES, 0))));
+        turret.moveStopIn();
         intake.intakeGO(-1);
-        intake.kickerGO(-0.5);
+        intake.kickerGO(0.5);
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3);
         actionSet.clear();
 
@@ -405,7 +469,7 @@ public class Auto2 extends LinearOpMode{
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.5);
         actionSet.clear();
 
-        turret.setShooterVelocity(0);
+        turret.setShooterVelocity(1000);
         intake.intakeGO(0);
         intake.kickerGO(0);
 
@@ -420,27 +484,28 @@ public class Auto2 extends LinearOpMode{
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 2);
         actionSet.clear();
         intake.intakeGO(-1);
-        intake.kickerGO(-1);
+        turret.moveStopIn();
+        intake.kickerGO(1);
         turret.setShooterVelocityTicks(-120);
 
         //drive
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 58, -63, AngleUnit.DEGREES, -80))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 60, -63, AngleUnit.DEGREES, -80))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.5);
         actionSet.clear();
 
         //drive
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 58, -52, AngleUnit.DEGREES, -80))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.5);
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 60, -52, AngleUnit.DEGREES, -80))));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
         actionSet.clear();
 
         //drive
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 61, -52, AngleUnit.DEGREES, -80))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.5);
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 65, -52, AngleUnit.DEGREES, -80))));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
         actionSet.clear();
 
-        //back up
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 61, -63, AngleUnit.DEGREES, -80))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.5);
+        //drive
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 65, -63, AngleUnit.DEGREES, -85))));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
         actionSet.clear();
         AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.5);
         intake.intakeGO(0);
@@ -464,30 +529,33 @@ public class Auto2 extends LinearOpMode{
     }
 
     public void intakeFromGate() {
+
         actionSet.clear();
+        turret.moveStopIn();
 
         //drive to gate opening pos midpoint
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 8, -32, AngleUnit.DEGREES, -90))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.5);
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 13, -24, AngleUnit.DEGREES, 225))));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.8);
         actionSet.clear();
 
         //drive to gate opening pos
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 8, -55, AngleUnit.DEGREES, -90))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3.5);
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 12, -57, AngleUnit.DEGREES, 235))));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3.6);
         actionSet.clear();
 
         //drive forward
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 13, -60, AngleUnit.DEGREES, 235))));
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 13, -59, AngleUnit.DEGREES, 235))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 2);
         actionSet.clear();
 
         //drive into gate
-        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 7.6, -62, AngleUnit.DEGREES, 235))));
-        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 0.1);
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 7, -62, AngleUnit.DEGREES, 235))));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 0.2);
         actionSet.clear();
         intake.intakeGO(-1);
-        intake.kickerGO(-1);
-        turret.setShooterVelocityTicks(-120);
+        intake.kickerGO(1);
+        turret.setShooterVelocityTicks(2200);
+        turret.moveStopIn();
 
         //back up
         actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 15, -61.5, AngleUnit.DEGREES, 245))));
@@ -496,7 +564,102 @@ public class Auto2 extends LinearOpMode{
         AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.5);
         intake.intakeGO(0);
         intake.kickerGO(0);
-        turret.setShooterVelocityTicks(0);
+        turret.setShooterVelocityTicks(2200);
+        actionSet.clear();
+
+        //back up to front of spike line
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 14, isRed ? -20 : -35, AngleUnit.DEGREES, 245))));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 0.5);
+        actionSet.clear();
+
+        if(!isAudience && isRed) {
+            //back up more
+            actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -2, -24, AngleUnit.DEGREES, -90))));
+            AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 0.2);
+            actionSet.clear();
+        }
+//        actionSet.clear();
+//
+//        //drive to gate opening pos midpoint
+//        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 8, -32, AngleUnit.DEGREES, -90))));
+//        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1.5);
+//        actionSet.clear();
+//
+////        //drive to gate opening pos
+////        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 6.75, -59, AngleUnit.DEGREES, -90))));
+////        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 3.5);
+////        actionSet.clear();
+//
+//        //drive forward
+//        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 13, -60, AngleUnit.DEGREES, 235))));
+//        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 2);
+//        actionSet.clear();
+//
+//        //drive into gate
+//        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 8, -60, AngleUnit.DEGREES, 235))));
+//        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 0.1);
+//
+//        actionSet.clear();
+//        intake.intakeGO(-1);
+//        intake.kickerGO(-1);
+//        turret.setShooterVelocityTicks(-120);
+//
+//        //back up
+//        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 15.5, -60, AngleUnit.DEGREES, 245))));
+//        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 1);
+//        actionSet.clear();
+//        AutoUtil.runTimedLoop(periodicSet, TimeUnit.SECONDS, 0.5);
+//        intake.intakeGO(0);
+//        intake.kickerGO(0);
+//        turret.setShooterVelocityTicks(0);
+//
+//        //back up
+//        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 9, -35, AngleUnit.DEGREES, 245))));
+//        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 0.5);
+//        actionSet.clear();
+//
+//
+
+    }
+
+    public void shootOnTheMove(){
+        actionSet.clear();
+        List<Runnable> shootSet = new ArrayList<>(periodicSet);
+        //actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -12, -15, AngleUnit.DEGREES, -90))));
+
+        actionSet.add(() -> drivetrain.driveToPoseControlledSpin(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -12, -15, AngleUnit.DEGREES, -90)), 0.6,0.5));
+        actionSet.add(()-> turret.turretAutoAimShootOnTheMoveAutoUtil(0.0));
+        shootSet.add(() -> {
+            //turret.autoAccelerate((-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
+            //turret.turretSetAngle(0, AngleUnit.DEGREES);
+            //turret.turretAutoAimShootOnTheMove();
+            turret.autoAccelerate();
+//            turret.turretSetAngle(isAudience ? -7 : 0, AngleUnit.DEGREES);
+            if (Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
+                intake.kickerGO(1);
+                intake.intakeGO(-1);
+                turret.takeStopOut();
+                turret.turretSetPower(0);
+            } else {
+                intake.kickerGO(0);
+                intake.intakeGO(0);
+                turret.moveStopIn();
+            }
+
+        });
+        //turret.autoAccelerate();
+//        if (Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < 1000) {
+//            intake.kickerGO(1);
+//            intake.intakeGO(-1);
+//            turret.takeStopOut();
+//            turret.turretSetPower(0);
+//        } else {
+//            intake.kickerGO(0);
+//            intake.intakeGO(0);
+//            turret.moveStopIn();
+//        }
+        AutoUtil.runActionsConcurrent(actionSet, shootSet, TimeUnit.SECONDS, 5);
+        actionSet.clear();
     }
 
     public void delay(TimeUnit timeUnit, double time){
@@ -506,5 +669,6 @@ public class Auto2 extends LinearOpMode{
     private Pose2D allianceFlip(boolean isRed, Pose2D pose){
         return PoseEstimator.allianceFlip(isRed, pose);
     }
+
 
 }

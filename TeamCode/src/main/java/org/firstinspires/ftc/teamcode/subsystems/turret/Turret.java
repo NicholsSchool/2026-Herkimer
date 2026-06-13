@@ -29,7 +29,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public static double acceleratorSetpoint = 2200; //make static for tuning
     public static double kLTP = 0.7, kLTI = 0.015, kLTD = 0.08;
     public static double hoodPosition;
-    public static double rotationalPrediction = 0.39;
+    public static double rotationalPrediction = 0.29;
     public static double rotationTranslationPrediction = -0.25;
 
 
@@ -198,6 +198,24 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public void takeStopOut(){
         io.setMechStopPosition(1.0);
+    }
+
+    //TAASOTMAU
+    public AutoUtil.AutoActionState turretAutoAimShootOnTheMoveAutoUtil(double turretManualOffset){
+        if (turretSetPoint > -2.8 || turretSetPoint < 1.9) {
+            turretSetAngle(Angles.clipRadians(
+                            aimDiffVector.angle()
+                                    - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
+                                    + Math.toRadians(180)
+                                    - (PoseEstimator.getRobotVelocityHeading()
+                                    * rotationalPrediction)
+                                    - getDeltaTheta() * rotationTranslationPrediction),
+                    AngleUnit.RADIANS, turretManualOffset);
+            return AutoUtil.AutoActionState.RUNNING;
+        }else{
+            turretSetAngle(inputs.turretAngle, AngleUnit.DEGREES, 0.0);
+            return AutoUtil.AutoActionState.RUNNING;
+        }
     }
 
     public double distanceFromTag(double rawDistance) {
