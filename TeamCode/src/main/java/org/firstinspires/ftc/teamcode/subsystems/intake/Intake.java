@@ -17,6 +17,20 @@ public class Intake extends SubsystemBase implements IntakeConstants {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
+
+//        if(getKickerCurrent() > kickerThreeBallCurrent){
+//            io.setLightPosition(greenLight);
+//        }else{
+//            io.setLightPosition(purpleLight);
+//        }
+    }
+
+    public double getKickerCurrent(){
+        return inputs.kickerCurrent;
+    }
+
+    public double getIntakeCurrent(){
+        return inputs.intakeCurrent;
     }
 
     public int getTurretPos(){

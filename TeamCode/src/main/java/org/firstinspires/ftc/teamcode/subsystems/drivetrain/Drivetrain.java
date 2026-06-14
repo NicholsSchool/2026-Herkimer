@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.math_utils.Vector;
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
+import com.qualcomm.robotcore.util.Range;
 
 @Config
 public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
@@ -31,6 +32,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
     private Vector drivePIDError = new Vector(0, 0);
     private double turnPIDError = 0.0;
     private Vector PIDDriveVector = new Vector(0, 0);
+    public double driveMultiplier = 0.8;
 
     public Drivetrain(DrivetrainIO io, HardwareMap hwMap){
         this.io = io;
@@ -50,7 +52,11 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
         io.setDriveMotorPower(y, x, turn);
     }
 
-    public void driveField(double y, double x, double turn, double headingOffset){io.setFieldDriveMotorPower(y, x ,turn, headingOffset);}
+    public void driveField(double y, double x, double turn, double headingOffset){io.setFieldDriveMotorPower(y * driveMultiplier, x * driveMultiplier,turn, headingOffset);}
+
+    public void setDriveMultiplier(double driveMultiplier){
+        this.driveMultiplier = driveMultiplier;
+    }
 
     public void eggPos(double pos1, double pos2) { io.setEggPos(pos1, pos2); }
 
@@ -100,10 +106,29 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
         return AutoUtil.AutoActionState.RUNNING;
     }
+    public void driveToPoseSchedulerless(Pose2D targetPose, double speed){
+        this.setpoint = targetPose;
 
-    public void somethingIDK(){
-      //  PoseEstimator.getPose()
+        Vector diffVector = new Vector(targetPose.getX(DistanceUnit.METER) - PoseEstimator.getPose().getX(DistanceUnit.METER),
+                targetPose.getY(DistanceUnit.METER) - PoseEstimator.getPose().getY(DistanceUnit.METER));
 
+        double driveMagnitudeX = drivePIDX.calculate(diffVector.x, 0);
+        double driveMagnitudeY = drivePIDY.calculate(diffVector.y, 0);
+
+        drivePIDError = diffVector;
+        turnPIDError = Angles.clipDegrees(inputs.imuHeading - targetPose.getHeading(AngleUnit.DEGREES));
+
+        PIDDriveVector = new Vector(
+
+                driveMagnitudeX * speed,
+                driveMagnitudeY * speed
+        );
+
+        PIDDriveVector.clipMagnitude(1.0);
+
+        double error = Angles.clipRadians(PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) - targetPose.getHeading(AngleUnit.RADIANS));
+
+        io.setFieldDriveMotorPower(-PIDDriveVector.y, PIDDriveVector.x, -turnController.calculate(error,0), 90);
     }
 
     public void setDrivePowerZero(){

@@ -32,10 +32,11 @@ public class CompTeleop extends OpMode {
     private FtcDashboard dashboard;
     private boolean isRed = false;
     public ElapsedTime time;
+    public double turretManualOffset = 0.0;
 
     @Override
     public void init(){
-        LightManager.inititalize(hardwareMap);
+        //LightManager.inititalize(hardwareMap);
         PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, false);//TODO: CHANGE B4 COMP PLSSSS DO NOT GO TO COMP WITH THIS TRUE
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
         intake = new Intake(new IntakeIOReal(hardwareMap));
@@ -77,18 +78,30 @@ public class CompTeleop extends OpMode {
         intake.periodic();
         PoseEstimator.periodic();
 
-        //field-oriented driving on controller1
-        drivetrain.driveField(gamepad1.left_stick_y * 0.5, gamepad1.left_stick_x * 0.5, gamepad1.right_stick_x * 0.5, isRed ? -Math.PI / 2 : Math.PI / 2);
-
-        telemetry.addData("drive + periodics time", time.time());
-
         //kickstand/climb on controller1
         if(gamepad1.x){
             drivetrain.eggPos(0.1,0.1);
         }else if(gamepad1.y){
             drivetrain.eggPos(0.9,0.9);
         }
-        telemetry.addData("climb time", time.time());
+
+
+        if(gamepad1.right_bumper){
+            if(isRed) {
+                drivetrain.driveToPoseSchedulerless(new Pose2D(DistanceUnit.INCH, 47, -33, AngleUnit.DEGREES, 0), 0.6);
+            }else{
+                drivetrain.driveToPoseSchedulerless(new Pose2D(DistanceUnit.INCH, 29, 33, AngleUnit.DEGREES, 180), 0.6);
+            }
+            //29, 33, 180 blue goal side
+            //49, 33,0 blue audience side
+        }else if(gamepad1.left_bumper){
+            if(isRed) {
+                drivetrain.driveToPoseSchedulerless(new Pose2D(DistanceUnit.INCH, 29, -33, AngleUnit.DEGREES, 180), 0.6);
+            }else{
+                drivetrain.driveToPoseSchedulerless(new Pose2D(DistanceUnit.INCH, 47, 33, AngleUnit.DEGREES, 0), 0.6);
+            }
+        }
+
 
         //reset the IMU to reset Field oriented on controller1
         if (gamepad1.dpad_up){
@@ -102,90 +115,69 @@ public class CompTeleop extends OpMode {
         telemetry.addData("resets time", time.time());
 
 
-        //Compact on controller2
-        if (gamepad2.y){
-            turret.moveStopIn();
-            intake.intakeGO(-1);
-            intake.kickerGO(-0.8);
-            turret.setShooterVelocityTicks(-250);
-            telemetry.addData("compact time", time.time());
-        }else if(gamepad2.b){
+        if(gamepad2.b){
             //intake on controller2
             turret.moveStopIn();
             intake.intakeGO(-0.7);
             turret.setShooterVelocity(-1);
             intake.kickerGO(.7);
-            telemetry.addData("intake time", time.time());
+            turret.setShooterVelocityTicks(2200);
 
         }else if(gamepad2.a){
             //outtake on controller2
             turret.takeStopOut();
             intake.intakeGO(0.5);
             intake.kickerGO(-0.5);
-            turret.setShooterVelocityTicks(-250);
-            telemetry.addData("outtake time", time.time());
+            turret.setShooterVelocityTicks(2200);
 
         }else if (gamepad2.right_trigger > 0.2) {
             turret.moveStopIn();
             turret.autoAccelerate();
-            if ((Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint())) < 100){
+            drivetrain.setDriveMultiplier(0.4);
+            if ((Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint())) < TurretConstants.SHOOT_SPEED_TOLERANCE){
                 intake.kickerGO(1);
                 turret.takeStopOut();
                 intake.intakeGO(-1);
             }else{
                 intake.kickerGO(0);
                 intake.intakeGO(0);
+                turret.setShooterVelocityTicks(2200);
             }
-
-            if (turret.getGoalDistance(DistanceUnit.METER) > 2.7){
-                //turret.autoAccelerate((-0.170795) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-205.98159 * (turret.getGoalDistance(DistanceUnit.METER))) + 109.14957);
-            }else{
-                //turret.autoAccelerate( (-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
-            }
-//            if(Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
-//                intake.kickerGO(1);
-//                turret.takeStopOut();
-//                intake.intakeGO(-1);
-//            } else {
-//                intake.kickerGO(0);
-//                turret.moveStopIn();
-//                intake.intakeGO(0);
-//            }
-//            intake.kickerGO(-0.9);
-//            intake.intakeGO(1);
-            telemetry.addData("auto shoot time", time.time());
         }else{
             //everything off
             turret.moveStopIn();
-            turret.setShooterVelocity(0);
             intake.intakeGO(0);
             intake.kickerGO(0);
-            // LightManager.LEDStrip.clear();
-
-            telemetry.addData("everything off time", time.time());
-
         }
 
-//        if(gamepad2.dpad_down){
-//            turret.turretSetAngle(90, AngleUnit.DEGREES);
-//        }else if(gamepad2.dpad_up){
-//            turret.turretSetAngle(45, AngleUnit.DEGREES);
-//        }else if(gamepad2.dpad_right){
-//            turret.turretSetAngle(-90, AngleUnit.DEGREES);
-//        }else if (gamepad2.dpad_left){
-//            turret.turretSetAngle(0, AngleUnit.DEGREES);
-//        }
+        if (gamepad1.a){
+            drivetrain.setDriveMultiplier(0.5);
+        }else if(gamepad2.right_trigger <= 0.2){
+            drivetrain.setDriveMultiplier(0.8);
+        }
+
+        if(!(gamepad1.left_bumper || gamepad1.right_bumper)) {
+            drivetrain.driveField(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, isRed ? -Math.PI / 2 : Math.PI / 2);
+        }
+
+        if (gamepad2.dpadUpWasPressed()){
+            turretManualOffset = turretManualOffset + 5.0;
+        }else if(gamepad2.dpadDownWasPressed()){
+            turretManualOffset = turretManualOffset - 5.0;
+        }
+
+        if(gamepad2.dpad_left){
+            turret.resetTurretEncoder();
+            turretManualOffset = 0.0;
+        }
 
         if (gamepad2.left_trigger > 0.2) {
             //turret.turretAutoAim();
-            turret.turretAutoAimShootOnTheMove();
+            turret.turretAutoAimShootOnTheMove(turretManualOffset);
             Logger.getLogger("CompTeleop Turret").info("Updated PID");
         } else {
             turret.turretSetPower(0);
         }
-
-        telemetry.addData("auto aim time", time.time());
-
 
         telemetry.addData("Turret Aim Error", turret.getAimError(AngleUnit.DEGREES));
         telemetry.addData("Turret Position", turret.getTurretPosition(AngleUnit.DEGREES));
@@ -197,9 +189,9 @@ public class CompTeleop extends OpMode {
         telemetry.addData("Shooter Velocity", turret.getShooterVelocity());
         telemetry.addData("Shooter Setpoint", turret.getAcceleratorSetpoint());
         telemetry.addData("full loop time", time.time());
-//        telemetry.addData("Color sensor 1 Values (RGB)", Arrays.toString(intake.getCS1Values()));
-//        telemetry.addData("Color sensor 2 Values (RGB)", Arrays.toString(intake.getCS2Values()));
-//        telemetry.addData("Color sensor 3 Values (RGB)", Arrays.toString(intake.getCS3Values()));
+        telemetry.addData("turret manual offset", turretManualOffset);
+        telemetry.addData("tube current", intake.getKickerCurrent());
+        telemetry.addData("intake current", intake.getIntakeCurrent());
 
         telemetry.addData("1. pos X", PoseEstimator.getPose().getX(DistanceUnit.INCH));
         telemetry.addData("2. pos Y", PoseEstimator.getPose().getY(DistanceUnit.INCH));

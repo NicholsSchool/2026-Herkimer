@@ -96,7 +96,7 @@ public class Auto2 extends LinearOpMode{
         options.put("Leave only", LeaveOnly.DISABLED);
 
         PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true);
-        LightManager.inititalize(hardwareMap);
+        //LightManager.inititalize(hardwareMap);
         turret = new Turret(new TurretIOReal(hardwareMap));
 
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
@@ -146,7 +146,7 @@ public class Auto2 extends LinearOpMode{
 
         }
 
-        LightManager.LEDStrip.clear();
+        //LightManager.LEDStrip.clear();
 
         isRed = options.get("Alliance") == Alliance.RED;
         isAudience = options.get("Starting Position") == StartPosition.AUDIENCE;
@@ -164,7 +164,7 @@ public class Auto2 extends LinearOpMode{
             PoseEstimator.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, isRed ? 65 : 64, -24, AngleUnit.DEGREES, 0)));
         }
 
-        LightManager.GoBildaLights.setLights(new double[]{0, 0, 0});
+        //LightManager.GoBildaLights.setLights(new double[]{0, 0, 0});
 
         periodicSet.add(drivetrain::periodic);
         periodicSet.add(PoseEstimator::periodic);
@@ -345,7 +345,7 @@ public class Auto2 extends LinearOpMode{
 //        shootSet.add(() -> turret.redirectorAimAtDistance());
         shootSet.add(() -> {
             //turret.autoAccelerate((-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
-            LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
+            //LightManager.LEDStrip.setRPMLights(-turret.getShooterVelocity(), -turret.getAcceleratorSetpoint());
             if (Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
                 intake.kickerGO(-1);
                 intake.intakeGO(-1);
@@ -355,7 +355,7 @@ public class Auto2 extends LinearOpMode{
             }
         });
         AutoUtil.runTimedLoop(shootSet, TimeUnit.SECONDS, 1.55);
-        LightManager.LEDStrip.clear();
+        //LightManager.LEDStrip.clear();
         turret.setShooterVelocity(0);
     }
 

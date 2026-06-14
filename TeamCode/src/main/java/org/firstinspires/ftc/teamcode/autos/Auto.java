@@ -96,7 +96,23 @@ public class Auto extends LinearOpMode{
         options.put("Leave only", LeaveOnly.DISABLED);
 
         PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, true);
-        LightManager.inititalize(hardwareMap);
+       //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        // LightManager.inititalize(hardwareMap);
         turret = new Turret(new TurretIOReal(hardwareMap));
 
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
@@ -151,7 +167,7 @@ public class Auto extends LinearOpMode{
 
         }
 
-        LightManager.LEDStrip.clear();
+        //LightManager.LEDStrip.clear();
 
         isRed = options.get("Alliance") == Alliance.RED;
         isAudience = options.get("Starting Position") == StartPosition.AUDIENCE;

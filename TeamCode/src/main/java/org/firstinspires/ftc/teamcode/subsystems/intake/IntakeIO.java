@@ -9,6 +9,8 @@ public interface IntakeIO {
 //        public int[] cS1Value  = {0,0,0};
 //        public int[] cS2Value  = {0,0,0};
 //        public int[] cS3Value  = {0,0,0};
+        public double intakeCurrent = 0.0;
+        public double kickerCurrent = 0.0;
 
     }
 
@@ -18,5 +20,6 @@ public interface IntakeIO {
     public default void setKickerPower (double power) {};
     public default int getTurretEncoder() {return 0;};
     public default void setTurretEncoder(){};
+    public default void setLightPosition (double position){};
 
 }

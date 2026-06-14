@@ -29,7 +29,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public static double acceleratorSetpoint = 2200; //make static for tuning
     public static double kLTP = 0.7, kLTI = 0.015, kLTD = 0.08;
     public static double hoodPosition;
-    public double rotationalPrediction = 0.35;
+    public double rotationalPrediction = 0.29;
     public double rotationTranslationPrediction = -0.25;
 
 
@@ -39,7 +39,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public Turret(TurretIO io) {
         this.io = io;
-        turretSetAngle(0.0, AngleUnit.DEGREES);
+        turretSetAngle(0.0, AngleUnit.DEGREES, 0.0);
         //turretPIDController.setIZone(AngleUnit.RADIANS.fromDegrees(12.0)); //Only uses I when error < 5deg
     }
 
@@ -54,6 +54,12 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public void periodic() {
 
         io.updateInputs(inputs);
+
+//        if(inShootingRange()){
+//            io.setLightPosition(0.0);
+//        }else{
+//            io.setLightPosition(0.28);
+//        }
 
         //aimTagDistance = Math.hypot((PoseEstimator .getPose().getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)), (PoseEstimator.getPose().getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
         //eventually i wanna use the distance from the center of the robot to the center of the goal rather than the aprilTag, but we would have to redo the regressions
@@ -102,8 +108,8 @@ public class Turret extends SubsystemBase implements TurretConstants {
         return Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2);
     }
 
-    public void turretSetAngle(double angle, AngleUnit unit) {
-        turretSetPoint = unit.toRadians(angle);
+    public void turretSetAngle(double angle, AngleUnit unit, double turretManualOffset) {
+        turretSetPoint = unit.toRadians(angle)  + Math.toRadians(turretManualOffset);
         turretPIDController.setSetpoint(turretSetPoint);
         turretPIDController.reset();
     }
@@ -121,15 +127,19 @@ public class Turret extends SubsystemBase implements TurretConstants {
         }
     }
 
-    public void turretAutoAimShootOnTheMove(){
-       turretSetAngle( Angles.clipRadians(
-               aimDiffVector.angle()
-                       - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
-                       + Math.toRadians(180)
-                       - (PoseEstimator.getRobotVelocityHeading()
-                       * rotationalPrediction)
-                       - getDeltaTheta() * rotationTranslationPrediction),
-               AngleUnit.RADIANS);
+    public void turretAutoAimShootOnTheMove(double turretManualOffset){
+        if (turretSetPoint > -2 || turretSetPoint < Math.PI/2) {
+            turretSetAngle(Angles.clipRadians(
+                            aimDiffVector.angle()
+                                    - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
+                                    + Math.toRadians(180)
+                                    - (PoseEstimator.getRobotVelocityHeading()
+                                    * rotationalPrediction)
+                                    - getDeltaTheta() * rotationTranslationPrediction),
+                    AngleUnit.RADIANS, turretManualOffset);
+        }else{
+            turretSetAngle(inputs.turretAngle, AngleUnit.DEGREES, 0.0);
+        }
     }
 
 
@@ -180,6 +190,14 @@ public class Turret extends SubsystemBase implements TurretConstants {
         io.setMechStopPosition(1.0);
     }
 
+    public boolean flywheelAtGoal(){
+        return Math.abs(getShooterVelocity() - getAcceleratorSetpoint()) < SHOOT_SPEED_TOLERANCE;
+    }
+
+    public boolean inShootingRange(){
+        return getGoalDistance(DistanceUnit.METER) > shootingMinRange && getGoalDistance(DistanceUnit.METER) < shootingMaxRange;
+    }
+
     public double distanceFromTag(double rawDistance) {
         return ((rawDistance) - 1.02857 / 25.34286);
     }
@@ -207,7 +225,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
         if (turretSetPoint < -Math.PI / 2 || turretSetPoint > Math.PI / 2) {
 //            turretSetPower(0);
         } else {
-            turretSetAngle(turretSetPoint, AngleUnit.RADIANS);
+            turretSetAngle(turretSetPoint, AngleUnit.RADIANS, 0.0);
         }
 
 
@@ -262,8 +280,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     public void autoAccelerate() {
         setShooterVelocityTicks(acceleratorSetpoint);
-        hoodSetServoPosition((0.105132 * (Math.pow(getGoalDistance(DistanceUnit.METER), 2))) - (0.535538 * getGoalDistance(DistanceUnit.METER)) + 0.98676);
-        //put hood auto here
+        //tape
+        hoodSetServoPosition(-0.0720368 * (Math.pow(getGoalDistance(DistanceUnit.METER), 2)) + (0.344157 * getGoalDistance(DistanceUnit.METER)) + 0.0680431);
+        //no tape
+        //hoodSetServoPosition((0.105132 * (Math.pow(getGoalDistance(DistanceUnit.METER), 2))) - (0.535538 * getGoalDistance(DistanceUnit.METER)) + 0.98676);
+
     }
 
 

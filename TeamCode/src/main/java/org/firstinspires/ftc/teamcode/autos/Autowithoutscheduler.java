@@ -37,12 +37,12 @@ public class Autowithoutscheduler extends LinearOpMode {
         PoseEstimator.periodic();
 
        // turret.turretSetAngle(45, AngleUnit.DEGREES);
-        turret.turretAutoAimShootOnTheMove();
+        turret.turretAutoAimShootOnTheMove(0.0);
         while(!turret.turretAtGoal()){
             turret.periodic();
             PoseEstimator.periodic();
 //            turret.turretSetAngle(45, AngleUnit.DEGREES);
-            turret.turretAutoAimShootOnTheMove();
+            turret.turretAutoAimShootOnTheMove(0.0);
         }
     }
 }
