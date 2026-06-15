@@ -202,7 +202,7 @@ public class Auto extends LinearOpMode{
         periodicSet.add(() -> telemetry.update());
 
         if (options.get("Leave only") == LeaveOnly.ENABLED) {
-            driveToShoot(false, true);
+            leaveOnly();
             return;
         } else {
             driveToShoot(false, false);
@@ -322,7 +322,7 @@ public class Auto extends LinearOpMode{
                 //turret.turretAutoAimShootOnTheMove();
                //turret.turretSetAngle(0, AngleUnit.DEGREES);
                 turret.moveStopIn();
-                actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -12, -16, AngleUnit.DEGREES, 220)),1));
+                actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, -12, -16, AngleUnit.DEGREES, 224)),1));
                 //-4, -12. 270
                 AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 2);
                 actionSet.clear();
@@ -542,6 +542,15 @@ public class Auto extends LinearOpMode{
         actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 0, -65, AngleUnit.DEGREES, 0))));
         AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 2);
 
+        actionSet.clear();
+    }
+
+    public void leaveOnly() {
+        actionSet.clear();
+
+        //drive to gate opening pos
+        actionSet.add(() -> drivetrain.driveToPose(allianceFlip(isRed, new Pose2D(DistanceUnit.INCH, 62, -48, AngleUnit.DEGREES, 180))));
+        AutoUtil.runActionsConcurrent(actionSet, periodicSet, TimeUnit.SECONDS, 5.5);
         actionSet.clear();
     }
 

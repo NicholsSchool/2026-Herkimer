@@ -104,11 +104,11 @@ public class CompTeleop extends OpMode {
 
 
         //reset the IMU to reset Field oriented on controller1
-        if (gamepad1.dpad_up){
-            PoseEstimator.resetIMU();
-        }
+       // if (gamepad2.back){
+       //     PoseEstimator.resetIMU();
+       // }
 
-        if (gamepad1.dpad_down){
+        if (gamepad2.back){
             PoseEstimator.resetPoseToAutoStart(isRed);
         }
 
@@ -143,6 +143,13 @@ public class CompTeleop extends OpMode {
                 intake.intakeGO(0);
                 turret.setShooterVelocityTicks(2200);
             }
+        }else if(gamepad2.x){
+            turret.takeStopOut();
+            intake.kickerGO(1);
+            intake.intakeGO(-1);
+            turret.setShooterVelocityTicks(2200);
+            turret.hoodSetServoPosition(0.454);
+            //1.9 m away
         }else{
             //everything off
             turret.moveStopIn();
@@ -203,6 +210,7 @@ public class CompTeleop extends OpMode {
 
         //FTC Dashboard telemetry packet
         drivetrain.sendDashboardPacket(dashboard);
+
 
     }
 }

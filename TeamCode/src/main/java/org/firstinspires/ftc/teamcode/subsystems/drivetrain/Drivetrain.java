@@ -17,6 +17,8 @@ import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
 import org.firstinspires.ftc.teamcode.math_utils.Vector;
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
+import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIOReal;
+
 import com.qualcomm.robotcore.util.Range;
 
 @Config
@@ -41,6 +43,7 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
         drivePIDY = new PIDController(kDP, kDI, kDD);
         drivePIDY.setIZone(0.5);
         turnController = new PIDController(2.3, 0.04, 0.2);
+        turret = new Turret(new TurretIOReal(hwMap));
     }
 
     @Override

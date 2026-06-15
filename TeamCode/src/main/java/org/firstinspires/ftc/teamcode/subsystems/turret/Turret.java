@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.subsystems.turret;
 
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.RobotAutoDriveByEncoder_Linear;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -34,7 +36,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
 
 //    public static double kVP = 1.0, kVI = 0.0, kVD = 0.0, kVF = 0.0;
-//    public static PIDFCoefficients shooterPIDF = new PIDFCoefficients(0.001,0.0,0.0,0.00055);
+//    public static PIDFCoefficients shooterPIDF = new PIDFCoefficients(0.001,0.0,0.0,0.00055);1
 //    public PIDFController shooterPIDController = new PIDFController(shooterPIDF);
 
     public Turret(TurretIO io) {
@@ -128,18 +130,23 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public void turretAutoAimShootOnTheMove(double turretManualOffset){
-        if (turretSetPoint > -2 || turretSetPoint < Math.PI/2) {
-            turretSetAngle(Angles.clipRadians(
+            double angle = Angles.clipRadians(
                             aimDiffVector.angle()
                                     - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
                                     + Math.toRadians(180)
                                     - (PoseEstimator.getRobotVelocityHeading()
                                     * rotationalPrediction)
-                                    - getDeltaTheta() * rotationTranslationPrediction),
-                    AngleUnit.RADIANS, turretManualOffset);
-        }else{
-            turretSetAngle(inputs.turretAngle, AngleUnit.DEGREES, 0.0);
-        }
+                                    - getDeltaTheta() * rotationTranslationPrediction);
+
+            double clippedAngle = Range.clip(angle, turretMin, turretMax);
+        turretSetAngle(clippedAngle, AngleUnit.RADIANS, turretManualOffset);
+//        turretSetAngle(Angles.clipRadians(
+//                            aimDiffVector.angle()
+//                                    - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
+//                                    + Math.toRadians(180)
+//                                    - (PoseEstimator.getRobotVelocityHeading()
+//                                    * rotationalPrediction)
+//                                    - getDeltaTheta() * rotationalPrediction), AngleUnit.RADIANS, turretManualOffset);
     }
 
 

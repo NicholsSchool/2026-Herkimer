@@ -25,8 +25,8 @@
 //    @Override
 //    public void init(){
 //        intake = new Intake(new IntakeIOReal(hardwareMap));
-//        turret = new Turret(new TurretIOReal(hardwareMap, intake));
-//        drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap));
+//        turret = new Turret(new TurretIOReal(hardwareMap));
+//        drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
 //        telemetry.setMsTransmissionInterval(50);
 //
 //    }
@@ -51,3 +51,4 @@
 //
 //
 //}
+///**/
