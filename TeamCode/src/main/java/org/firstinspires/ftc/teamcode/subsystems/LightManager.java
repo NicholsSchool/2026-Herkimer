@@ -23,9 +23,9 @@ public class LightManager {
 
         driver = hardwareMap.get(AdafruitNeoPixel.class, "NeoPixel");
         driver.initialize(LEDStrip.getLength(), 3);
-        gbLightTop = hardwareMap.get(Servo.class, "TopLight");
-        gbLightMiddle = hardwareMap.get(Servo.class, "MiddleLight");
-        gbLightBottom = hardwareMap.get(Servo.class, "BottomLight");
+        gbLightTop = hardwareMap.get(Servo.class, "topLight");
+        gbLightMiddle = hardwareMap.get(Servo.class, "middleLight");
+        gbLightBottom = hardwareMap.get(Servo.class, "bottomLight");
         updateTime.reset();
         runTime.reset();
 

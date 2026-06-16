@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems.turret;
 
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -31,6 +32,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public static double hoodPosition;
     public double rotationalPrediction = 0.35;
     public double rotationTranslationPrediction = -0.25;
+    public static double turretFeedForward = 0.073;
 
 
 //    public static double kVP = 1.0, kVI = 0.0, kVD = 0.0, kVF = 0.0;
@@ -75,7 +77,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
         turretPIDPower = (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2)) ? 0 :
                 -turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS));
 
-        turretSetPower(turretPIDPower + (TurretConstants.turretFeedForward * Math.signum(turretPIDPower)));
+        turretSetPower(turretPIDPower + (turretFeedForward * Math.signum(turretPIDPower)));
 
     }
 
@@ -88,6 +90,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
         }
     }
 
+    public void updatePIDController(){
+        turretPIDController.setPID(kTP, kTI, kTD);
+    }
+
     public void turretAutoAim(){
 
         turretSetPoint = Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + Math.toRadians(180));
@@ -95,7 +101,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
         turretPIDPower = (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2)) ? 0 :
                 -turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS));
 
-        turretSetPower(turretPIDPower + (TurretConstants.turretFeedForward * Math.signum(turretPIDPower)));
+        turretSetPower(turretPIDPower + (turretFeedForward * Math.signum(turretPIDPower)));
     }
 
     public boolean turretAtGoal(){
@@ -122,14 +128,15 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public void turretAutoAimShootOnTheMove(){
-       turretSetAngle( Angles.clipRadians(
-               aimDiffVector.angle()
-                       - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
-                       + Math.toRadians(180)
-                       - (PoseEstimator.getRobotVelocityHeading()
-                       * rotationalPrediction)
-                       - getDeltaTheta() * rotationTranslationPrediction),
-               AngleUnit.RADIANS);
+        double angle = Angles.clipRadians(
+                aimDiffVector.angle()
+                        - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
+                        + Math.toRadians(180)
+                        - (PoseEstimator.getRobotVelocityHeading()
+                        * rotationalPrediction)
+                        - getDeltaTheta() * rotationTranslationPrediction);
+       double clippedAngle = Range.clip(angle, turretMin, turretMax);
+       turretSetAngle(clippedAngle, AngleUnit.RADIANS);
     }
 
 

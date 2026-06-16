@@ -7,9 +7,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 public interface TurretConstants {
         public int frameWidth = 1280;
 
-        public double turretFeedForward = 0.073;
-
         public int DEFAULT_TAGID = 24;
+
+        public double turretMax = 1.75;
+        public double turretMin = -1.31;
 
         public Pose2D redTagPos = new Pose2D(DistanceUnit.INCH, -68, 68, AngleUnit.DEGREES, 0);
         public Pose2D blueTagPos = new Pose2D(DistanceUnit.INCH, -68, -68, AngleUnit.DEGREES, 0);

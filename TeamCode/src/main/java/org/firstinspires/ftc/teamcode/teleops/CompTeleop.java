@@ -65,6 +65,7 @@ public class CompTeleop extends OpMode {
             turret.setTagID(20);
            // LightManager.GoBildaLights.setLights(new double[] {LightManager.LightConstants.Blue, LightManager.LightConstants.Blue, LightManager.LightConstants.Blue});
         }
+        turret.setShooterVelocityTicks(2200);
 
     }
 
@@ -90,91 +91,44 @@ public class CompTeleop extends OpMode {
         }
         telemetry.addData("climb time", time.time());
 
-        //reset the IMU to reset Field oriented on controller1
-        if (gamepad1.dpad_up){
-            PoseEstimator.resetIMU();
-        }
-
-        if (gamepad1.dpad_down){
+        if (gamepad2.back){
             PoseEstimator.resetPoseToAutoStart(isRed);
         }
 
         telemetry.addData("resets time", time.time());
 
-
-        //Compact on controller2
-        if (gamepad2.y){
-            turret.moveStopIn();
-            intake.intakeGO(-1);
-            intake.kickerGO(-0.8);
-            turret.setShooterVelocityTicks(-250);
-            telemetry.addData("compact time", time.time());
-        }else if(gamepad2.b){
+        if(gamepad2.b){
             //intake on controller2
             turret.moveStopIn();
             intake.intakeGO(-0.7);
-            turret.setShooterVelocity(-1);
             intake.kickerGO(.7);
-            telemetry.addData("intake time", time.time());
 
         }else if(gamepad2.a){
             //outtake on controller2
             turret.takeStopOut();
             intake.intakeGO(0.5);
             intake.kickerGO(-0.5);
-            turret.setShooterVelocityTicks(-250);
-            telemetry.addData("outtake time", time.time());
 
         }else if (gamepad2.right_trigger > 0.2) {
             turret.moveStopIn();
             turret.autoAccelerate();
-            if ((Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint())) < 100){
+            if ((Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint())) < TurretConstants.SHOOT_SPEED_TOLERANCE){
                 intake.kickerGO(1);
                 turret.takeStopOut();
                 intake.intakeGO(-1);
-            }else{
+            }else {
                 intake.kickerGO(0);
                 intake.intakeGO(0);
+                turret.moveStopIn();
             }
-
-            if (turret.getGoalDistance(DistanceUnit.METER) > 2.7){
-                //turret.autoAccelerate((-0.170795) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-205.98159 * (turret.getGoalDistance(DistanceUnit.METER))) + 109.14957);
-            }else{
-                //turret.autoAccelerate( (-25.60276) * Math.pow(turret.getGoalDistance(DistanceUnit.METER), 2) + (-10.56292 * (turret.getGoalDistance(DistanceUnit.METER))) - 188.72173);
-            }
-//            if(Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint()) < TurretConstants.SHOOT_SPEED_TOLERANCE) {
-//                intake.kickerGO(1);
-//                turret.takeStopOut();
-//                intake.intakeGO(-1);
-//            } else {
-//                intake.kickerGO(0);
-//                turret.moveStopIn();
-//                intake.intakeGO(0);
-//            }
-//            intake.kickerGO(-0.9);
-//            intake.intakeGO(1);
-            telemetry.addData("auto shoot time", time.time());
         }else{
             //everything off
             turret.moveStopIn();
-            turret.setShooterVelocity(0);
             intake.intakeGO(0);
             intake.kickerGO(0);
-            // LightManager.LEDStrip.clear();
-
-            telemetry.addData("everything off time", time.time());
 
         }
 
-//        if(gamepad2.dpad_down){
-//            turret.turretSetAngle(90, AngleUnit.DEGREES);
-//        }else if(gamepad2.dpad_up){
-//            turret.turretSetAngle(45, AngleUnit.DEGREES);
-//        }else if(gamepad2.dpad_right){
-//            turret.turretSetAngle(-90, AngleUnit.DEGREES);
-//        }else if (gamepad2.dpad_left){
-//            turret.turretSetAngle(0, AngleUnit.DEGREES);
-//        }
 
         if (gamepad2.left_trigger > 0.2) {
             //turret.turretAutoAim();
