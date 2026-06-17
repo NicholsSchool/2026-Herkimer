@@ -18,11 +18,11 @@ public class Intake extends SubsystemBase implements IntakeConstants {
     public void periodic() {
         io.updateInputs(inputs);
 
-//        if(getKickerCurrent() > kickerThreeBallCurrent){
-//            io.setLightPosition(greenLight);
-//        }else{
-//            io.setLightPosition(purpleLight);
-//        }
+        if(getKickerCurrent() > kickerThreeBallCurrent){
+            io.setLightPosition(greenLight);
+        }else{
+            io.setLightPosition(purpleLight);
+        }
     }
 
     public double getKickerCurrent(){

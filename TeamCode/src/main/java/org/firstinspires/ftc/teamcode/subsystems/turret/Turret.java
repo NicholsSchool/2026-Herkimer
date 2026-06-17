@@ -57,11 +57,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
         io.updateInputs(inputs);
 
-//        if(inShootingRange()){
-//            io.setLightPosition(0.0);
-//        }else{
-//            io.setLightPosition(0.28);
-//        }
+        if(inShootingRange()){
+            io.setLightPosition(greenLight);
+        }else{
+            io.setLightPosition(0.0);
+        }
 
         //aimTagDistance = Math.hypot((PoseEstimator .getPose().getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)), (PoseEstimator.getPose().getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
         //eventually i wanna use the distance from the center of the robot to the center of the goal rather than the aprilTag, but we would have to redo the regressions

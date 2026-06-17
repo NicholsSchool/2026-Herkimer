@@ -67,6 +67,8 @@ public class CompTeleop extends OpMode {
            // LightManager.GoBildaLights.setLights(new double[] {LightManager.LightConstants.Blue, LightManager.LightConstants.Blue, LightManager.LightConstants.Blue});
         }
 
+        turret.setShooterVelocityTicks(2200);
+
     }
 
     @Override
@@ -100,7 +102,13 @@ public class CompTeleop extends OpMode {
             }else{
                 drivetrain.driveToPoseSchedulerless(new Pose2D(DistanceUnit.INCH, 47, 33, AngleUnit.DEGREES, 0), 0.6);
             }
+        }else if(gamepad1.b){
+        if(isRed) {
+            drivetrain.driveToPoseSchedulerless(new Pose2D(DistanceUnit.INCH, -16, 18, AngleUnit.DEGREES, 135), 0.6);
+        }else{
+            drivetrain.driveToPoseSchedulerless(new Pose2D(DistanceUnit.INCH, -16, -18, AngleUnit.DEGREES, 225 ), 0.6);
         }
+    }
 
 
         //reset the IMU to reset Field oriented on controller1
@@ -112,42 +120,35 @@ public class CompTeleop extends OpMode {
             PoseEstimator.resetPoseToAutoStart(isRed);
         }
 
-        telemetry.addData("resets time", time.time());
-
 
         if(gamepad2.b){
             //intake on controller2
             turret.moveStopIn();
             intake.intakeGO(-0.7);
-            turret.setShooterVelocity(-1);
             intake.kickerGO(.7);
-            turret.setShooterVelocityTicks(2200);
 
         }else if(gamepad2.a){
             //outtake on controller2
             turret.takeStopOut();
             intake.intakeGO(0.5);
             intake.kickerGO(-0.5);
-            turret.setShooterVelocityTicks(2200);
 
         }else if (gamepad2.right_trigger > 0.2) {
             turret.moveStopIn();
             turret.autoAccelerate();
             drivetrain.setDriveMultiplier(0.4);
-            if ((Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint())) < TurretConstants.SHOOT_SPEED_TOLERANCE){
-                intake.kickerGO(1);
+            if ((Math.abs(turret.getShooterVelocity() - turret.getAcceleratorSetpoint())) < TurretConstants.SHOOT_SPEED_TOLERANCE_TELE){
+                intake.kickerGO(0.8);
                 turret.takeStopOut();
-                intake.intakeGO(-1);
+                intake.intakeGO(-0.8);
             }else{
                 intake.kickerGO(0);
                 intake.intakeGO(0);
-                turret.setShooterVelocityTicks(2200);
             }
         }else if(gamepad2.x){
             turret.takeStopOut();
             intake.kickerGO(1);
             intake.intakeGO(-1);
-            turret.setShooterVelocityTicks(2200);
             turret.hoodSetServoPosition(0.454);
             //1.9 m away
         }else{
@@ -159,11 +160,13 @@ public class CompTeleop extends OpMode {
 
         if (gamepad1.a){
             drivetrain.setDriveMultiplier(0.5);
+        }else if(gamepad2.left_bumper){
+            drivetrain.setDriveMultiplier(0.5);
         }else if(gamepad2.right_trigger <= 0.2){
             drivetrain.setDriveMultiplier(0.8);
         }
 
-        if(!(gamepad1.left_bumper || gamepad1.right_bumper)) {
+        if(!(gamepad1.left_bumper || gamepad1.right_bumper || gamepad1.b)) {
             drivetrain.driveField(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, isRed ? -Math.PI / 2 : Math.PI / 2);
         }
 

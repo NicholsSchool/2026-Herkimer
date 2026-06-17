@@ -15,6 +15,8 @@ public interface TurretConstants {
         public double turretMax = 1.75;
         public double turretMin = -1.31;
 
+        public double greenLight = 0.45;
+
         public int DEFAULT_TAGID = 24;
 
         public Pose2D redTagPos = new Pose2D(DistanceUnit.INCH, -68, 68, AngleUnit.DEGREES, 0);
@@ -22,4 +24,5 @@ public interface TurretConstants {
         //prev : 66 in
 
         double SHOOT_SPEED_TOLERANCE = 200; //Tolerance for deciding if accelerator speed is great enough for kicker to feed artifacts
+        double SHOOT_SPEED_TOLERANCE_TELE = 120;
 }
