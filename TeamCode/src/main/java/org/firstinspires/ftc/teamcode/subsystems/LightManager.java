@@ -15,3 +15,6 @@ import java.util.stream.IntStream;
 public class LightManager {
 
 }
+
+//hamid the world will someday smite you for the horrific things you commited in this file
+//RIP LightManager Late 2025 - Early 2026

@@ -21,9 +21,10 @@ import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeIO;
 
 public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
 
+    //Drive motors
     DcMotorEx backRight, backLeft, frontRight, frontLeft;
-    //    Limelight3A LL;
-    //    Servo tLight, mLight, bLight;
+
+    //The two kickstands on the sides of our robot, they look like eggs (hence the name)
     Servo regg, legg;
 
     public Pose2D setpoint;
@@ -38,10 +39,6 @@ public class DrivetrainIOReal implements DrivetrainIO, DrivetrainConstants {
         regg = hwMap.get(Servo.class, "regg");
 
         setpoint = new Pose2D(DistanceUnit.METER, 0.0, 0.0, AngleUnit.RADIANS, 0.0);
-//
-//        tLight = hwMap.get(Servo.class, "tLight");
-//        mLight = hwMap.get(Servo.class, "mLight");
-//        bLight = hwMap.get(Servo.class, "bLight");
 
         frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);

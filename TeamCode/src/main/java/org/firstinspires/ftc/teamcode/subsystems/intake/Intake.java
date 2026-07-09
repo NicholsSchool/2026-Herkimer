@@ -33,10 +33,6 @@ public class Intake extends SubsystemBase implements IntakeConstants {
         return inputs.intakeCurrent;
     }
 
-    public int getTurretPos(){
-       return io.getTurretEncoder();
-    }
-
     public void intakeGO (double power){
         io.setIntakePower(power);
     }
@@ -44,20 +40,6 @@ public class Intake extends SubsystemBase implements IntakeConstants {
     public void kickerGO (double power){
         io.setKickerPower(power);
     }
-
-    public void resetTurretEncoder (){
-        io.setTurretEncoder();
-    }
-//
-//    public int[] getCS1Values(){
-//        return inputs.cS1Value;
-//    }
-//    public int[] getCS2Values(){
-//        return inputs.cS2Value;
-//    }
-//    public int[] getCS3Values(){
-//        return inputs.cS3Value;
-//    }
 
     //One must imagine new sequential command...
     public void nemo(){

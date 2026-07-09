@@ -30,6 +30,9 @@ public class Vision extends SubsystemBase {
         return inputs.distanceFromGoal;
     }
 
+    //We straight up don't use vision anymore to be honest, but these files
+    //stay in case someone wants to put a camera back on and mess with it
+
 
 
 

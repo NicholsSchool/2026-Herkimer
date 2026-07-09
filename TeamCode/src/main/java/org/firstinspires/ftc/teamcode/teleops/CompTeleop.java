@@ -5,13 +5,11 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.math_utils.PoseEstimator;
-import org.firstinspires.ftc.teamcode.subsystems.LightManager;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainIOReal;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
@@ -36,7 +34,6 @@ public class CompTeleop extends OpMode {
 
     @Override
     public void init(){
-        //LightManager.inititalize(hardwareMap);
         PoseEstimator.init(hardwareMap, new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.DEGREES, 0), false, false);//TODO: CHANGE B4 COMP PLSSSS DO NOT GO TO COMP WITH THIS TRUE
         drivetrain = new Drivetrain(new DrivetrainIOReal(hardwareMap), hardwareMap);
         intake = new Intake(new IntakeIOReal(hardwareMap));
@@ -61,10 +58,8 @@ public class CompTeleop extends OpMode {
 
         if (isRed) {
             turret.setTagID(24);
-           // LightManager.GoBildaLights.setLights(new double[] {LightManager.LightConstants.Red, LightManager.LightConstants.Red, LightManager.LightConstants.Red});
         } else {
             turret.setTagID(20);
-           // LightManager.GoBildaLights.setLights(new double[] {LightManager.LightConstants.Blue, LightManager.LightConstants.Blue, LightManager.LightConstants.Blue});
         }
 
         turret.setShooterVelocityTicks(2200);
@@ -94,8 +89,6 @@ public class CompTeleop extends OpMode {
             }else{
                 drivetrain.driveToPoseSchedulerless(new Pose2D(DistanceUnit.INCH, 29, 33, AngleUnit.DEGREES, 180), 0.6);
             }
-            //29, 33, 180 blue goal side
-            //49, 33,0 blue audience side
         }else if(gamepad1.left_bumper){
             if(isRed) {
                 drivetrain.driveToPoseSchedulerless(new Pose2D(DistanceUnit.INCH, 29, -33, AngleUnit.DEGREES, 180), 0.6);
@@ -110,16 +103,9 @@ public class CompTeleop extends OpMode {
         }
     }
 
-
-        //reset the IMU to reset Field oriented on controller1
-       // if (gamepad2.back){
-       //     PoseEstimator.resetIMU();
-       // }
-
         if (gamepad2.back){
             PoseEstimator.resetPoseToAutoStart(isRed);
         }
-
 
         if(gamepad2.b){
             //intake on controller2
@@ -205,11 +191,8 @@ public class CompTeleop extends OpMode {
 
         telemetry.addData("1. pos X", PoseEstimator.getPose().getX(DistanceUnit.INCH));
         telemetry.addData("2. pos Y", PoseEstimator.getPose().getY(DistanceUnit.INCH));
-//
-//        telemetry.addData("Turret Power", turret.getTurretPIDPower());
+
         telemetry.addData("Raw Turret Ticks", turret.getRawTurretPos());
-
-
 
         //FTC Dashboard telemetry packet
         drivetrain.sendDashboardPacket(dashboard);

@@ -40,8 +40,10 @@ import java.util.function.IntSupplier;
 public class TurretIOReal implements TurretIO, TurretConstants {
 
     //the actual shooter wheel (one motor on both sides attached to the same shaft)
-    DcMotorEx artifactAccelerator1, turretEncoder;
+    DcMotorEx artifactAccelerator1;
     DcMotorEx artifactAccelerator2;
+    //The encoder for our turret, it's signal wire is in the kicker motor's port
+    DcMotorEx turretEncoder;
     //the servos that turn our turret
     CRServo turretTurner1, turretTurner2;
     //the magnet sensor that acts as a limit switch for our turret
@@ -70,40 +72,19 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         artifactAccelerator1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         artifactAccelerator2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
         artifactAccelerator1.setVelocityPIDFCoefficients(kVP,kVI,kVD,kVF);
-//        artifactAccelerator2.setVelocityPIDFCoefficients(kVP,kVI,kVD,kVF);
-        //400, 60, 30, 50
 
         magnet.setMode(DigitalChannel.Mode.INPUT);
-//        List<AprilTagDetection> result = aprilTag.getDetections();
-//        if(!result.isEmpty()){
-//            for(AprilTagDetection tag: result){
-//                if(tag.id == TAGID){
-//                    inputs.tagDistance = tag.ftcPose.range;
-//                    inputs.tagX = tag.center.x;
-//                }
-//            }
-//        }else{
-//            inputs.tagX = (double)frameWidth / 2;
-//        }
-
-
-
     }
 
     @Override
     public void updateInputs (TurretIO.TurretIOInputs inputs){
         inputs.turretAngle = (turretEncoder.getCurrentPosition() / 7830.42222);
-                //7274.78146
-//        // /7848.15287
         inputs.magnetState = magnet.getState();
         inputs.rawTurretAngle = turretEncoder.getCurrentPosition();
         inputs.shooterVelocity = artifactAccelerator1.getVelocity();
         inputs.hoodAngle = hood.getPosition();
         inputs.turretPower = turretTurner1.getPower();
-
-         //make this a conversion ^
     }
 
     @Override

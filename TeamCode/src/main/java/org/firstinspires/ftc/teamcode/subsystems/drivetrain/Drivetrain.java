@@ -69,8 +69,6 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
     public Pose2D getPose() { return PoseEstimator.getPose(); }
 
-//    public void resetPID() { drivePID.reset(); turnController.reset(); }
-
     public AutoUtil.AutoActionState driveToPose(Pose2D targetPose) {
         return driveToPose(targetPose, AUTO_BASE_SPEED);
     }
@@ -142,9 +140,6 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
         return drivePIDError;
     }
 
-    public double getTurnPIDError(){
-        return turnPIDError;
-    }
 
     public void sendDashboardPacket(FtcDashboard dashboard) {
         TelemetryPacket packet = new TelemetryPacket();

@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+//What we would've used if we had a working swerve in time. You can probably guess what happened though
+
 public class Module {
     private DcMotorEx driveMotor;
     private AnalogInput turnEncoder;

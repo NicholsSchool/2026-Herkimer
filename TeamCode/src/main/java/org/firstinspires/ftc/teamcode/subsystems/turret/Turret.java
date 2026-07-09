@@ -22,27 +22,19 @@ public class Turret extends SubsystemBase implements TurretConstants {
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
     public static double kTP = 0.1, kTI = 0.0, kTD = 0.0;
-    //.6,0.015,0.05
-    //.7,0.015,0.08
     public PIDController turretPIDController = new PIDController(kTP, kTI, kTD);
     public boolean aimTagDetected = false;
     public Vector aimDiffVector = new Vector(0.0, 0.0);
     public Vector aimDiffVectorGhost = new Vector(0.0, 0.0);
     public static double acceleratorSetpoint = 2200; //make static for tuning
-    public static double kLTP = 0.7, kLTI = 0.015, kLTD = 0.08;
     public static double hoodPosition;
     public double rotationalPrediction = 0.29;
     public double rotationTranslationPrediction = -0.25;
 
 
-//    public static double kVP = 1.0, kVI = 0.0, kVD = 0.0, kVF = 0.0;
-//    public static PIDFCoefficients shooterPIDF = new PIDFCoefficients(0.001,0.0,0.0,0.00055);1
-//    public PIDFController shooterPIDController = new PIDFController(shooterPIDF);
-
     public Turret(TurretIO io) {
         this.io = io;
         turretSetAngle(0.0, AngleUnit.DEGREES, 0.0);
-        //turretPIDController.setIZone(AngleUnit.RADIANS.fromDegrees(12.0)); //Only uses I when error < 5deg
     }
 
     public double desiredVelocity = 0.0;
@@ -62,9 +54,6 @@ public class Turret extends SubsystemBase implements TurretConstants {
         }else{
             io.setLightPosition(0.0);
         }
-
-        //aimTagDistance = Math.hypot((PoseEstimator .getPose().getX(DistanceUnit.INCH) - inputs.aprilTagPos.getX(DistanceUnit.INCH)), (PoseEstimator.getPose().getY(DistanceUnit.INCH) - inputs.aprilTagPos.getY(DistanceUnit.INCH)));
-        //eventually i wanna use the distance from the center of the robot to the center of the goal rather than the aprilTag, but we would have to redo the regressions
 
         Pose2D turretCenter = new Pose2D(DistanceUnit.CM,
                 PoseEstimator.getPose().getX(DistanceUnit.CM) - (7.95 * Math.cos(PoseEstimator.getPose().getHeading(AngleUnit.RADIANS))),
@@ -115,7 +104,6 @@ public class Turret extends SubsystemBase implements TurretConstants {
         turretPIDController.setSetpoint(turretSetPoint);
         turretPIDController.reset();
     }
-//     io.turretSetPower(turretPIDController.calculate(inputs.turretAngle, angle));
 
     public void turretSetPower(double power) {
         io.turretSetPower(power);
@@ -129,31 +117,22 @@ public class Turret extends SubsystemBase implements TurretConstants {
         }
     }
 
-    public void turretAutoAimShootOnTheMove(double turretManualOffset){
-            double angle = Angles.clipRadians(
-                            aimDiffVector.angle()
-                                    - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
-                                    + Math.toRadians(180)
-                                    - (PoseEstimator.getRobotVelocityHeading()
-                                    * rotationalPrediction)
-                                    - getDeltaTheta() * rotationTranslationPrediction);
+    public void turretAutoAimShootOnTheMove(double turretManualOffset) {
+        double angle = Angles.clipRadians(
+                aimDiffVector.angle()
+                        - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
+                        + Math.toRadians(180)
+                        - (PoseEstimator.getRobotVelocityHeading()
+                        * rotationalPrediction)
+                        - getDeltaTheta() * rotationTranslationPrediction);
 
-            double clippedAngle = Range.clip(angle, turretMin, turretMax);
+        double clippedAngle = Range.clip(angle, turretMin, turretMax);
         turretSetAngle(clippedAngle, AngleUnit.RADIANS, turretManualOffset);
-//        turretSetAngle(Angles.clipRadians(
-//                            aimDiffVector.angle()
-//                                    - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS)
-//                                    + Math.toRadians(180)
-//                                    - (PoseEstimator.getRobotVelocityHeading()
-//                                    * rotationalPrediction)
-//                                    - getDeltaTheta() * rotationalPrediction), AngleUnit.RADIANS, turretManualOffset);
     }
-
 
     public double getTurretPower(){
         return inputs.turretPower;
     }
-
 
     public double getGoalDistance(DistanceUnit distanceUnit) {
         if (distanceUnit == DistanceUnit.INCH) {
@@ -175,7 +154,6 @@ public class Turret extends SubsystemBase implements TurretConstants {
     public double getDeltaTheta () {
         return aimDiffVectorGhost.angle() - aimDiffVector.angle();
     }
-
 
     public double getHoodAngle() {
         return inputs.hoodAngle;
@@ -209,17 +187,7 @@ public class Turret extends SubsystemBase implements TurretConstants {
         return ((rawDistance) - 1.02857 / 25.34286);
     }
 
-    //if (Math.abs(turretController.getPositionError()) > TURRET_THRESHOLD) {
-    //                    turretController.setMaxOutput(TURRET_LARGE_MAX_OUTPUT);
-    //                    turretController.setCoefficients(TURRET_LARGE_PIDF_COEFFICIENTS);
-    //                }
-    //                else {
-    //                    turretController.setCoefficients(TURRET_SMALL_PIDF_COEFFICIENTS);
-    //                    turretController.setMaxOutput(TURRET_SMALL_MAX_OUTPUT);
-    //                }
-
     public AutoUtil.AutoActionState autoAim() {
-
 
         turretSetPoint = Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + Math.toRadians(180));
         if (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2)) {
@@ -227,14 +195,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
             return AutoUtil.AutoActionState.FINISHED;
         }
 
-        //(Math.abs(getTurretPosition(AngleUnit.RADIANS) - (setPoint))
-
         if (turretSetPoint < -Math.PI / 2 || turretSetPoint > Math.PI / 2) {
 //            turretSetPower(0);
         } else {
             turretSetAngle(turretSetPoint, AngleUnit.RADIANS, 0.0);
         }
-
 
         return AutoUtil.AutoActionState.RUNNING;
 
@@ -248,19 +213,13 @@ public class Turret extends SubsystemBase implements TurretConstants {
         return inputs.shooterVelocity;
     }
 
-
     public double getRawTurretPos() {
         return inputs.rawTurretAngle;
     }
 
-//    public double getTurretSetpoint(){
-//        return Angles.clipDegrees(Math.toDegrees(aimTagDistance.angle()) - PoseEstimator.getPose().getHeading(AngleUnit.DEGREES));
-//    }
-
     public double getAimError(AngleUnit unit) {
         return (Math.abs(getTurretPosition(unit) - (unit.fromRadians(turretSetPoint))));
     }
-
 
     //IN M/S
     public void setShooterVelocity(double velocity) {
@@ -268,22 +227,17 @@ public class Turret extends SubsystemBase implements TurretConstants {
     }
 
     public void setShooterVelocityTicks(double velocity) {
-//        shooterPIDController.setSetPoint(velocity);
-//        io.shooterSetVelocity(shooterPIDController.calculate(inputs.shooterVelocity, velocity));
         io.shooterSetVelocity(velocity);
     }
 
     public double getAcceleratorSetpoint() {
         return acceleratorSetpoint;
-       // return shooterPIDController.getSetPoint();
     }
-
 
     public void runShooterForDistance() {
         desiredVelocity = 0.69 * (aimDiffVector.magnitude()) + 5.17699;
         setShooterVelocity(desiredVelocity);
     }
-
 
     public void autoAccelerate() {
         setShooterVelocityTicks(acceleratorSetpoint);
@@ -293,14 +247,6 @@ public class Turret extends SubsystemBase implements TurretConstants {
         //hoodSetServoPosition((0.105132 * (Math.pow(getGoalDistance(DistanceUnit.METER), 2))) - (0.535538 * getGoalDistance(DistanceUnit.METER)) + 0.98676);
 
     }
-
-
-
-
-//
-//    public double getRedirectorSetpoint() {
-//        return (-314.28571 * getGoalDistance(DistanceUnit.METER) + 290.47619);
-//    }
 
     public void resetTurretEncoder(){
         io.resetTurretEncoder(inputs);

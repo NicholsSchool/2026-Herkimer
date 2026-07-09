@@ -14,9 +14,10 @@ import org.firstinspires.ftc.teamcode.subsystems.turret.TurretIO;
 
 public class IntakeIOReal implements IntakeIO, IntakeConstants {
 
+    //intake and indexer motors
     DcMotorEx intakeMotor, kickerMotor;
 
-    RevColorSensorV3 cS1, cS2, cS3;
+    //bottom LED for driver feedback
     Servo bottomLight;
 
 
@@ -25,20 +26,12 @@ public class IntakeIOReal implements IntakeIO, IntakeConstants {
         intakeMotor = hwMap.get(DcMotorEx.class, "intake");
         kickerMotor = hwMap.get(DcMotorEx.class, "kicker");
         bottomLight = hwMap.get(Servo.class, "bottomLight");
-//
-//        cS1 = hwMap.get(RevColorSensorV3.class, "cS1");
-//        cS2 = hwMap.get(RevColorSensorV3.class, "cS2");
-//        cS3 = hwMap.get(RevColorSensorV3.class, "cS3");
 
     }
 
 
     @Override
     public void updateInputs (IntakeIO.IntakeIOInputs inputs){
-//        inputs.cS1Value = new int[]{cS1.red(),cS1.green(),cS1.blue()};
-//        inputs.cS2Value = new int[]{cS2.red(),cS2.green(),cS2.blue()};
-//        inputs.cS3Value = new int[]{cS3.red(),cS3.green(),cS3.blue()};
-
         inputs.intakeCurrent = intakeMotor.getCurrent(CurrentUnit.AMPS);
         inputs.kickerCurrent = kickerMotor.getCurrent(CurrentUnit.AMPS);
     }
@@ -56,11 +49,6 @@ public class IntakeIOReal implements IntakeIO, IntakeConstants {
     @Override
     public void setLightPosition(double position){
         bottomLight.setPosition(position);
-    }
-
-    @Override
-    public int getTurretEncoder(){
-        return intakeMotor.getCurrentPosition();
     }
 
     public void setTurretEncoder(){

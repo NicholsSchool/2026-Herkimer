@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.testTeleops.Scope;
 
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 
+//Us testing if we can use the FRC style IO layers
+// + maybe using Advantage Scope
+
 public class Arm extends SubsystemBase {
     private ArmIO io;
     private final ArmIO.ArmIOInputs inputs = new ArmIO.ArmIOInputs();
