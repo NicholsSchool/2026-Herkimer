@@ -36,16 +36,29 @@ public class IntakeIOReal implements IntakeIO, IntakeConstants {
         inputs.kickerCurrent = kickerMotor.getCurrent(CurrentUnit.AMPS);
     }
 
+    /**
+     * provides the given power to the intake motor
+     * @param power the power supplied to the intake motor
+     * */
     @Override
     public void setIntakePower(double power){
         intakeMotor.setPower(power);
     }
 
+    /**
+     * provides the given power to the kicker motor
+     * @param power the power supplied to the kicker motor
+     * */
     @Override
     public void setKickerPower(double power){
         kickerMotor.setPower(power);
     }
 
+    /**
+     * Sets the color of the lights based on the Servo position given
+     * (the lights are a Servo)
+     * @param position The position of the Servo
+     * */
     @Override
     public void setLightPosition(double position){
         bottomLight.setPosition(position);

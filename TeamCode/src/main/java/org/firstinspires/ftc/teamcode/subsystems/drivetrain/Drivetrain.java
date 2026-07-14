@@ -63,15 +63,31 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
     public void eggPos(double pos1, double pos2) { io.setEggPos(pos1, pos2); }
 
-    public double getIMU(){
-        return inputs.imuHeading;
-    }
-
+    /**
+     * @return the current position of the robot from PoseEstimator
+     * */
     public Pose2D getPose() { return PoseEstimator.getPose(); }
+
+    /**
+     * A method to autonomously drive the robot to a position on the field at its default speed
+     *
+     * @param targetPose The position to move the robot to
+     *
+     * @return an Auto Util ActionState which tells the Auto when it is finished
+     * */
 
     public AutoUtil.AutoActionState driveToPose(Pose2D targetPose) {
         return driveToPose(targetPose, AUTO_BASE_SPEED);
     }
+
+    /**
+     * A method to autonomously drive the robot to a position on the field
+     *
+     * @param targetPose The position to move the robot to
+     * @param speed The speed from 0-1 the robot will move at to the pose
+     *
+     * @return an Auto Util ActionState which tells the Auto when it is finished
+     * */
 
     public AutoUtil.AutoActionState driveToPose(Pose2D targetPose, double speed){
         this.setpoint = targetPose;
@@ -107,6 +123,14 @@ public class Drivetrain extends SubsystemBase implements DrivetrainConstants {
 
         return AutoUtil.AutoActionState.RUNNING;
     }
+
+    /**
+     * A method to autonomously drive the robot to a position on the field without the AutoUtil
+     *
+     * @param targetPose The position to move the robot to
+     * @param speed The speed from 0-1 the robot will move at to the pose
+     * */
+
     public void driveToPoseSchedulerless(Pose2D targetPose, double speed){
         this.setpoint = targetPose;
 

@@ -87,21 +87,42 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         inputs.turretPower = turretTurner1.getPower();
     }
 
+    /**
+     * Sets the velocity of the Shooter
+     * @param velocity The desired velocity
+     * */
+
     @Override
     public void shooterSetVelocity(double velocity){
         artifactAccelerator1.setVelocity(velocity);
         artifactAccelerator2.setVelocity(-velocity);
     }
 
+    /**
+     * Sets the color of the lights based on the Servo position given
+     * (the lights are a Servo)
+     * @param position The position of the Servo
+     * */
+
     @Override
     public void setLightPosition(double position){
         middleLight.setPosition(position);
     }
 
+    /**
+     * Sets the position of the Hood
+     * @param position The position to set the Hood to
+     * */
+
     @Override
     public void hoodSetPosition(double position){
         hood.setPosition(position);
     }
+
+    /**
+     * Sets power to the Turret Servos
+     * @param power The power given to the Servos
+     * */
 
     @Override
     public void turretSetPower(double power){
@@ -109,10 +130,22 @@ public class TurretIOReal implements TurretIO, TurretConstants {
         turretTurner1.setPower(-power);
 
     }
+
+    /**
+     * Sets the position of the Mechanical Stop
+     * @param pos The desired position of the Mechanical Stop
+     * */
+
     @Override
     public void setMechStopPosition(double pos){
         mechStop.setPosition(pos);
     }
+
+
+    /**
+     * Resets the Turret Encoder
+     * @param inputs Supply the TurretIO.TurretIOInputs here
+     * */
 
     @Override
     public void resetTurretEncoder(TurretIO.TurretIOInputs inputs){

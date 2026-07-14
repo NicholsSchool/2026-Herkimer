@@ -21,23 +21,14 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     private TurretIO io;
     private final TurretIO.TurretIOInputs inputs = new TurretIO.TurretIOInputs();
-    public static double kTP = 0.1, kTI = 0.0, kTD = 0.0;
     public PIDController turretPIDController = new PIDController(kTP, kTI, kTD);
-    public boolean aimTagDetected = false;
     public Vector aimDiffVector = new Vector(0.0, 0.0);
     public Vector aimDiffVectorGhost = new Vector(0.0, 0.0);
-    public static double acceleratorSetpoint = 2200; //make static for tuning
-    public static double hoodPosition;
-    public double rotationalPrediction = 0.29;
-    public double rotationTranslationPrediction = -0.25;
-
 
     public Turret(TurretIO io) {
         this.io = io;
         turretSetAngle(0.0, AngleUnit.DEGREES, 0.0);
     }
-
-    public double desiredVelocity = 0.0;
 
     public double tagID = DEFAULT_TAGID;
 
@@ -76,28 +67,47 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     }
 
+    /**
+     * Sets the AprilTag ID for which Tag we are tracking
+     * @param id the AprilTag ID
+     * */
     public void setTagID(int id) {
         tagID = id;
-        if (id == 24) {
+        if (id == redTagID) {
             inputs.aprilTagPos = TurretConstants.redTagPos;
-        } else if (id == 20) {
+        } else if (id == blueTagID) {
             inputs.aprilTagPos = TurretConstants.blueTagPos;
         }
     }
+
+    /**
+     * AutoAim without velocity prediction and Auto Util states
+     * */
 
     public void turretAutoAim(){
 
         turretSetPoint = Angles.clipRadians(aimDiffVector.angle() - PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + Math.toRadians(180));
 
-        turretPIDPower = (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2)) ? 0 :
+        turretPIDPower = (Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(turretAimThresholdDegrees)) ? 0 :
                 -turretPIDController.calculate(getTurretPosition(AngleUnit.RADIANS));
 
         turretSetPower(turretPIDPower + (TurretConstants.turretFeedForward * Math.signum(turretPIDPower)));
     }
 
+    /**
+     * @return a boolean for if the Turret is at the current SetPoint
+     * */
+
     public boolean turretAtGoal(){
         return Math.abs(getTurretPosition(AngleUnit.RADIANS) - (turretSetPoint)) < AngleUnit.RADIANS.fromDegrees(2);
     }
+
+    /**
+     * A go to position for the Turret Angle
+     * @param angle The angle to set the turret to
+     * @param unit The unit for the given angle
+     * @param turretManualOffset a variable to feed through the manual offset from TeleOp
+     * */
 
     public void turretSetAngle(double angle, AngleUnit unit, double turretManualOffset) {
         turretSetPoint = unit.toRadians(angle)  + Math.toRadians(turretManualOffset);
@@ -105,9 +115,20 @@ public class Turret extends SubsystemBase implements TurretConstants {
         turretPIDController.reset();
     }
 
+    /**
+     * provides raw power to the Turret Servos
+     * @param power the power supplied to the Turret Servos
+     * */
+
     public void turretSetPower(double power) {
         io.turretSetPower(power);
     }
+
+    /**
+     * Gets the current Turret Position
+     * @param angleUnit the Unit the angle will return in
+     * @return the current Turret position as a double
+     * */
 
     public double getTurretPosition(AngleUnit angleUnit) {
         if (angleUnit == AngleUnit.RADIANS) {
@@ -117,6 +138,11 @@ public class Turret extends SubsystemBase implements TurretConstants {
         }
     }
 
+
+    /**
+     * Automatically aims the Turret towards the goal, accounting for velocity and predicted rotational translation
+     * @param turretManualOffset a variable to feed through the manual offset from TeleOp
+     * */
     public void turretAutoAimShootOnTheMove(double turretManualOffset) {
         double angle = Angles.clipRadians(
                 aimDiffVector.angle()
@@ -130,9 +156,19 @@ public class Turret extends SubsystemBase implements TurretConstants {
         turretSetAngle(clippedAngle, AngleUnit.RADIANS, turretManualOffset);
     }
 
+    /**
+     * @return the power being given to the Turret servos
+     * */
+
     public double getTurretPower(){
         return inputs.turretPower;
     }
+
+    /**
+     * Gets the distance the Robot is away from the Goal
+     * @param distanceUnit The distance Unit the distance will be returned in (ONLY INCH OR METER)
+     * @return the distance the Robot is from the Goal
+     * */
 
     public double getGoalDistance(DistanceUnit distanceUnit) {
         if (distanceUnit == DistanceUnit.INCH) {
@@ -141,6 +177,10 @@ public class Turret extends SubsystemBase implements TurretConstants {
             return (aimDiffVector.magnitude() / 39.37);
         }
     }
+
+    /**
+     * @return The predicted position that the Robot will be at at any given time based off of the current velocity of the robot
+     * */
 
     public Pose2D predictedPosition(){
         return new Pose2D (
@@ -151,41 +191,71 @@ public class Turret extends SubsystemBase implements TurretConstants {
                 PoseEstimator.getPose().getHeading(AngleUnit.RADIANS) + PoseEstimator.getRobotVelocityHeading());
     }
 
+    /**
+     * @return The change in angle (delta theta) between the aim of the predicted velocity ghost and the actual robot
+     * */
+
     public double getDeltaTheta () {
         return aimDiffVectorGhost.angle() - aimDiffVector.angle();
     }
+
+    /**
+     * @return The current angle* the Hood is at *likely not in degrees
+     * */
 
     public double getHoodAngle() {
         return inputs.hoodAngle;
     }
 
+    /**
+     * Sets the angle of the Hood based on Servo position
+     * @param position The position to set the Hood to
+     * */
+
     public void hoodSetServoPosition(double position) {
         io.hoodSetPosition(position);
     }
 
-    public void hoodSetDashboardPosition(){
-        io.hoodSetPosition(hoodPosition);
-    }
+    /**
+     * Moves the Mechanical Stop in to block Artifact traffic
+     * */
 
     public void moveStopIn() {
-        io.setMechStopPosition(0.8);
+        io.setMechStopPosition(mechanicalStopIn);
     }
 
+    /**
+     * takes the Mechanical Stop out to resume Artifact traffic
+     * */
+
     public void takeStopOut(){
-        io.setMechStopPosition(1.0);
+        io.setMechStopPosition(mechanicalStopOut);
     }
 
     public boolean flywheelAtGoal(){
         return Math.abs(getShooterVelocity() - getAcceleratorSetpoint()) < SHOOT_SPEED_TOLERANCE;
     }
 
+    /**
+     * @return True if the Robot is within the preferred shooting range
+     * */
+
     public boolean inShootingRange(){
         return getGoalDistance(DistanceUnit.METER) > shootingMinRange && getGoalDistance(DistanceUnit.METER) < shootingMaxRange;
     }
 
+    /**
+     * @return The distance from the Robot to the AprilTag without accounting for the Turret not being in the center
+     * */
+
     public double distanceFromTag(double rawDistance) {
         return ((rawDistance) - 1.02857 / 25.34286);
     }
+
+    /**
+     * Autonomous Turret aiming without velocity prediction
+     * @return An Auto Util ActionState that tells the Auto if the action is finished
+     * */
 
     public AutoUtil.AutoActionState autoAim() {
 
@@ -205,39 +275,74 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     }
 
+    /**
+     * Gets the current Setpoint (desired position) of the Turret
+     * @param unit The unit the Setpoint will be returned in
+     * @return The current Turret Setpoint
+     * */
+
     public double getTurretSetpoint(AngleUnit unit) {
         return unit.fromRadians(turretSetPoint);
     }
+
+    /**
+     * Gets the current velocity the Shooter wheel is spinning at
+     * @return The current velocity of the Shooter in Ticks
+     * */
 
     public double getShooterVelocity() {
         return inputs.shooterVelocity;
     }
 
+    /**
+     * Gets the raw angle of the Turret (without the Ticks to Degrees regression) for tuning
+     * @return The raw angle of the Turret
+     * */
+
     public double getRawTurretPos() {
         return inputs.rawTurretAngle;
     }
+
+    /**
+     * Gets the aim error between the current Turret position and its desired position
+     * @param unit The unit the error will be returned in
+     * @return The aim error between the Turret and its Setpoint (desired position)
+     * */
 
     public double getAimError(AngleUnit unit) {
         return (Math.abs(getTurretPosition(unit) - (unit.fromRadians(turretSetPoint))));
     }
 
-    //IN M/S
+    /**
+     * Sets the Shooter velocity in METERS PER SECOND which we DON'T USE RIGHT NOW
+     * @param velocity The velocity IN M/S
+     * */
+
     public void setShooterVelocity(double velocity) {
         io.shooterSetVelocity(234.25 * velocity);
     }
+
+    /**
+     * Sets the Shooter velocity in TICKS which we DO USE
+     * @param velocity The velocity in Ticks
+     * */
 
     public void setShooterVelocityTicks(double velocity) {
         io.shooterSetVelocity(velocity);
     }
 
+    /**
+     * Gets the Setpoint of the Shooter wheel
+     * @return the current desired velocity of the flywheel
+     * */
+
     public double getAcceleratorSetpoint() {
         return acceleratorSetpoint;
     }
 
-    public void runShooterForDistance() {
-        desiredVelocity = 0.69 * (aimDiffVector.magnitude()) + 5.17699;
-        setShooterVelocity(desiredVelocity);
-    }
+    /**
+     * Automatically sets the velocity of the Shooter wheel and the Servo position of the Hood based off of the distance the robot is from the goal based on a regression
+     * */
 
     public void autoAccelerate() {
         setShooterVelocityTicks(acceleratorSetpoint);
@@ -248,6 +353,9 @@ public class Turret extends SubsystemBase implements TurretConstants {
 
     }
 
+    /**
+     * Resets the Turret encoder
+     * */
     public void resetTurretEncoder(){
         io.resetTurretEncoder(inputs);
     }
