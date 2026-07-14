@@ -29,30 +29,25 @@ public class PoseEstimator implements DrivetrainConstants {
     public static GoBildaPinpointDriver pinpoint;
 
     public static boolean useAT;
-//    public static AprilTagProcessor aprilTag;
-//    public static Optional<ArrayList<AprilTagDetection>> latestATResults = Optional.empty();
 
     /**
      * The Field-Relative Robot Pose.
      * @param hwMap OpMode Hardware Map passthrough for LL, OTOS, and Gyro initialization.
      * @param initialPose Pose2D for robot's initial field-relative position.
+     * @param useAT True if using a Camera/AprilTag system.
+     * @param forceReset resets the Pose to 0,0 before TeleOp. Turn true for testing just TeleOp, but do NOT EVER GO TO COMPETITION USING IT AS TRUE PLEASE MAKE IT FALSE
      */
     public static void init(HardwareMap hwMap, Pose2D initialPose, boolean useAT, boolean forceReset) {
-
-
 
         PoseEstimator.initialPose = initialPose;
         PoseEstimator.robotPose = initialPose;
         PoseEstimator.useAT = useAT;
         pinpoint = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.setOffsets(-1.9, -15.6, DistanceUnit.CM);
-        //used to be 4,17
         if (forceReset) pinpoint.setPosition(initialPose);
         pinpoint.initialize();
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.update();
-
-
 
         pinpoint.recalibrateIMU();
         pinpoint.update();
@@ -95,38 +90,81 @@ public class PoseEstimator implements DrivetrainConstants {
         while (opModeIsActive.getAsBoolean() || pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) {}
     }
 
+    /**
+     * resets the Heading of the Robot
+     * */
+
     public static void resetIMU(){
         pinpoint.setPosition( new Pose2D(DistanceUnit.INCH, getPose().getX(DistanceUnit.INCH), getPose().getY(DistanceUnit.INCH), AngleUnit.DEGREES, 0));
         pinpoint.update();
     }
+
+    /**
+     * resets the Pose of the Robot to the initial Pose of the Auto.
+     * */
 
     public static void resetPoseToAutoStart(boolean isRed){
         pinpoint.setPosition(allianceFlip(isRed, new Pose2D(DistanceUnit.METER, -1.6, -1, AngleUnit.DEGREES, 0)));
         pinpoint.update();
     }
 
+    /**
+     * Sets the Pose of the Robot to a different one (it sets it where it is, it does not move to this position).
+     * @param inputPose the Pose to set the current Pose to.
+     * */
+
     public static void setPosition(Pose2D inputPose){
         pinpoint.setPosition(inputPose);
         pinpoint.update();
     }
 
+    /**
+     * Gets the current Position of the Robot.
+     * @return A Pose2D of the current Position of the Robot.
+     * */
+
     public static Pose2D getPose() { return robotPose; }
+
+    /**
+     * Gets the current velocity of the Robot in the X direction.
+     * @return The current velocity of the Robot in the X direction.
+     * */
 
     public static double getRobotVelocityX(){
         return pinpoint.getVelX(DistanceUnit.METER);
     }
 
+    /**
+     * Gets the current velocity of the Robot in the Y direction.
+     * @return The current velocity of the Robot in the Y direction.
+     * */
+
     public static double getRobotVelocityY(){
         return pinpoint.getVelY(DistanceUnit.METER);
     }
+
+    /**
+     * Gets the current velocity of the Robot Heading.
+     * @return The current velocity of the Robot Heading in RADIANS.
+     * */
 
     public static double getRobotVelocityHeading(){
         return pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS);
     }
 
+    /**
+     * Gets a Pose2D of all of the current velocities of the robot to predict the next position of the Robot.
+     * @return A Pose2D of all of the current velocities of the robot.
+     * */
+
     public static Pose2D getRobotVelocity(){
         return new Pose2D(DistanceUnit.METER, getRobotVelocityX(), getRobotVelocityY(), AngleUnit.DEGREES, getRobotVelocityHeading());
     }
+
+    /**
+     * Updates the position of the Robot.
+     * */
+
     public static void periodic() {
         pinpoint.update();
 
@@ -156,12 +194,17 @@ public class PoseEstimator implements DrivetrainConstants {
         );
     }
 
-//    public static Optional<ArrayList<AprilTagDetection>> getATResults() {
-//        return latestATResults;
-//    }
-
+    /**
+     * Gets the current status of the Pinpoint.
+     * @return The current status of the Pinpoint.
+     * */
     public static GoBildaPinpointDriver.DeviceStatus getPinpointStatus() { return pinpoint.getDeviceStatus(); }
 
+
+    /**
+     * Flips a Pose to be on the other side of the field.
+     * @return A new Pose2D with the Y direction and angles flipped to account for being on the other side of the field
+     * */
     public static Pose2D allianceFlip(boolean red, Pose2D inputPose) {
         return new Pose2D(
                 DistanceUnit.INCH,
